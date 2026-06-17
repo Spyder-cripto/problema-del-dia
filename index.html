@@ -75,7 +75,7 @@
           color:var(--accent-2); background:color-mix(in srgb,var(--accent-2) 9%,transparent);
           border:1px solid color-mix(in srgb,var(--accent-2) 22%,transparent);
           border-radius:999px; padding:4px 12px}
-  .badges{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:16px}
+  .badges{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:20px}
   .tipo{display:inline-flex; align-items:center; font-size:.74rem; font-weight:500; letter-spacing:.02em;
         color:#fff; background:var(--accent); border-radius:999px; padding:4px 12px}
   .t-geo{background:#1f5fa6} .t-num{background:#2e7d4f} .t-log{background:#7a4ea6}
@@ -84,6 +84,7 @@
   .titulo-row h2{margin:0}
   .titulo-left{display:flex; align-items:center; gap:14px; min-width:0}
   .dibujo{flex:none; width:56px; height:56px; transform:rotate(-4deg)}
+  #dibujo2{transform:rotate(4deg)}
   .dibujo svg{width:100%; height:100%; display:block; filter:drop-shadow(0 2px 3px rgba(60,45,20,.18))}
   @media (max-width:480px){ .dibujo{width:46px; height:46px} }
   .dif{white-space:nowrap; font-size:.8rem; letter-spacing:3px; flex:none; cursor:help}
@@ -166,18 +167,19 @@
   </div>
 
   <article class="card" id="card">
-    <div class="badges">
-      <span class="tipo" id="tipo"></span>
-      <span class="fuente" id="fuente"></span>
-    </div>
     <div class="titulo-row">
       <div class="titulo-left">
         <span class="dibujo" id="dibujo" aria-hidden="true"></span>
         <h2 id="titulo"></h2>
+        <span class="dibujo" id="dibujo2" aria-hidden="true"></span>
       </div>
       <span class="dif" id="dif"></span>
     </div>
     <div class="enun" id="enun"></div>
+    <div class="badges">
+      <span class="tipo" id="tipo"></span>
+      <span class="fuente" id="fuente"></span>
+    </div>
     <div class="acciones">
       <button class="pistabtn" id="pistabtn1"><span>💭</span> Pista 1</button>
       <button class="pistabtn" id="pistabtn2"><span>💭</span> Pista 2</button>
@@ -531,7 +533,9 @@ function render(){
   dEl.title = "Dificultad: " + DIF_NOMBRE[d];
   document.getElementById('fuente').textContent = "Adaptado de: " + p.fuente;
   document.getElementById('titulo').textContent = p.titulo;
-  document.getElementById('dibujo').innerHTML = "<svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'>" + PAPEL + (DIBUJOS[idx] || DEFECTO) + "</svg>";
+  const svgDibujo = "<svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'>" + PAPEL + (DIBUJOS[idx] || DEFECTO) + "</svg>";
+  document.getElementById('dibujo').innerHTML = svgDibujo;
+  document.getElementById('dibujo2').innerHTML = svgDibujo;
   document.getElementById('enun').textContent = p.enun;
   document.getElementById('sol').innerHTML = p.sol;
   const fig = document.getElementById('solfig');
