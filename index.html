@@ -106,6 +106,12 @@
     h2{font-size:1.32rem}
     .meta{flex-direction:column; align-items:flex-start; gap:6px}
   }
+
+  .solfig{display:none; margin-top:16px}
+  .solfig.show{display:block}
+  .solfig svg{display:block; width:100%; height:auto; margin:0 auto;
+    background:color-mix(in srgb,var(--card) 55%,transparent);
+    border:1px solid var(--line); border-radius:10px; padding:12px}
 </style>
 </head>
 <body>
@@ -132,6 +138,7 @@
         <div class="sol-inner">
           <div class="sol-label">💡 Solución</div>
           <div id="sol"></div>
+          <div class="solfig" id="solfig"></div>
         </div>
       </div>
     </div>
@@ -162,13 +169,15 @@ const PROBLEMAS = [
     titulo:"La cinta alrededor del mundo",
     fuente:"Matemática para divertirse",
     enun:"Imagina una cinta de acero que ciñe ajustada el ecuador de una esfera del tamaño del Sol. Le añadimos un solo metro de longitud y repartimos esa holgura por igual en todo el contorno, de modo que la cinta se separa la misma distancia de la superficie en todos los puntos. ¿Qué cabría por ese hueco: una hoja de papel, una mano, una pelota? ¿Y si la esfera fuese una naranja?",
-    sol:"El hueco mide unos <b>15,9 cm</b>… ¡y es el mismo para el Sol que para la naranja! Al sumar 1 m a la circunferencia, el radio crece en 1/(2π) ≈ 0,159 m, sin que importe el tamaño de la esfera. Cabe una pelota holgada."
+    sol:"El hueco mide unos <b>15,9 cm</b>… ¡y es el mismo para el Sol que para la naranja! Al sumar 1 m a la circunferencia, el radio crece en 1/(2π) ≈ 0,159 m, sin que importe el tamaño de la esfera. Cabe una pelota holgada.",
+    fig:"<svg viewBox='0 0 220 205' xmlns='http://www.w3.org/2000/svg' style='max-width:240px'><circle cx='110' cy='112' r='70' style='fill:var(--accent);opacity:.10'/><circle cx='110' cy='112' r='70' style='fill:none;stroke:var(--muted);stroke-width:1.5'/><circle cx='110' cy='112' r='84' style='fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:5 4'/><line x1='110' y1='42' x2='110' y2='28' style='stroke:var(--ok);stroke-width:2.5'/><text x='118' y='25' style='fill:var(--ok);font-size:12px' font-family='Georgia,serif'>+15,9 cm</text><text x='110' y='116' style='fill:var(--muted);font-size:12px;text-anchor:middle' font-family='Georgia,serif'>astro</text><text x='110' y='200' style='fill:var(--muted);font-size:12px;text-anchor:middle' font-family='Georgia,serif'>el hueco no depende del tamaño del astro</text></svg>"
   },
   {
     titulo:"La barra de plata",
     fuente:"Matemática para divertirse",
     enun:"Tienes una barra de plata de 31 cm. Debes entregar 1 cm el primer día, 2 cm el segundo, y así hasta 31 cm el último; pero cada día puedes recibir cambio (devolver trozos ya entregados). ¿En cuántos pedazos, como mínimo, necesitas cortar la barra?",
-    sol:"<b>Cinco</b>: de 1, 2, 4, 8 y 16 cm. Con esas potencias de dos puedes componer cualquier total de 1 a 31 entregando y recuperando piezas. Es el sistema binario disfrazado de problema cotidiano."
+    sol:"<b>Cinco</b>: de 1, 2, 4, 8 y 16 cm. Con esas potencias de dos puedes componer cualquier total de 1 a 31 entregando y recuperando piezas. Es el sistema binario disfrazado de problema cotidiano.",
+    fig:"<svg viewBox='0 0 320 80' xmlns='http://www.w3.org/2000/svg' style='max-width:320px'><g style='stroke:var(--accent);fill:none;stroke-width:2'><rect x='20' y='26' width='9' height='30'/><rect x='29' y='26' width='18.1' height='30'/><rect x='47.1' y='26' width='36.1' height='30'/><rect x='83.2' y='26' width='72.3' height='30'/><rect x='155.5' y='26' width='144.5' height='30'/></g><g style='fill:var(--ink);font-size:12px;text-anchor:middle' font-family='Georgia,serif'><text x='24.5' y='20'>1</text><text x='38' y='20'>2</text><text x='65.1' y='45'>4</text><text x='119.3' y='45'>8</text><text x='227.7' y='45'>16</text></g><text x='160' y='73' style='fill:var(--muted);font-size:12px;text-anchor:middle' font-family='Georgia,serif'>1 + 2 + 4 + 8 + 16 = 31 cm</text></svg>"
   },
   {
     titulo:"La mosca y las bicicletas",
@@ -210,13 +219,15 @@ const PROBLEMAS = [
     titulo:"La estrella que no se deja deformar",
     fuente:"Juegos y enigmas de otros mundos",
     enun:"Dibuja una estrella de cinco puntas, todo lo torcida e irregular que quieras. ¿Podrías conseguir que la suma de sus cinco ángulos se aparte, aunque sea un grado, de los 180°?",
-    sol:"<b>No: siempre suman exactamente 180°.</b> Una demostración preciosa: desliza una cerilla a lo largo del contorno, haciéndola girar en cada punta hasta alinearla con el lado siguiente. Al completar la vuelta habrá dado <i>media vuelta justa</i> (180°), que es precisamente la suma de los cinco giros."
+    sol:"<b>No: siempre suman exactamente 180°.</b> Una demostración preciosa: desliza una cerilla a lo largo del contorno, haciéndola girar en cada punta hasta alinearla con el lado siguiente. Al completar la vuelta habrá dado <i>media vuelta justa</i> (180°), que es precisamente la suma de los cinco giros.",
+    fig:"<svg viewBox='0 0 200 210' xmlns='http://www.w3.org/2000/svg' style='max-width:210px'><circle cx='100' cy='95' r='80' style='fill:none;stroke:var(--line);stroke-width:1;stroke-dasharray:4 4'/><path d='M100,15 L147,159.7 L23.9,70.3 L176.1,70.3 L53,159.7 Z' style='fill:var(--accent);opacity:.08'/><path d='M100,15 L147,159.7 L23.9,70.3 L176.1,70.3 L53,159.7 Z' style='fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round'/><text x='100' y='202' style='fill:var(--muted);font-size:12px;text-anchor:middle' font-family='Georgia,serif'>los 5 ángulos suman siempre 180°</text></svg>"
   },
   {
     titulo:"El anillo de Neptuno",
     fuente:"Cuentos con acertijos de Ciencia Ficción",
     enun:"Una nave cruza en línea recta un anillo formado por dos círculos concéntricos: entra por el borde exterior, roza tangente el círculo interior y vuelve a salir por el exterior. Ese trayecto recto mide 200.000 km. ¿Cuál es el área del anillo… aunque nadie te diga cuánto valen los radios?",
-    sol:"<b>π × (100.000)² km².</b> Por el teorema de Pitágoras, R² − r² = (mitad de la cuerda)², de modo que el área del anillo, π(R² − r²), depende <i>solo</i> de la cuerda. Los radios desconocidos se cancelan como por arte de magia."
+    sol:"<b>π × (100.000)² km².</b> Por el teorema de Pitágoras, R² − r² = (mitad de la cuerda)², de modo que el área del anillo, π(R² − r²), depende <i>solo</i> de la cuerda. Los radios desconocidos se cancelan como por arte de magia.",
+    fig:"<svg viewBox='0 0 240 210' xmlns='http://www.w3.org/2000/svg' style='max-width:260px'><circle cx='120' cy='115' r='90' style='fill:none;stroke:var(--ink);stroke-width:1.5'/><circle cx='120' cy='115' r='52' style='fill:none;stroke:var(--muted);stroke-width:1.5;stroke-dasharray:4 4'/><line x1='46.5' y1='63' x2='193.5' y2='63' style='stroke:var(--accent);stroke-width:2'/><line x1='120' y1='115' x2='120' y2='63' style='stroke:var(--muted);stroke-width:1.5'/><line x1='120' y1='115' x2='193.5' y2='63' style='stroke:var(--accent-2);stroke-width:2'/><rect x='120' y='63' width='8' height='8' style='fill:none;stroke:var(--muted);stroke-width:1'/><g style='font-size:12px' font-family='Georgia,serif'><text x='124' y='95' style='fill:var(--ink)'>r</text><text x='158' y='82' style='fill:var(--accent-2)'>R</text><text x='148' y='57' style='fill:var(--accent)'>AC/2</text><text x='110' y='119' style='fill:var(--ink)'>O</text><text x='34' y='60' style='fill:var(--ink)'>A</text><text x='197' y='60' style='fill:var(--ink)'>C</text></g><text x='120' y='200' style='fill:var(--muted);font-size:12px;text-anchor:middle' font-family='Georgia,serif'>R² − r² = (AC/2)²  →  área = π·(AC/2)²</text></svg>"
   },
   {
     titulo:"El número que se describe a sí mismo",
@@ -234,7 +245,8 @@ const PROBLEMAS = [
     titulo:"Los cortes de la tarta",
     fuente:"Matemática para divertirse",
     enun:"Con un corte recto divides una tarta en 2 trozos. Con un segundo corte que cruce al primero obtienes 4; con un tercero bien colocado, 7. ¿Cuál es el máximo número de trozos que puedes conseguir con 6 cortes rectos?",
-    sol:"<b>22 trozos.</b> Cada nuevo corte n.º k añade como mucho k trozos, porque cruza a los k−1 cortes previos y queda partido en k tramos, y cada tramo divide un trozo en dos. Así: 1 → 2 → 4 → 7 → 11 → 16 → <b>22</b>. En general, n cortes dan 1 + n(n+1)/2 trozos."
+    sol:"<b>22 trozos.</b> Cada nuevo corte n.º k añade como mucho k trozos, porque cruza a los k−1 cortes previos y queda partido en k tramos, y cada tramo divide un trozo en dos. Así: 1 → 2 → 4 → 7 → 11 → 16 → <b>22</b>. En general, n cortes dan 1 + n(n+1)/2 trozos.",
+    fig:"<svg viewBox='0 0 330 130' xmlns='http://www.w3.org/2000/svg' style='max-width:330px'><g style='fill:none;stroke:var(--muted);stroke-width:1.5'><circle cx='50' cy='52' r='36'/><circle cx='165' cy='52' r='36'/><circle cx='280' cy='52' r='36'/></g><g style='stroke:var(--accent);stroke-width:2'><line x1='50' y1='16' x2='50' y2='88'/><line x1='135' y1='30' x2='195' y2='78'/><line x1='135' y1='78' x2='195' y2='30'/><line x1='248' y1='32' x2='312' y2='70'/><line x1='250' y1='74' x2='306' y2='34'/><line x1='268' y1='20' x2='284' y2='86'/></g><g style='fill:var(--ink);font-size:13px;text-anchor:middle' font-family='Georgia,serif'><text x='50' y='112'>2</text><text x='165' y='112'>4</text><text x='280' y='112'>7</text></g><text x='165' y='128' style='fill:var(--muted);font-size:12px;text-anchor:middle' font-family='Georgia,serif'>+1, +2, +3 … con 6 cortes → 22</text></svg>"
   },
   {
     titulo:"El apretón de manos",
@@ -265,8 +277,38 @@ const PROBLEMAS = [
     fuente:"Miscelánea matemática",
     enun:"Hay entre 100 y 200 vasos en fila; exactamente uno está envenenado. Puedes analizar mezclas de varios vasos a la vez (cada análisis dice solo si el veneno está o no en esa mezcla). El profesor le dice al comisario: «Elija usted el vaso que prefiera; lo analizaremos a solas en primer lugar». Resulta que ese análisis suelto a un único vaso no aumenta el número total de análisis necesarios en el peor de los casos. ¿Cuántos vasos había exactamente?",
     sol:"<b>129.</b> La estrategia óptima es la búsqueda binaria: partir el grupo por la mitad en cada análisis. Con 7 análisis se distinguen hasta 128 vasos; para 129 o más hacen falta 8. Analizar un vaso suelto al principio solo NO desperdicia ese análisis cuando, al descartarlo, quedan exactamente 128 (resolubles en 7). Es decir, cuando hay 128 + 1 = <b>129</b> vasos. Con cualquier otra cantidad del rango, esa primera prueba suelta saldría perdiendo."
+  },
+  {
+    titulo:"Los tres cuadrados",
+    fuente:"Miscelánea matemática",
+    enun:"Coloca tres cuadrados iguales en fila, pegados uno a otro. Desde la esquina inferior izquierda del primero, traza una recta a la esquina superior derecha de cada cuadrado: se forman tres ángulos con la base, llámalos α (el del primer cuadrado), β (el del segundo) y γ (el del tercero). Demuestra —sin usar trigonometría— que α = β + γ.",
+    sol:"<b>α = β + γ</b> (y además α vale 45°). La demostración elegante es puramente visual: los lados de los cuadrados generan parejas de triángulos rectángulos <i>semejantes</i>, y al trasladar los ángulos β y γ con esos triángulos, encajan sin hueco hasta completar exactamente α. Ni una fórmula: solo ver cómo dos piezas iguales rellenan la tercera. En números, 45° = 26,57° + 18,43°.",
+    fig:"<svg viewBox='0 0 320 155' xmlns='http://www.w3.org/2000/svg' style='max-width:320px'><g style='fill:none;stroke:var(--muted);stroke-width:1.5'><rect x='20' y='50' width='70' height='70'/><rect x='90' y='50' width='70' height='70'/><rect x='160' y='50' width='70' height='70'/></g><g style='stroke:var(--accent-2);stroke-width:2'><line x1='20' y1='120' x2='90' y2='50'/><line x1='20' y1='120' x2='160' y2='50'/><line x1='20' y1='120' x2='230' y2='50'/></g><g style='fill:var(--accent-2);font-size:13px' font-family='Georgia,serif'><text x='94' y='48'>α</text><text x='164' y='48'>β</text><text x='233' y='52'>γ</text></g><text x='160' y='148' style='fill:var(--muted);font-size:12px;text-anchor:middle' font-family='Georgia,serif'>α = β + γ   (45° = 26,57° + 18,43°)</text></svg>"
+  },
+  {
+    titulo:"La dama del lago",
+    fuente:"Miscelánea matemática",
+    enun:"Una joven rema hasta el centro de un lago perfectamente circular para huir de un hombre que la espera en la orilla. En tierra ella corre más rápido que él, pero remando avanza cuatro veces más lenta de lo que él corre. Si consigue tocar la orilla antes de que él llegue a ese punto, se salva. ¿Qué estrategia geométrica le permite escapar?",
+    sol:"Mientras esté a menos de un cuarto del radio del centro, ella puede <i>rotar</i> alrededor del centro más rápido (en ángulo) que el hombre corriendo por la orilla. Aprovecha eso para colocarse en el borde de ese círculo de radio r/4, justo en el punto diametralmente opuesto al hombre. Desde ahí le quedan 3r/4 hasta la orilla en línea recta; a él le queda media vuelta, πr ≈ 3,14·r. Como va a velocidad 4×, recorre 4·(3r/4) = 3r, menos que πr: ella llega antes y huye. La belleza está en cómo el número 4 encaja justo con π.",
+    fig:"<svg viewBox='0 0 240 235' xmlns='http://www.w3.org/2000/svg' style='max-width:250px'><circle cx='120' cy='115' r='95' style='fill:var(--accent-2);opacity:.08'/><circle cx='120' cy='115' r='95' style='fill:none;stroke:var(--accent-2);stroke-width:2'/><circle cx='120' cy='115' r='24' style='fill:none;stroke:var(--muted);stroke-width:1.5;stroke-dasharray:4 4'/><circle cx='120' cy='115' r='2.5' style='fill:var(--ink)'/><path d='M205,115 A95,95 0 0 1 25,115' style='fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:5 4'/><line x1='96' y1='115' x2='25' y2='115' style='stroke:var(--ok);stroke-width:2.5'/><circle cx='205' cy='115' r='4' style='fill:var(--accent)'/><circle cx='25' cy='115' r='3.5' style='fill:var(--ok)'/><g style='font-size:12px' font-family='Georgia,serif'><text x='102' y='110' style='fill:var(--muted)'>r/4</text><text x='52' y='108' style='fill:var(--ok)'>ella</text><text x='150' y='38' style='fill:var(--accent)'>él (×4)</text></g><text x='120' y='228' style='fill:var(--muted);font-size:12px;text-anchor:middle' font-family='Georgia,serif'>rema en círculo de radio r/4 y sale por el lado opuesto</text></svg>"
+  },
+  {
+    titulo:"El triángulo de perímetro fijo",
+    fuente:"Miscelánea matemática",
+    enun:"Desde un punto C exterior a una circunferencia trazas sus dos rectas tangentes, que la tocan en X e Y; cada tangente mide 10. Eliges un punto P cualquiera del arco XY y trazas la tangente por P, que corta a las dos rectas anteriores en A y B. ¿Cuánto mide el perímetro del triángulo ABC… y cuánto cambia al mover P?",
+    sol:"Es siempre <b>20</b>, y no cambia nada al mover P. Clave: las dos tangentes desde un mismo punto exterior miden lo mismo. Desde A: AX = AP. Desde B: BY = BP. Entonces el perímetro AB + BC + CA = (AP+PB) + (CY−BY) + (CX−AX) = CX + CY = 10 + 10 = <b>20</b>. Lo que P añade por un lado se descuenta por el otro: un invariante perfecto.",
+    fig:"<svg viewBox='0 0 280 200' xmlns='http://www.w3.org/2000/svg' style='max-width:290px'><circle cx='110' cy='100' r='55' style='fill:none;stroke:var(--muted);stroke-width:1.5'/><polygon points='165,64.3 165,135.7 245,100' style='fill:var(--accent);opacity:.10'/><g style='stroke:var(--accent-2);stroke-width:2;fill:none'><line x1='245' y1='100' x2='132.4' y2='49.7'/><line x1='245' y1='100' x2='132.4' y2='150.3'/></g><line x1='165' y1='64.3' x2='165' y2='135.7' style='stroke:var(--accent);stroke-width:2'/><g style='fill:var(--ink)' stroke='none'><circle cx='245' cy='100' r='3'/><circle cx='132.4' cy='49.7' r='2.5'/><circle cx='132.4' cy='150.3' r='2.5'/><circle cx='165' cy='100' r='2.5'/><circle cx='165' cy='64.3' r='2.5'/><circle cx='165' cy='135.7' r='2.5'/></g><g style='font-size:12px' font-family='Georgia,serif'><text x='250' y='104' style='fill:var(--ink)'>C</text><text x='120' y='47' style='fill:var(--ink)'>X</text><text x='120' y='162' style='fill:var(--ink)'>Y</text><text x='170' y='99' style='fill:var(--ink)'>P</text><text x='150' y='60' style='fill:var(--accent)'>A</text><text x='150' y='150' style='fill:var(--accent)'>B</text><text x='190' y='71' style='fill:var(--accent-2)'>10</text><text x='190' y='139' style='fill:var(--accent-2)'>10</text></g><text x='140' y='192' style='fill:var(--muted);font-size:12px;text-anchor:middle' font-family='Georgia,serif'>perímetro de ABC = 20, sea cual sea P</text></svg>"
   }
 ];
+
+// ====== ORDEN DE PUBLICACIÓN ======
+// Secuencia día -> índice en PROBLEMAS, diseñada para que los TIPOS se alternen
+// (nunca dos problemas de geometría en días consecutivos). Si añades nuevos
+// problemas al final de PROBLEMAS, se publican igualmente: se anexan solos al
+// final de la secuencia (aunque para mantener la alternancia, lo ideal es
+// insertar su índice en ORDEN en la posición adecuada).
+const ORDEN = [0,1,4,2,8,5,6,11,9,16,12,14,18,13,7,15,19,10,17,20,3];
+const SEQ = ORDEN.concat(PROBLEMAS.map((_,i)=>i).filter(i=>!ORDEN.includes(i)));
 
 // ====== LÓGICA ======
 const MS=86400000;
@@ -276,10 +318,10 @@ const hoyIdx = Math.max(0, Math.floor((aMedianoche(new Date()) - inicio)/MS));
 let viewIdx = hoyIdx;
 
 const fmt = new Intl.DateTimeFormat('es-ES',{weekday:'long', day:'numeric', month:'long', year:'numeric'});
+function problemaDe(i){ const N=SEQ.length; return PROBLEMAS[SEQ[((i%N)+N)%N]]; }
 
 function render(){
-  const N = PROBLEMAS.length;
-  const p = PROBLEMAS[((viewIdx % N)+N)%N];
+  const p = problemaDe(viewIdx);
   const fecha = new Date(inicio.getTime() + viewIdx*MS);
   document.getElementById('fecha').textContent = fmt.format(fecha);
   document.getElementById('num').textContent = "Nº " + (viewIdx+1);
@@ -287,6 +329,9 @@ function render(){
   document.getElementById('titulo').textContent = p.titulo;
   document.getElementById('enun').textContent = p.enun;
   document.getElementById('sol').innerHTML = p.sol;
+  const fig = document.getElementById('solfig');
+  if(p.fig){ fig.innerHTML = p.fig; fig.classList.add('show'); }
+  else { fig.innerHTML=''; fig.classList.remove('show'); }
   document.getElementById('solwrap').classList.remove('show');
   document.getElementById('verbtn').innerHTML = "<span>💡</span> Ver solución";
   document.getElementById('prev').disabled = (viewIdx<=0);
@@ -305,7 +350,7 @@ document.getElementById('prev').onclick = ()=>{ if(viewIdx>0){viewIdx--; render(
 document.getElementById('next').onclick = ()=>{ if(viewIdx<hoyIdx){viewIdx++; render();} };
 document.getElementById('hoy').onclick = ()=>{ viewIdx=hoyIdx; render(); };
 document.getElementById('share').onclick = async ()=>{
-  const N=PROBLEMAS.length, p=PROBLEMAS[((viewIdx%N)+N)%N];
+  const p=problemaDe(viewIdx);
   const url = location.href.split('#')[0];
   const b = document.getElementById('share');
   try{
