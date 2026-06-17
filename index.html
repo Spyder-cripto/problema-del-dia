@@ -241,6 +241,30 @@ const PROBLEMAS = [
     fuente:"Cuentos con acertijos de Ciencia Ficción",
     enun:"En una reunión cualquiera, la gente se da la mano sin ningún orden. Demuestra que el número de personas que han estrechado la mano un número <i>impar</i> de veces es siempre <i>par</i>.",
     sol:"Suma cuántas manos estrechó cada persona. Como cada apretón implica a dos personas, esa suma total es necesariamente <b>par</b>. Quienes saludaron un número par de veces aportan una cantidad par; al restarla del total (par), lo que aportan los demás también es par. Pero una suma de números impares solo es par si hay una cantidad <b>par</b> de ellos. Por tanto, los que saludaron un número impar de veces son un número par de personas."
+  },
+  {
+    titulo:"El número narcisista",
+    fuente:"Los mágicos números del doctor Matrix",
+    enun:"Busca un número de tres cifras que sea exactamente igual a la suma de los cubos de sus dígitos. (Para un número «abc» se calcula a³ + b³ + c³; por ejemplo, con 246 daría 2³ + 4³ + 6³ = 288, que no coincide.) ¿Cuántos números de tres cifras cumplen la condición?",
+    sol:"Hay <b>cuatro</b>: 153, 370, 371 y 407. Por ejemplo, 1³ + 5³ + 3³ = 1 + 125 + 27 = <b>153</b>. Se llaman <i>números narcisistas</i>: entre los de tres cifras, estos son los únicos que se reconstruyen a sí mismos con los cubos de sus dígitos."
+  },
+  {
+    titulo:"El microbio que llena el frasco",
+    fuente:"Cuentos con acertijos de Ciencia Ficción",
+    enun:"Metemos un único microbio en un frasco vacío. Cada hora, cada microbio se multiplica por siete. A las 50 horas el frasco está completamente lleno. ¿En qué hora estaba lleno justo a una séptima parte?",
+    sol:"<b>A las 49 horas.</b> Como cada hora la población se multiplica por 7, una hora <i>antes</i> de estar lleno había exactamente la séptima parte. No hace falta calcular ninguna potencia: basta retroceder un paso. El truco está en mirar el problema hacia atrás."
+  },
+  {
+    titulo:"La vuelta imposible",
+    fuente:"Juegos y enigmas de otros mundos",
+    enun:"Recorres una pista en bicicleta. La primera vuelta la das a 10 km/h. ¿A qué velocidad tienes que dar la segunda vuelta para que tu velocidad media en las dos vueltas sea de 20 km/h?",
+    sol:"<b>Es imposible</b> — haría falta velocidad infinita. Para promediar 20 km/h en las dos vueltas, el tiempo total tendría que ser el de recorrer esa distancia a 20 km/h… pero ya lo has gastado <i>entero</i> en la primera vuelta a 10 km/h. No queda ni un segundo para la segunda. La velocidad media no es el promedio de las velocidades, sino la distancia total dividida por el tiempo total."
+  },
+  {
+    titulo:"El vaso envenenado",
+    fuente:"Miscelánea matemática",
+    enun:"Hay entre 100 y 200 vasos en fila; exactamente uno está envenenado. Puedes analizar mezclas de varios vasos a la vez (cada análisis dice solo si el veneno está o no en esa mezcla). El profesor le dice al comisario: «Elija usted el vaso que prefiera; lo analizaremos a solas en primer lugar». Resulta que ese análisis suelto a un único vaso no aumenta el número total de análisis necesarios en el peor de los casos. ¿Cuántos vasos había exactamente?",
+    sol:"<b>129.</b> La estrategia óptima es la búsqueda binaria: partir el grupo por la mitad en cada análisis. Con 7 análisis se distinguen hasta 128 vasos; para 129 o más hacen falta 8. Analizar un vaso suelto al principio solo NO desperdicia ese análisis cuando, al descartarlo, quedan exactamente 128 (resolubles en 7). Es decir, cuando hay 128 + 1 = <b>129</b> vasos. Con cualquier otra cantidad del rango, esa primera prueba suelta saldría perdiendo."
   }
 ];
 
