@@ -298,6 +298,38 @@ const PROBLEMAS = [
     enun:"Desde un punto C exterior a una circunferencia trazas sus dos rectas tangentes, que la tocan en X e Y; cada tangente mide 10. Eliges un punto P cualquiera del arco XY y trazas la tangente por P, que corta a las dos rectas anteriores en A y B. ¿Cuánto mide el perímetro del triángulo ABC… y cuánto cambia al mover P?",
     sol:"Es siempre <b>20</b>, y no cambia nada al mover P. Clave: las dos tangentes desde un mismo punto exterior miden lo mismo. Desde A: AX = AP. Desde B: BY = BP. Entonces el perímetro AB + BC + CA = (AP+PB) + (CY−BY) + (CX−AX) = CX + CY = 10 + 10 = <b>20</b>. Lo que P añade por un lado se descuenta por el otro: un invariante perfecto.",
     fig:"<svg viewBox='0 0 280 200' xmlns='http://www.w3.org/2000/svg' style='max-width:290px'><circle cx='110' cy='100' r='55' style='fill:none;stroke:var(--muted);stroke-width:1.5'/><polygon points='165,64.3 165,135.7 245,100' style='fill:var(--accent);opacity:.10'/><g style='stroke:var(--accent-2);stroke-width:2;fill:none'><line x1='245' y1='100' x2='132.4' y2='49.7'/><line x1='245' y1='100' x2='132.4' y2='150.3'/></g><line x1='165' y1='64.3' x2='165' y2='135.7' style='stroke:var(--accent);stroke-width:2'/><g style='fill:var(--ink)' stroke='none'><circle cx='245' cy='100' r='3'/><circle cx='132.4' cy='49.7' r='2.5'/><circle cx='132.4' cy='150.3' r='2.5'/><circle cx='165' cy='100' r='2.5'/><circle cx='165' cy='64.3' r='2.5'/><circle cx='165' cy='135.7' r='2.5'/></g><g style='font-size:12px' font-family='Georgia,serif'><text x='250' y='104' style='fill:var(--ink)'>C</text><text x='120' y='47' style='fill:var(--ink)'>X</text><text x='120' y='162' style='fill:var(--ink)'>Y</text><text x='170' y='99' style='fill:var(--ink)'>P</text><text x='150' y='60' style='fill:var(--accent)'>A</text><text x='150' y='150' style='fill:var(--accent)'>B</text><text x='190' y='71' style='fill:var(--accent-2)'>10</text><text x='190' y='139' style='fill:var(--accent-2)'>10</text></g><text x='140' y='192' style='fill:var(--muted);font-size:12px;text-anchor:middle' font-family='Georgia,serif'>perímetro de ABC = 20, sea cual sea P</text></svg>"
+  },
+  {
+    titulo:"La distancia del azar",
+    fuente:"Circo Matemático",
+    enun:"Dos personas parten del mismo punto. Una da 70 pasos en direcciones totalmente al azar (cada paso de longitud 1); la otra da 30 pasos, también al azar. Al terminar, ¿qué distancia cabe esperar que las separe?",
+    sol:"<b>10 pasos.</b> Truco precioso: la separación entre los dos finales equivale a un único paseo aleatorio de 70 + 30 = 100 pasos (desandar el camino de una y encadenarlo con el de la otra da 100 pasos al azar). Y la distancia típica tras n pasos aleatorios es exactamente √n. Por tanto √100 = 10. Un problema que parece dificilísimo se resuelve casi sin cuentas.",
+    fig:"<svg viewBox='0 0 300 185' xmlns='http://www.w3.org/2000/svg' style='max-width:300px'><polyline points='150,155 128,128 152,108 118,86 142,62 102,54 92,46' style='fill:none;stroke:var(--accent-2);stroke-width:2'/><polyline points='150,155 176,134 164,108 200,98 216,80 230,74' style='fill:none;stroke:var(--accent);stroke-width:2'/><line x1='92' y1='46' x2='230' y2='74' style='stroke:var(--ok);stroke-width:2;stroke-dasharray:5 4'/><g stroke='none'><circle cx='150' cy='155' r='3' style='fill:var(--ink)'/><circle cx='92' cy='46' r='3.5' style='fill:var(--accent-2)'/><circle cx='230' cy='74' r='3.5' style='fill:var(--accent)'/></g><g style='font-size:11px' font-family='Georgia,serif'><text x='150' y='170' style='fill:var(--muted);text-anchor:middle'>salida común</text><text x='66' y='40' style='fill:var(--accent-2)'>70 pasos</text><text x='234' y='68' style='fill:var(--accent)'>30 pasos</text><text x='150' y='40' style='fill:var(--ok);text-anchor:middle'>≈ 10</text></g><text x='150' y='182' style='fill:var(--muted);font-size:12px;text-anchor:middle' font-family='Georgia,serif'>distancia media = √(70+30) = √100 = 10</text></svg>"
+  },
+  {
+    titulo:"El engaño de las potencias de dos",
+    fuente:"Circo Matemático",
+    enun:"Marca n puntos en una circunferencia y une cada par con un segmento recto (procurando que no se crucen tres en un mismo punto interior). El número máximo de regiones en que queda partido el círculo es 1, 2, 4, 8, 16 para n = 1, 2, 3, 4, 5… parece que se duplica cada vez. ¿Cuántas regiones salen con n = 6?",
+    sol:"<b>31, no 32.</b> ¡La duplicación se rompe justo aquí! La sucesión 1, 2, 4, 8, 16 invita a creer en 2ⁿ⁻¹, pero la fórmula verdadera es 1 + C(n,2) + C(n,4); para n = 6 da 1 + 15 + 15 = 31. Es el aviso clásico de que cinco casos «obvios» no demuestran nada: la pauta más tentadora puede ser falsa.",
+    fig:"<svg viewBox='0 0 330 110' xmlns='http://www.w3.org/2000/svg' style='max-width:330px' font-family='Georgia,serif'><g style='fill:none;stroke:var(--muted);stroke-width:1.5'><rect x='8' y='40' width='46' height='34' rx='6'/><rect x='61' y='40' width='46' height='34' rx='6'/><rect x='114' y='40' width='46' height='34' rx='6'/><rect x='167' y='40' width='46' height='34' rx='6'/><rect x='220' y='40' width='46' height='34' rx='6'/></g><rect x='273' y='40' width='46' height='34' rx='6' style='fill:none;stroke:var(--accent);stroke-width:2.5'/><g style='fill:var(--muted);font-size:10px;text-anchor:middle'><text x='31' y='32'>n=1</text><text x='84' y='32'>n=2</text><text x='137' y='32'>n=3</text><text x='190' y='32'>n=4</text><text x='243' y='32'>n=5</text><text x='296' y='32'>n=6</text></g><g style='fill:var(--ink);font-size:15px;text-anchor:middle'><text x='31' y='63'>1</text><text x='84' y='63'>2</text><text x='137' y='63'>4</text><text x='190' y='63'>8</text><text x='243' y='63'>16</text><text x='296' y='63' style='fill:var(--accent)'>31</text></g><text x='165' y='98' style='fill:var(--muted);font-size:12px;text-anchor:middle'>1, 2, 4, 8, 16 … ¿32?  →  31</text></svg>"
+  },
+  {
+    titulo:"Tres gatos, cien ratones",
+    fuente:"Matemática para divertirse",
+    enun:"Si tres gatos cazan tres ratones en tres minutos, ¿cuántos gatos hacen falta para cazar 100 ratones en 100 minutos?",
+    sol:"<b>Tres gatos.</b> La trampa es pensar que hacen falta 100. Pero «tres gatos, tres ratones, tres minutos» significa que entre los tres cazan un ratón por minuto. En 100 minutos, esos mismos tres gatos cazan 100 ratones. El número de gatos no cambia; lo único que cambia es el tiempo."
+  },
+  {
+    titulo:"Los resguardos del guardarropa",
+    fuente:"Juegos y enigmas de otros mundos",
+    enun:"Tres personas dejan su abrigo en el guardarropa, pero el encargado mezcla los tres resguardos y los reparte al azar. ¿Qué probabilidad hay de que al menos una persona reciba su propio resguardo?",
+    sol:"<b>2/3</b> (más de lo que sugiere la intuición). Hay 6 maneras de repartir los tres resguardos; en 4 de ellas al menos uno cae en su sitio, así que 4/6 = 2/3. Curiosidad bonita: es imposible que acierten <i>exactamente dos</i> (si dos están bien, el tercero también lo está). Y con muchísimas personas la probabilidad no tiende a cero, sino a 1 − 1/e ≈ 0,63."
+  },
+  {
+    titulo:"La ecuación del genio",
+    fuente:"Juegos y enigmas de otros mundos",
+    enun:"Demuestra que nᵃ + nᵇ = nᶜ no tiene solución en enteros positivos cuando la base n es mayor que 2. (Dicho de otro modo: una potencia de n nunca es la suma de otras dos potencias de n, si n > 2.)",
+    sol:"Mira los números en <b>base n</b>. Toda potencia de n se escribe como un 1 seguido de ceros (igual que 10, 100, 1000 en base 10). Si a = b, la suma nᵃ + nᵇ es «2 seguido de ceros»; para n > 2 ese 2 es un dígito válido, así que no es un 1-seguido-de-ceros: no es potencia de n. Si a ≠ b, la suma tiene <i>dos</i> unos en su escritura en base n: tampoco es potencia de n. En ambos casos, imposible. (Justo con n = 2 sí valdría: 2ᵃ + 2ᵃ = 2ᵃ⁺¹.)"
   }
 ];
 
@@ -307,7 +339,7 @@ const PROBLEMAS = [
 // problemas al final de PROBLEMAS, se publican igualmente: se anexan solos al
 // final de la secuencia (aunque para mantener la alternancia, lo ideal es
 // insertar su índice en ORDEN en la posición adecuada).
-const ORDEN = [0,1,4,2,8,5,6,11,9,16,12,14,18,13,7,15,19,10,17,20,3];
+const ORDEN = [0,1,4,2,8,5,6,12,9,7,10,11,18,22,14,21,19,15,13,3,20,16,25,23,24,17];
 const SEQ = ORDEN.concat(PROBLEMAS.map((_,i)=>i).filter(i=>!ORDEN.includes(i)));
 
 // ====== LÓGICA ======
