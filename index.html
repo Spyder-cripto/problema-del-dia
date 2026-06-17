@@ -80,6 +80,12 @@
     box-shadow:0 4px 14px rgba(154,111,46,.33); transition:transform .15s, box-shadow .15s}
   .verbtn:hover{transform:translateY(-1px); box-shadow:0 7px 18px rgba(154,111,46,.42)}
   .verbtn:active{transform:translateY(0)}
+  .acciones{display:flex; gap:10px; flex-wrap:wrap; margin-top:24px}
+  .acciones .verbtn{margin-top:0}
+  .pistabtn{display:inline-flex; align-items:center; gap:8px; font-size:1rem; font-weight:500;
+    color:var(--accent-2); background:none; border:1px solid color-mix(in srgb,var(--accent-2) 45%,transparent);
+    border-radius:11px; padding:12px 18px; transition:border-color .15s, background .15s}
+  .pistabtn:hover{border-color:var(--accent-2); background:color-mix(in srgb,var(--accent-2) 8%,transparent)}
 
   .sol-wrap{display:grid; grid-template-rows:0fr; margin-top:0;
             transition:grid-template-rows .38s ease, margin-top .38s ease}
@@ -90,6 +96,8 @@
   .sol-inner b{color:var(--ok)}
   .sol-label{display:flex; align-items:center; gap:7px; font-family:var(--display); font-weight:600;
              color:var(--ok); margin-bottom:6px; font-size:.95rem}
+  .pista-inner{border-left-color:var(--accent-2); background:color-mix(in srgb,var(--accent-2) 9%,transparent)}
+  .pista-label{color:var(--accent-2)}
 
   nav{display:flex; justify-content:center; align-items:center; gap:10px; margin-top:26px}
   nav button{background:var(--card); border:1px solid var(--line); color:var(--ink);
@@ -147,7 +155,18 @@
       <span class="dif" id="dif"></span>
     </div>
     <div class="enun" id="enun"></div>
-    <button class="verbtn" id="verbtn"><span>💡</span> Ver solución</button>
+    <div class="acciones">
+      <button class="pistabtn" id="pistabtn"><span>💭</span> Pista</button>
+      <button class="verbtn" id="verbtn"><span>💡</span> Ver solución</button>
+    </div>
+    <div class="sol-wrap pista-wrap" id="pistawrap">
+      <div class="sol">
+        <div class="sol-inner pista-inner">
+          <div class="sol-label pista-label"><span>💭</span> Pista</div>
+          <div id="pista"></div>
+        </div>
+      </div>
+    </div>
     <div class="sol-wrap" id="solwrap">
       <div class="sol">
         <div class="sol-inner">
@@ -387,6 +406,33 @@ const CLASE_TIPO = {"Geometría":"t-geo","Números":"t-num","Lógica":"t-log","P
 // Dificultad: 1 fácil, 2 media, 3 difícil (por índice en PROBLEMAS).
 const DIF = {0:2,1:2,2:2,3:3,4:2,5:3,6:1,7:3,8:2,9:2,10:3,11:2,12:2,13:2,14:1,15:1,16:2,17:3,18:3,19:3,20:2,21:3,22:3,23:1,24:2,25:3,26:2,27:2,28:1,29:1};
 const DIF_NOMBRE = {1:"Fácil",2:"Media",3:"Difícil"};
+// Pistas: solo para problemas de dificultad media o difícil (por índice en PROBLEMAS).
+const PISTAS = {
+  0:"No calcules con el tamaño del astro: fíjate solo en cuánto crece el radio cuando la longitud aumenta 1 metro. ¿Aparece el tamaño original en esa cuenta?",
+  1:"¿Qué conjunto de piezas permite formar cualquier cantidad entera, dando y devolviendo trozos? Piensa en cómo cuenta un ordenador.",
+  2:"No sumes los infinitos tramos de la mosca. Pregúntate cuánto tiempo tardan las bicicletas en encontrarse.",
+  3:"El total es n². Como el mayor cobra un billete de 10 € de más, el número de billetes es impar: ¿qué te dice eso sobre la cifra de las decenas de n²? Mira en qué cifras puede acabar n.",
+  4:"Si cada uno llama mentiroso a su vecino, ¿cómo se alternan veraces y mentirosos alrededor de la mesa? ¿Qué exige eso del número de comensales?",
+  5:"Cada nacimiento sigue siendo 50/50 hagan lo que hagan las familias. ¿Cambia eso la regla de parar al tener un varón?",
+  7:"La altura total es 1/2 + 1/3 + 1/4 + … Agrupa los términos (1/3+1/4, luego 1/5+1/6+1/7+1/8, …): ¿cuánto suma cada grupo como mínimo?",
+  8:"Imagina recorrer el contorno girando en cada punta hasta el lado siguiente. ¿Cuánto has girado en total al volver al inicio?",
+  9:"Traza el radio hasta el punto de tangencia y forma un triángulo rectángulo con media cuerda. Pitágoras: ¿qué relación queda entre R, r y la cuerda?",
+  10:"La suma de las diez cifras tiene que ser 10. Empieza por tantear cuántos ceros hay: si hay muchos, la primera cifra es grande.",
+  11:"La gracia está en los viajes de vuelta: a veces alguien debe regresar para no dejar mayoría de caníbales en una orilla. Prueba a empezar pasando dos caníbales.",
+  12:"¿Cuántos trozos añade cada corte nuevo? Cuenta a cuántos cortes anteriores cruza.",
+  13:"Suma cuántas manos estrechó cada persona. Como cada apretón se cuenta dos veces, esa suma es par. ¿Qué implica para los que saludaron un número impar de veces?",
+  16:"Calcula cuánto tiempo tendrías disponible para promediar 20 km/h… y compáralo con el que ya gastaste en la primera vuelta.",
+  17:"Con búsqueda binaria, ¿cuántos análisis hacen falta para 128 vasos? ¿Y para 129? Piensa cuándo gastar un análisis en un único vaso NO te cuesta nada de más.",
+  18:"Olvida la trigonometría. Busca triángulos rectángulos semejantes dentro de la figura: los dos ángulos pequeños 'caben' justos dentro del grande.",
+  19:"Mientras esté muy cerca del centro, ella puede girar alrededor de él más rápido (en ángulo) que el hombre por la orilla. ¿Hasta qué radio le dura esa ventaja?",
+  20:"Las dos tangentes trazadas desde un mismo punto exterior miden lo mismo. Aplica esa idea en A, en B y en C.",
+  21:"Si una de las dos personas 'desanda' su camino, ¿en qué se convierte la separación entre ambas? Y recuerda: la distancia típica tras n pasos al azar es √n.",
+  22:"No te fíes de 1, 2, 4, 8, 16. Dibuja con cuidado el caso de 6 puntos y cuenta las regiones de verdad, una a una…",
+  24:"Solo hay 6 maneras de repartir tres resguardos. Cuenta a mano en cuántas acierta al menos uno (o resta las que no acierta nadie).",
+  25:"Escribe las potencias de n en base n: ¿qué forma tienen? Luego fíjate en cómo queda la suma de dos de ellas en esa misma base.",
+  26:"El truco es que la tostadora no esté nunca a medio llenar. Una rebanada puede salir y volver más tarde para su segunda cara.",
+  27:"¿Qué responde a «¿eres veraz?» un mentiroso? ¿Y un veraz? Compara las dos respuestas y verás que la traducción del nativo bajo tiene que ser cierta."
+};
 
 // ====== LÓGICA ======
 const MS=86400000;
@@ -422,6 +468,13 @@ function render(){
   else { fig.innerHTML=''; fig.classList.remove('show'); }
   document.getElementById('solwrap').classList.remove('show');
   document.getElementById('verbtn').innerHTML = "<span>💡</span> Ver solución";
+  // pista (solo en dificultad media o difícil)
+  const pistaBtn = document.getElementById('pistabtn');
+  const tienePista = !!PISTAS[idx];
+  pistaBtn.style.display = tienePista ? "" : "none";
+  if(tienePista) document.getElementById('pista').innerHTML = PISTAS[idx];
+  document.getElementById('pistawrap').classList.remove('show');
+  pistaBtn.innerHTML = "<span>💭</span> Pista";
   document.getElementById('prev').disabled = (viewIdx<=0);
   document.getElementById('next').disabled = (viewIdx>=hoyIdx);
   document.getElementById('hoy').disabled = (viewIdx===hoyIdx);
@@ -433,6 +486,11 @@ document.getElementById('verbtn').onclick = ()=>{
   const w=document.getElementById('solwrap'), b=document.getElementById('verbtn');
   const abierto = w.classList.toggle('show');
   b.innerHTML = abierto ? "<span>🙈</span> Ocultar solución" : "<span>💡</span> Ver solución";
+};
+document.getElementById('pistabtn').onclick = ()=>{
+  const w=document.getElementById('pistawrap'), b=document.getElementById('pistabtn');
+  const abierto = w.classList.toggle('show');
+  b.innerHTML = abierto ? "<span>🙈</span> Ocultar pista" : "<span>💭</span> Pista";
 };
 document.getElementById('prev').onclick = ()=>{ if(viewIdx>0){viewIdx--; render();} };
 document.getElementById('next').onclick = ()=>{ if(viewIdx<hoyIdx){viewIdx++; render();} };
