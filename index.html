@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El problema matemático del día</title>
+<style>
+  :root{
+    --bg:#f4f1ea; --card:#fffdf8; --ink:#2b2620; --muted:#7a7367;
+    --accent:#8a6d3b; --accent2:#1a4f8b; --line:#e3ddd0; --ok:#2e6f4f;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#181613; --card:#221f1a; --ink:#ece6da; --muted:#9c9384;
+           --accent:#c8a36a; --accent2:#7fb0e6; --line:#332e26; --ok:#74c79c; }
+  }
+  *{box-sizing:border-box}
+  body{
+    font-family:Georgia,'Times New Roman',serif; background:var(--bg); color:var(--ink);
+    margin:0; line-height:1.65; padding:24px 16px 60px;
+  }
+  .wrap{max-width:720px; margin:0 auto}
+  header{text-align:center; margin-bottom:28px}
+  h1{font-size:1.7em; margin:0 0 4px; letter-spacing:.5px}
+  .tagline{color:var(--muted); font-size:.95em; font-style:italic}
+  .meta{display:flex; justify-content:space-between; align-items:center;
+        margin:18px 0 10px; gap:10px; flex-wrap:wrap}
+  .fecha{color:var(--muted); font-size:.9em; text-transform:capitalize}
+  .num{font-weight:bold; color:var(--accent)}
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:26px 26px 22px; box-shadow:0 6px 22px rgba(0,0,0,.06);
+  }
+  .fuente{display:inline-block; font-size:.78em; color:var(--accent2);
+          border:1px solid var(--line); border-radius:999px; padding:3px 11px; margin-bottom:14px}
+  h2{font-size:1.32em; margin:0 0 14px; line-height:1.3}
+  .enun{font-size:1.08em}
+  button{font-family:inherit; cursor:pointer}
+  .verbtn{
+    margin-top:20px; background:var(--accent); color:#fff; border:none;
+    border-radius:9px; padding:10px 18px; font-size:.98em; transition:opacity .15s;
+  }
+  .verbtn:hover{opacity:.88}
+  .sol{
+    margin-top:18px; padding:16px 18px; border-left:4px solid var(--ok);
+    background:rgba(46,111,79,.07); border-radius:0 8px 8px 0; display:none;
+  }
+  .sol.show{display:block}
+  .sol b{color:var(--ok)}
+  nav{display:flex; justify-content:space-between; align-items:center; margin-top:22px}
+  nav button{
+    background:transparent; border:1px solid var(--line); color:var(--ink);
+    border-radius:8px; padding:8px 14px; font-size:.92em;
+  }
+  nav button:disabled{opacity:.35; cursor:default}
+  .hoybtn{color:var(--accent2)}
+  footer{text-align:center; color:var(--muted); font-size:.82em; margin-top:34px; line-height:1.5}
+  footer a{color:var(--accent2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>El problema matemático del día</h1>
+    <div class="tagline">Un acertijo nuevo cada mañana — inspirados en Martin Gardner</div>
+  </header>
+
+  <div class="meta">
+    <span class="fecha" id="fecha"></span>
+    <span class="num" id="num"></span>
+  </div>
+
+  <div class="card">
+    <span class="fuente" id="fuente"></span>
+    <h2 id="titulo"></h2>
+    <div class="enun" id="enun"></div>
+    <button class="verbtn" id="verbtn">Ver solución</button>
+    <div class="sol" id="sol"></div>
+  </div>
+
+  <nav>
+    <button id="prev">◀ Anterior</button>
+    <button id="hoy" class="hoybtn">Hoy</button>
+    <button id="next">Siguiente ▶</button>
+  </nav>
+
+  <footer>
+    Acertijos adaptados (con redacción propia) de la obra de <b>Martin Gardner</b>.<br>
+    Publicación diaria automática · hecho con cariño matemático.
+  </footer>
+</div>
+
+<script>
+// ====== CONFIGURACIÓN ======
+// Fecha de inicio de la serie (el día 1). Ajústala si quieres empezar otro día.
+const INICIO = "2026-06-18";
+
+// ====== PROBLEMAS (reescritos, citando la fuente) ======
+const PROBLEMAS = [
+  {
+    titulo:"La cinta alrededor del mundo",
+    fuente:"Matemática para divertirse",
+    enun:"Imagina una cinta de acero que ciñe ajustada el ecuador de una esfera del tamaño del Sol. Le añadimos un solo metro de longitud y repartimos esa holgura por igual en todo el contorno, de modo que la cinta se separa la misma distancia de la superficie en todos los puntos. ¿Qué cabría por ese hueco: una hoja de papel, una mano, una pelota? ¿Y si la esfera fuese una naranja?",
+    sol:"El hueco mide unos <b>15,9 cm</b>… ¡y es el mismo para el Sol que para la naranja! Al sumar 1 m a la circunferencia, el radio crece en 1/(2π) ≈ 0,159 m, sin que importe el tamaño de la esfera. Cabe una pelota holgada."
+  },
+  {
+    titulo:"La barra de plata",
+    fuente:"Matemática para divertirse",
+    enun:"Tienes una barra de plata de 31 cm. Debes entregar 1 cm el primer día, 2 cm el segundo, y así hasta 31 cm el último; pero cada día puedes recibir cambio (devolver trozos ya entregados). ¿En cuántos pedazos, como mínimo, necesitas cortar la barra?",
+    sol:"<b>Cinco</b>: de 1, 2, 4, 8 y 16 cm. Con esas potencias de dos puedes componer cualquier total de 1 a 31 entregando y recuperando piezas. Es el sistema binario disfrazado de problema cotidiano."
+  },
+  {
+    titulo:"La mosca y las bicicletas",
+    fuente:"Matemática para divertirse",
+    enun:"Dos ciclistas separados por 20 km avanzan al encuentro, cada uno a 10 km/h. Una mosca parte del manillar de uno a 15 km/h, llega al otro, da media vuelta, regresa… y así sin descanso hasta que las ruedas se tocan. ¿Cuántos kilómetros recorre la mosca en total?",
+    sol:"<b>15 km.</b> No hace falta sumar infinitos tramos: los ciclistas tardan exactamente 1 hora en encontrarse, y la mosca vuela a 15 km/h durante esa hora. El truco está en cambiar la pregunta de «distancia» por «tiempo»."
+  },
+  {
+    titulo:"La herencia de las ovejas",
+    fuente:"Miscelánea matemática",
+    enun:"Dos hermanos venden su rebaño y reciben por cada oveja tantos euros como ovejas tenían. Cobran en billetes de 10 €, salvo un último resto menor de 10 € que reciben en monedas. Se reparten los billetes alternándose, y resulta que al mayor le tocan el primero y el último. Para compensar, el mayor da al menor las monedas y, como aún no basta, le firma un cheque que iguala exactamente las partes. ¿De cuánto es el cheque?",
+    sol:"<b>De 2 €.</b> El total es n² (n = número de ovejas). Que el mayor cobre un billete de más obliga a que la cifra de las decenas de n² sea impar, y eso solo ocurre si n termina en 4 o en 6 — en ambos casos n² acaba en 6. Así que el resto en monedas fue de 6 €. El menor sigue 4 € por detrás; la mitad de esa diferencia es el cheque: 2 €."
+  },
+  {
+    titulo:"La mesa de mentirosos",
+    fuente:"Miscelánea matemática",
+    enun:"Alrededor de una mesa redonda, cada comensal es siempre veraz o siempre mentiroso. Preguntados uno a uno, todos afirman: «mi vecino de la izquierda es un mentiroso». El presidente asegura que eran 37; el secretario, que tacha al presidente de mentiroso, dice que eran 40. ¿Cuántos había en realidad?",
+    sol:"<b>40.</b> Si todos llaman mentiroso a su vecino, veraces y mentirosos tienen que <i>alternarse</i> alrededor de la mesa, lo que exige un número <b>par</b> de comensales. 37 es impar, luego el presidente miente; y el secretario, que lo desmiente, dice la verdad: 40."
+  },
+  {
+    titulo:"La proporción de sexos",
+    fuente:"Miscelánea matemática",
+    enun:"Un gobernante decreta que cada familia siga teniendo hijos mientras nazcan niñas, y se detenga en cuanto nazca un varón. Con el paso de las generaciones, ¿acabará habiendo más mujeres que hombres en el país? (Cada nacimiento es niño o niña al 50 %.)",
+    sol:"<b>No: la proporción se mantiene 1:1.</b> La regla cambia el tamaño de las familias, pero no la probabilidad de cada nacimiento, que sigue siendo mitad y mitad. De hecho, cada familia termina con exactamente un varón. La intuición engaña; la aritmética no."
+  },
+  {
+    titulo:"El número del año",
+    fuente:"Los mágicos números del doctor Matrix",
+    enun:"Los 365 días del año esconden una simetría notable que enlaza cinco cuadrados consecutivos. ¿Sabrías encontrarla?",
+    sol:"<b>10² + 11² + 12² = 13² + 14² = 365.</b> (100+121+144 = 169+196 = 365.) Es un eslabón de una familia infinita de igualdades que arranca con el mismísimo 3² + 4² = 5²."
+  },
+  {
+    titulo:"La pelota imposible",
+    fuente:"Juegos y enigmas de otros mundos",
+    enun:"Una pelota ideal rebota cada vez más alto: el primer bote sube 1/2 metro, y cada bote siguiente sube 1/n de metro más (es decir, 1/3, 1/4, 1/5… de metro). Sin rozamiento ni límite alguno, ¿podría llegar algún día a un kilómetro de altura?",
+    sol:"<b>Sí.</b> La altura acumulada es 1/2 + 1/3 + 1/4 + 1/5 + … , la <i>serie armónica</i>, que crece sin tope. Agrupando sus términos, se obtienen infinitos grupos que suman más de 1/2 cada uno, así que con suficientes botes se supera cualquier altura imaginable."
+  },
+  {
+    titulo:"La estrella que no se deja deformar",
+    fuente:"Juegos y enigmas de otros mundos",
+    enun:"Dibuja una estrella de cinco puntas, todo lo torcida e irregular que quieras. ¿Podrías conseguir que la suma de sus cinco ángulos se aparte, aunque sea un grado, de los 180°?",
+    sol:"<b>No: siempre suman exactamente 180°.</b> Una demostración preciosa: desliza una cerilla a lo largo del contorno, haciéndola girar en cada punta hasta alinearla con el lado siguiente. Al completar la vuelta habrá dado <i>media vuelta justa</i> (180°), que es precisamente la suma de los cinco giros."
+  },
+  {
+    titulo:"El anillo de Neptuno",
+    fuente:"Cuentos con acertijos de Ciencia Ficción",
+    enun:"Una nave cruza en línea recta un anillo formado por dos círculos concéntricos: entra por el borde exterior, roza tangente el círculo interior y vuelve a salir por el exterior. Ese trayecto recto mide 200.000 km. ¿Cuál es el área del anillo… aunque nadie te diga cuánto valen los radios?",
+    sol:"<b>π × (100.000)² km².</b> Por el teorema de Pitágoras, R² − r² = (mitad de la cuerda)², de modo que el área del anillo, π(R² − r²), depende <i>solo</i> de la cuerda. Los radios desconocidos se cancelan como por arte de magia."
+  },
+  {
+    titulo:"El número que se describe a sí mismo",
+    fuente:"Circo Matemático",
+    enun:"Escribe un número de diez cifras, con posiciones numeradas del 0 al 9. La cifra de la posición 0 debe indicar cuántos ceros tiene el número en total; la de la posición 1, cuántos unos; la de la posición 2, cuántos doses… y así hasta la posición 9, que dirá cuántos nueves contiene. Solo existe una solución. ¿Cuál es?",
+    sol:"<b>6.210.001.000.</b> Compruébalo: contiene seis 0, dos 1, un 2 y un 6, y cada cifra coincide exactamente con el recuento que anuncia su posición. Un número que se retrata a sí mismo… y encima es único."
+  },
+  {
+    titulo:"Misioneros y caníbales",
+    fuente:"Huevos, nudos y otras mistificaciones matemáticas",
+    enun:"Tres misioneros y tres caníbales deben cruzar un río en una barca que solo lleva dos personas. El problema: si en alguna orilla los caníbales llegan a superar en número a los misioneros presentes, se los comen. ¿Pueden cruzar todos sanos y salvos? ¿En cuántas travesías como mínimo?",
+    sol:"<b>Sí, en 11 travesías.</b> Una forma: (1) cruzan 2 caníbales, vuelve 1; (2) cruzan 2 caníbales, vuelve 1; (3) cruzan 2 misioneros, vuelven 1 misionero y 1 caníbal; (4) cruzan 2 misioneros, vuelve 1 caníbal; (5) cruzan 2 caníbales, vuelve 1; (6) cruzan los 2 caníbales restantes. En ningún momento los caníbales superan a los misioneros en una orilla."
+  },
+  {
+    titulo:"Los cortes de la tarta",
+    fuente:"Matemática para divertirse",
+    enun:"Con un corte recto divides una tarta en 2 trozos. Con un segundo corte que cruce al primero obtienes 4; con un tercero bien colocado, 7. ¿Cuál es el máximo número de trozos que puedes conseguir con 6 cortes rectos?",
+    sol:"<b>22 trozos.</b> Cada nuevo corte n.º k añade como mucho k trozos, porque cruza a los k−1 cortes previos y queda partido en k tramos, y cada tramo divide un trozo en dos. Así: 1 → 2 → 4 → 7 → 11 → 16 → <b>22</b>. En general, n cortes dan 1 + n(n+1)/2 trozos."
+  },
+  {
+    titulo:"El apretón de manos",
+    fuente:"Cuentos con acertijos de Ciencia Ficción",
+    enun:"En una reunión cualquiera, la gente se da la mano sin ningún orden. Demuestra que el número de personas que han estrechado la mano un número <i>impar</i> de veces es siempre <i>par</i>.",
+    sol:"Suma cuántas manos estrechó cada persona. Como cada apretón implica a dos personas, esa suma total es necesariamente <b>par</b>. Quienes saludaron un número par de veces aportan una cantidad par; al restarla del total (par), lo que aportan los demás también es par. Pero una suma de números impares solo es par si hay una cantidad <b>par</b> de ellos. Por tanto, los que saludaron un número impar de veces son un número par de personas."
+  }
+];
+
+// ====== LÓGICA ======
+const MS=86400000;
+function aMedianoche(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+const inicio = aMedianoche(new Date(INICIO + "T00:00:00"));
+const hoyIdx = Math.max(0, Math.floor((aMedianoche(new Date()) - inicio)/MS));
+let viewIdx = hoyIdx;
+
+const fmt = new Intl.DateTimeFormat('es-ES',{weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+function render(){
+  const N = PROBLEMAS.length;
+  const p = PROBLEMAS[((viewIdx % N)+N)%N];
+  const fecha = new Date(inicio.getTime() + viewIdx*MS);
+  document.getElementById('fecha').textContent = fmt.format(fecha);
+  document.getElementById('num').textContent = "Problema nº " + (viewIdx+1);
+  document.getElementById('fuente').textContent = "Adaptado de: " + p.fuente;
+  document.getElementById('titulo').textContent = p.titulo;
+  document.getElementById('enun').textContent = p.enun;
+  const sol = document.getElementById('sol');
+  sol.innerHTML = "<b>Solución.</b> " + p.sol;
+  sol.classList.remove('show');
+  document.getElementById('verbtn').textContent = "Ver solución";
+  document.getElementById('prev').disabled = (viewIdx<=0);
+  document.getElementById('next').disabled = (viewIdx>=hoyIdx);
+  document.getElementById('hoy').disabled = (viewIdx===hoyIdx);
+}
+document.getElementById('verbtn').onclick = ()=>{
+  const sol=document.getElementById('sol'), b=document.getElementById('verbtn');
+  sol.classList.toggle('show');
+  b.textContent = sol.classList.contains('show') ? "Ocultar solución" : "Ver solución";
+};
+document.getElementById('prev').onclick = ()=>{ if(viewIdx>0){viewIdx--; render();} };
+document.getElementById('next').onclick = ()=>{ if(viewIdx<hoyIdx){viewIdx++; render();} };
+document.getElementById('hoy').onclick = ()=>{ viewIdx=hoyIdx; render(); };
+render();
+</script>
+</body>
+</html>
