@@ -7,7 +7,7 @@
 <style>
   :root{
     --bg:#f3efe6; --bg2:#ece5d6; --card:#fffdf8; --ink:#2b2620; --muted:#857c6e;
-    --accent:#9a6f2e; --accent-2:#1f5fa6; --line:#e4ddcd; --ok:#2e6f4f;
+    --accent:#9a6f2e; --accent-2:#1f5fa6; --line:#e4ddcd; --ok:#2e6f4f; --hard:#c0432f;
     --grid:rgba(154,111,46,.06);
     --shadow:0 12px 32px rgba(60,45,20,.11), 0 2px 6px rgba(60,45,20,.06);
     --display:'Iowan Old Style','Palatino Linotype',Palatino,'Book Antiqua',Georgia,serif;
@@ -15,7 +15,7 @@
   }
   @media (prefers-color-scheme: dark){
     :root{ --bg:#15130f; --bg2:#1d1913; --card:#211e18; --ink:#ece6da; --muted:#a59b89;
-           --accent:#d8b06b; --accent-2:#83b3ec; --line:#332e25; --ok:#79cda1;
+           --accent:#d8b06b; --accent-2:#83b3ec; --line:#332e25; --ok:#79cda1; --hard:#e6735f;
            --grid:rgba(216,176,107,.05);
            --shadow:0 14px 36px rgba(0,0,0,.45), 0 2px 8px rgba(0,0,0,.3); }
   }
@@ -64,6 +64,12 @@
   .badges{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:16px}
   .tipo{display:inline-flex; align-items:center; font-size:.74rem; font-weight:500; letter-spacing:.02em;
         color:#fff; background:var(--accent); border-radius:999px; padding:4px 12px}
+  .t-geo{background:#1f5fa6} .t-num{background:#2e7d4f} .t-log{background:#7a4ea6}
+  .t-prob{background:#c46a1f} .t-comb{background:#b03a6e} .t-ing{background:#9a6f2e}
+  .titulo-row{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin:0 0 16px}
+  .titulo-row h2{margin:0}
+  .dif{white-space:nowrap; font-size:.8rem; letter-spacing:3px; flex:none; cursor:help}
+  .dif.d1{color:var(--ok)} .dif.d2{color:var(--accent)} .dif.d3{color:var(--hard)}
   h2{font-family:var(--display); font-weight:600; font-size:1.55rem; margin:0 0 16px; line-height:1.2}
   .enun{font-size:1.08rem}
 
@@ -136,7 +142,10 @@
       <span class="tipo" id="tipo"></span>
       <span class="fuente" id="fuente"></span>
     </div>
-    <h2 id="titulo"></h2>
+    <div class="titulo-row">
+      <h2 id="titulo"></h2>
+      <span class="dif" id="dif"></span>
+    </div>
     <div class="enun" id="enun"></div>
     <button class="verbtn" id="verbtn"><span>💡</span> Ver solución</button>
     <div class="sol-wrap" id="solwrap">
@@ -374,6 +383,10 @@ const SEQ = ORDEN.concat(PROBLEMAS.map((_,i)=>i).filter(i=>!ORDEN.includes(i)));
 
 // Tipo (categoría) de cada problema, por su índice en PROBLEMAS. Se muestra como etiqueta.
 const TIPO = {0:"Geometría",1:"Números",2:"Ingenio",3:"Números",4:"Lógica",5:"Probabilidad",6:"Números",7:"Ingenio",8:"Geometría",9:"Geometría",10:"Números",11:"Lógica",12:"Combinatoria",13:"Lógica",14:"Números",15:"Ingenio",16:"Ingenio",17:"Lógica",18:"Geometría",19:"Geometría",20:"Geometría",21:"Probabilidad",22:"Combinatoria",23:"Ingenio",24:"Probabilidad",25:"Números",26:"Ingenio",27:"Lógica",28:"Combinatoria",29:"Números"};
+const CLASE_TIPO = {"Geometría":"t-geo","Números":"t-num","Lógica":"t-log","Probabilidad":"t-prob","Combinatoria":"t-comb","Ingenio":"t-ing"};
+// Dificultad: 1 fácil, 2 media, 3 difícil (por índice en PROBLEMAS).
+const DIF = {0:2,1:2,2:2,3:3,4:2,5:3,6:1,7:3,8:2,9:2,10:3,11:2,12:2,13:2,14:1,15:1,16:2,17:3,18:3,19:3,20:2,21:3,22:3,23:1,24:2,25:3,26:2,27:2,28:1,29:1};
+const DIF_NOMBRE = {1:"Fácil",2:"Media",3:"Difícil"};
 
 // ====== LÓGICA ======
 const MS=86400000;
@@ -392,7 +405,14 @@ function render(){
   const fecha = new Date(inicio.getTime() + viewIdx*MS);
   document.getElementById('fecha').textContent = fmt.format(fecha);
   document.getElementById('num').textContent = "Nº " + (viewIdx+1);
-  document.getElementById('tipo').textContent = TIPO[idx] || "";
+  const tEl = document.getElementById('tipo');
+  tEl.textContent = TIPO[idx] || "";
+  tEl.className = "tipo " + (CLASE_TIPO[TIPO[idx]] || "");
+  const d = DIF[idx] || 2;
+  const dEl = document.getElementById('dif');
+  dEl.textContent = "●".repeat(d) + "○".repeat(3 - d);
+  dEl.className = "dif d" + d;
+  dEl.title = "Dificultad: " + DIF_NOMBRE[d];
   document.getElementById('fuente').textContent = "Adaptado de: " + p.fuente;
   document.getElementById('titulo').textContent = p.titulo;
   document.getElementById('enun').textContent = p.enun;
