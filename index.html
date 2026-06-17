@@ -57,7 +57,7 @@
   .divider::after{background:linear-gradient(90deg,var(--line),transparent)}
 
   .meta{display:flex; justify-content:space-between; align-items:center; margin:0 4px 12px; gap:12px}
-  .fecha{color:var(--muted); font-size:.92rem; text-transform:capitalize; font-style:italic}
+  .fecha{color:var(--muted); font-size:.92rem; font-style:italic}
   .num{font-family:var(--display); font-weight:600; font-size:.78rem; color:#fff; white-space:nowrap;
        background:var(--accent); padding:6px 14px; border-radius:999px; letter-spacing:.03em;
        box-shadow:0 2px 8px rgba(154,111,46,.4)}
@@ -513,6 +513,7 @@ const hoyIdx = Math.max(0, Math.floor((aMedianoche(new Date()) - inicio)/MS));
 let viewIdx = hoyIdx;
 
 const fmt = new Intl.DateTimeFormat('es-ES',{weekday:'long', day:'numeric', month:'long', year:'numeric'});
+const capFecha = s => s.split(' ').map(w => w.toLowerCase()==='de' ? 'de' : w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
 function problemaDe(i){ const N=SEQ.length; return PROBLEMAS[SEQ[((i%N)+N)%N]]; }
 
 function render(){
@@ -520,7 +521,7 @@ function render(){
   const idx = SEQ[((viewIdx%N)+N)%N];
   const p = PROBLEMAS[idx];
   const fecha = new Date(inicio.getTime() + viewIdx*MS);
-  document.getElementById('fecha').textContent = fmt.format(fecha);
+  document.getElementById('fecha').textContent = capFecha(fmt.format(fecha));
   document.getElementById('num').textContent = "Nº " + (viewIdx+1);
   const tEl = document.getElementById('tipo');
   tEl.textContent = TIPO[idx] || "";
