@@ -158,14 +158,23 @@
     </div>
     <div class="enun" id="enun"></div>
     <div class="acciones">
-      <button class="pistabtn" id="pistabtn"><span>💭</span> Pista</button>
+      <button class="pistabtn" id="pistabtn1"><span>💭</span> Pista 1</button>
+      <button class="pistabtn" id="pistabtn2"><span>💭</span> Pista 2</button>
       <button class="verbtn" id="verbtn"><span>💡</span> Ver solución</button>
     </div>
-    <div class="sol-wrap pista-wrap" id="pistawrap">
+    <div class="sol-wrap pista-wrap" id="pistawrap1">
       <div class="sol">
         <div class="sol-inner pista-inner">
-          <div class="sol-label pista-label"><span>💭</span> Pista</div>
-          <div id="pista"></div>
+          <div class="sol-label pista-label" id="pistalabel1"><span>💭</span> Pista</div>
+          <div id="pista1"></div>
+        </div>
+      </div>
+    </div>
+    <div class="sol-wrap pista-wrap" id="pistawrap2">
+      <div class="sol">
+        <div class="sol-inner pista-inner">
+          <div class="sol-label pista-label"><span>💭</span> Pista 2</div>
+          <div id="pista2"></div>
         </div>
       </div>
     </div>
@@ -444,7 +453,6 @@ function aMedianoche(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDat
 const inicio = aMedianoche(new Date(INICIO + "T00:00:00"));
 const hoyIdx = Math.max(0, Math.floor((aMedianoche(new Date()) - inicio)/MS));
 let viewIdx = hoyIdx;
-let actualIdx = 0, pistaPaso = 0;
 
 const fmt = new Intl.DateTimeFormat('es-ES',{weekday:'long', day:'numeric', month:'long', year:'numeric'});
 function problemaDe(i){ const N=SEQ.length; return PROBLEMAS[SEQ[((i%N)+N)%N]]; }
@@ -473,15 +481,21 @@ function render(){
   else { fig.innerHTML=''; fig.classList.remove('show'); }
   document.getElementById('solwrap').classList.remove('show');
   document.getElementById('verbtn').innerHTML = "<span>💡</span> Ver solución";
-  // pista(s) (media -> 1, difícil -> 2, fácil -> ninguna)
-  actualIdx = idx;
-  pistaPaso = 0;
-  const pistaBtn = document.getElementById('pistabtn');
-  const pistasArr = PISTAS[idx] || [];
-  pistaBtn.style.display = pistasArr.length ? "" : "none";
-  document.getElementById('pista').innerHTML = "";
-  document.getElementById('pistawrap').classList.remove('show');
-  pistaBtn.innerHTML = "<span>💭</span> Pista";
+  // pistas: media -> 1 botón ("Pista"); difícil -> 2 botones independientes ("Pista 1", "Pista 2"); fácil -> ninguno
+  const arrP = PISTAS[idx] || [];
+  const b1 = document.getElementById('pistabtn1'), b2 = document.getElementById('pistabtn2');
+  document.getElementById('pistawrap1').classList.remove('show');
+  document.getElementById('pistawrap2').classList.remove('show');
+  if(arrP.length >= 1){
+    const et1 = arrP.length > 1 ? "Pista 1" : "Pista";
+    b1.style.display = ""; b1.dataset.et = et1; b1.innerHTML = "<span>💭</span> " + et1;
+    document.getElementById('pistalabel1').innerHTML = "<span>💭</span> " + et1;
+    document.getElementById('pista1').innerHTML = arrP[0];
+  } else { b1.style.display = "none"; }
+  if(arrP.length >= 2){
+    b2.style.display = ""; b2.innerHTML = "<span>💭</span> Pista 2";
+    document.getElementById('pista2').innerHTML = arrP[1];
+  } else { b2.style.display = "none"; }
   document.getElementById('prev').disabled = (viewIdx<=0);
   document.getElementById('next').disabled = (viewIdx>=hoyIdx);
   document.getElementById('hoy').disabled = (viewIdx===hoyIdx);
@@ -494,21 +508,15 @@ document.getElementById('verbtn').onclick = ()=>{
   const abierto = w.classList.toggle('show');
   b.innerHTML = abierto ? "<span>🙈</span> Ocultar solución" : "<span>💡</span> Ver solución";
 };
-document.getElementById('pistabtn').onclick = ()=>{
-  const w=document.getElementById('pistawrap'), b=document.getElementById('pistabtn'), cont=document.getElementById('pista');
-  const arr = PISTAS[actualIdx] || [];
-  if(!arr.length) return;
-  if(pistaPaso >= arr.length){           // ya estaban todas -> ocultar y reiniciar
-    pistaPaso = 0; cont.innerHTML = ""; w.classList.remove('show');
-    b.innerHTML = "<span>💭</span> Pista"; return;
-  }
-  pistaPaso++;
-  cont.innerHTML = arr.slice(0, pistaPaso).map((t,i)=>
-    "<div class='pista-item'>" + (arr.length>1 ? "<b>Pista "+(i+1)+".</b> " : "") + t + "</div>").join("");
-  w.classList.add('show');
-  b.innerHTML = (pistaPaso < arr.length)
-    ? "<span>💭</span> Otra pista"
-    : "<span>🙈</span> Ocultar " + (arr.length>1 ? "pistas" : "pista");
+document.getElementById('pistabtn1').onclick = ()=>{
+  const b=document.getElementById('pistabtn1'), w=document.getElementById('pistawrap1'), et=b.dataset.et||"Pista";
+  const abierto = w.classList.toggle('show');
+  b.innerHTML = abierto ? "<span>🙈</span> Ocultar "+et.toLowerCase() : "<span>💭</span> "+et;
+};
+document.getElementById('pistabtn2').onclick = ()=>{
+  const b=document.getElementById('pistabtn2'), w=document.getElementById('pistawrap2');
+  const abierto = w.classList.toggle('show');
+  b.innerHTML = abierto ? "<span>🙈</span> Ocultar pista 2" : "<span>💭</span> Pista 2";
 };
 document.getElementById('prev').onclick = ()=>{ if(viewIdx>0){viewIdx--; render();} };
 document.getElementById('next').onclick = ()=>{ if(viewIdx<hoyIdx){viewIdx++; render();} };
