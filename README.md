@@ -1,52 +1,73 @@
-# El problema matemático del día
+# 🧩 El problema matemático del día
 
-Web estática que muestra **un acertijo cada día** (rotando los 10 problemas según la fecha)
-y deja navegar el archivo de días pasados. Sin servidor, sin base de datos, sin mantenimiento.
+> Un acertijo nuevo cada mañana, inspirado en los clásicos de **Martin Gardner**.
 
-Acertijos adaptados con redacción propia de la obra de **Martin Gardner** (se cita la fuente en cada uno).
+[![Web en vivo](https://img.shields.io/badge/web-en_vivo-2e6f4f?style=flat-square)](https://spyder-cripto.github.io/problema-del-dia/)
+[![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-activo-success?style=flat-square&logo=github)](https://spyder-cripto.github.io/problema-del-dia/)
+[![Código MIT](https://img.shields.io/badge/código-MIT-1a4f8b?style=flat-square)](LICENSE)
+[![Sin dependencias](https://img.shields.io/badge/dependencias-0-8a6d3b?style=flat-square)]()
 
----
+### 👉 [**Ver la web**](https://spyder-cripto.github.io/problema-del-dia/)
 
-## Cómo funciona
-
-- Todo vive en un único archivo: `index.html`.
-- El JavaScript calcula qué problema toca **hoy** a partir de la fecha de inicio (`INICIO`)
-  y va rotando la lista `PROBLEMAS`.
-- Los botones *Anterior / Hoy / Siguiente* permiten ver días pasados, pero **no los futuros**.
-
-### Ajustes rápidos (dentro de `index.html`)
-- `const INICIO = "2026-06-18";` → el día 1 de la serie. Cámbialo para empezar otro día.
-- `const PROBLEMAS = [ ... ];` → añade, quita o reordena problemas. Cada uno es
-  `{ titulo, fuente, enun, sol }`. Cuando se agotan, la serie vuelve a empezar.
+Una página que muestra **un problema de matemática recreativa cada día**, rotando una
+colección de acertijos según la fecha. Cada uno trae su solución oculta tras un botón,
+para que puedas pensarlo antes de mirar. Sin servidor, sin base de datos, sin mantenimiento.
 
 ---
 
-## Publicar en GitHub Pages (gratis)
+## ✨ Características
 
-### Opción A — Por la web (sin instalar nada)
-1. Entra en https://github.com y crea una cuenta si no la tienes.
-2. Botón **New repository** → nombre, p. ej. `problema-del-dia` → **Public** → **Create**.
-3. En el repo: **Add file → Upload files** → arrastra `index.html` (y este `README.md`) → **Commit**.
-4. **Settings → Pages** → en *Build and deployment*, *Source* = **Deploy from a branch**,
-   rama **main**, carpeta **/ (root)** → **Save**.
-5. Espera ~1 min. Tu web estará en:
-   `https://TU-USUARIO.github.io/problema-del-dia/`
+- **Un problema al día**, automático según la fecha — se sube una vez y rueda solo.
+- **Solución desplegable** (botón *Ver solución*), para no destriparte el reto.
+- **Archivo navegable**: botones *Anterior · Hoy · Siguiente* para repasar días pasados
+  (los futuros quedan ocultos en la interfaz).
+- **Diseño sobrio tipo libro**, adaptable a móvil y con **modo oscuro** automático.
+- **Cero dependencias**: un único archivo `index.html` con HTML, CSS y JS.
 
-> ¿La quieres en la raíz (`https://TU-USUARIO.github.io/`)? Llama al repo exactamente
-> `TU-USUARIO.github.io` en el paso 2.
+---
 
-### Opción B — Por terminal (si tienes git / gh)
-```bash
-cd problema-del-dia
-git init -b main
-git add .
-git commit -m "Problema matemático del día"
-gh repo create problema-del-dia --public --source=. --push
-# Luego activa Pages: Settings → Pages → rama main / root
+## ⚙️ Cómo funciona
+
+Todo vive en `index.html`. Un pequeño script calcula qué problema toca **hoy** a partir de
+una fecha de inicio y va rotando la lista. Para personalizarlo, edita estas dos cosas:
+
+```js
+const INICIO = "2026-06-18";   // el día 1 de la serie
+const PROBLEMAS = [ ... ];      // { titulo, fuente, enun, sol }
 ```
 
+Añade, quita o reordena objetos en `PROBLEMAS`. Cuando se agotan, la serie vuelve a empezar.
+
 ---
 
-## Actualizar el contenido
-Edita `index.html` (la lista `PROBLEMAS`) y vuelve a subirlo / haz `git push`.
-GitHub Pages se actualiza solo en uno o dos minutos.
+## 🚀 Publicar y actualizar
+
+Ya está desplegado en GitHub Pages. Para **actualizar el contenido**:
+
+```bash
+# edita index.html y luego:
+git add index.html
+git commit -m "Nuevos problemas"
+git push
+```
+
+GitHub Pages se reconstruye solo en uno o dos minutos.
+
+> **Nota:** si tu antivirus intercepta el tráfico HTTPS y `git push` falla con un error de
+> certificado SSL, usa `git -c http.sslVerify=false push` o pausa el escudo web un momento.
+
+---
+
+## 📚 Licencia y créditos
+
+- **Código** (HTML / CSS / JS): licencia **MIT** — ver [`LICENSE`](LICENSE). Úsalo y modifícalo libremente.
+- **Textos de los acertijos**: redacción **original y propia**, adaptaciones libres de problemas
+  clásicos de matemática recreativa popularizados por **Martin Gardner**. En cada problema se cita
+  la obra fuente como atribución.
+- Este proyecto es un homenaje educativo sin ánimo de lucro. **No está afiliado ni respaldado**
+  por Martin Gardner, sus herederos ni sus editoriales; los títulos de los libros se mencionan
+  únicamente a efectos de cita y reconocimiento.
+
+---
+
+<sub>Hecho con cariño matemático 🧮</sub>
