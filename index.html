@@ -330,6 +330,30 @@ const PROBLEMAS = [
     fuente:"Juegos y enigmas de otros mundos",
     enun:"Demuestra que nᵃ + nᵇ = nᶜ no tiene solución en enteros positivos cuando la base n es mayor que 2. (Dicho de otro modo: una potencia de n nunca es la suma de otras dos potencias de n, si n > 2.)",
     sol:"Mira los números en <b>base n</b>. Toda potencia de n se escribe como un 1 seguido de ceros (igual que 10, 100, 1000 en base 10). Si a = b, la suma nᵃ + nᵇ es «2 seguido de ceros»; para n > 2 ese 2 es un dígito válido, así que no es un 1-seguido-de-ceros: no es potencia de n. Si a ≠ b, la suma tiene <i>dos</i> unos en su escritura en base n: tampoco es potencia de n. En ambos casos, imposible. (Justo con n = 2 sí valdría: 2ᵃ + 2ᵃ = 2ᵃ⁺¹.)"
+  },
+  {
+    titulo:"El truco de las tostadas",
+    fuente:"Matemática para divertirse",
+    enun:"Una tostadora antigua admite dos rebanadas a la vez, pero solo tuesta una cara de cada una; para la otra cara hay que sacarlas, darles la vuelta y volver a meterlas. Tostar una cara lleva exactamente un minuto. Quieres tostar las dos caras de tres rebanadas. Hacerlo «de dos en dos» lleva 4 minutos. ¿Se puede en menos?",
+    sol:"<b>Sí, en 3 minutos.</b> Llama A, B, C a las rebanadas (cada una con cara 1 y 2). Minuto 1: tuesta A1 y B1; saca B y dale la vuelta, retira A y mete C. Minuto 2: tuesta B2 y C1; B ya está lista, da la vuelta a C y vuelve a meter A. Minuto 3: tuesta A2 y C2. ¡Las seis caras en 3 minutos! El truco: que la tostadora no tenga nunca un hueco vacío."
+  },
+  {
+    titulo:"Las dos tribus",
+    fuente:"Matemática para divertirse",
+    enun:"En una isla, una tribu dice siempre la verdad y la otra miente siempre. Un viajero se cruza con dos nativos, uno alto y uno bajo. Pregunta al alto: «¿Eres de los que dicen la verdad?». El alto responde «Upf», palabra nativa que significa sí o no, pero el viajero no recuerda cuál de las dos. El bajo, que habla su idioma, traduce: «Ha dicho que sí… ¡pero es un mentiroso de cuidado!». ¿A qué tribu pertenece cada uno?",
+    sol:"El alto es <b>mentiroso</b> y el bajo es <b>veraz</b>. Clave: a la pregunta «¿eres veraz?», cualquiera responde «sí» — el veraz porque lo es, y el mentiroso porque está obligado a mentir sobre su «no». Así que «Upf» significaba «sí», y el bajo dijo la verdad al traducirlo; por tanto también dice la verdad al añadir que el alto miente. Lo bonito: no hace falta ni saber qué significa «Upf»."
+  },
+  {
+    titulo:"Calcetines a oscuras",
+    fuente:"Huevos, nudos y otras mistificaciones matemáticas",
+    enun:"En un cajón hay 60 calcetines revueltos: 20 rojos, 20 azules y 20 verdes. La habitación está completamente a oscuras. ¿Cuántos calcetines, como mínimo, tienes que sacar para estar seguro de tener un par del mismo color?",
+    sol:"<b>Cuatro.</b> Con tres podrías tener mala suerte y sacar uno de cada color (rojo, azul, verde). Pero el cuarto, por fuerza, repite alguno de esos tres colores y completa el par. Es el «principio del palomar»: 4 calcetines en 3 colores obligan a que dos coincidan. Que haya 60 calcetines en total es pura distracción."
+  },
+  {
+    titulo:"Halloween es Navidad",
+    fuente:"Miscelánea matemática",
+    enun:"Un informático afirma, muy serio, que el 31 de octubre es lo mismo que el 25 de diciembre. ¿En qué sentido tiene toda la razón? (Pista: fíjate en «oct» y «dic».)",
+    sol:"Leyendo «oct» como <b>octal</b> (base 8) y «dic» como <b>decimal</b> (base 10): el número 31 en base 8 vale 3×8 + 1 = <b>25</b> en base 10. Es decir, 31₈ = 25₁₀, o sea «OCT 31 = DIC 25». Un chiste de bases numéricas redondo: para un informático, Halloween y Navidad caen en el mismo número."
   }
 ];
 
@@ -339,7 +363,7 @@ const PROBLEMAS = [
 // problemas al final de PROBLEMAS, se publican igualmente: se anexan solos al
 // final de la secuencia (aunque para mantener la alternancia, lo ideal es
 // insertar su índice en ORDEN en la posición adecuada).
-const ORDEN = [0,1,4,2,8,5,6,12,9,7,10,11,18,22,14,21,19,15,13,3,20,16,25,23,24,17];
+const ORDEN = [0,1,4,2,8,5,6,12,9,7,10,11,18,22,14,21,19,15,13,3,20,16,25,23,24,17,26,29,27,28];
 const SEQ = ORDEN.concat(PROBLEMAS.map((_,i)=>i).filter(i=>!ORDEN.includes(i)));
 
 // ====== LÓGICA ======
