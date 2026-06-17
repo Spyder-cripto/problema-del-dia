@@ -60,7 +60,10 @@
   .fuente{display:inline-flex; align-items:center; gap:6px; font-size:.74rem; font-style:italic;
           color:var(--accent-2); background:color-mix(in srgb,var(--accent-2) 9%,transparent);
           border:1px solid color-mix(in srgb,var(--accent-2) 22%,transparent);
-          border-radius:999px; padding:4px 12px; margin-bottom:16px}
+          border-radius:999px; padding:4px 12px}
+  .badges{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:16px}
+  .tipo{display:inline-flex; align-items:center; font-size:.74rem; font-weight:500; letter-spacing:.02em;
+        color:#fff; background:var(--accent); border-radius:999px; padding:4px 12px}
   h2{font-family:var(--display); font-weight:600; font-size:1.55rem; margin:0 0 16px; line-height:1.2}
   .enun{font-size:1.08rem}
 
@@ -129,7 +132,10 @@
   </div>
 
   <article class="card" id="card">
-    <span class="fuente" id="fuente"></span>
+    <div class="badges">
+      <span class="tipo" id="tipo"></span>
+      <span class="fuente" id="fuente"></span>
+    </div>
     <h2 id="titulo"></h2>
     <div class="enun" id="enun"></div>
     <button class="verbtn" id="verbtn"><span>💡</span> Ver solución</button>
@@ -366,6 +372,9 @@ const PROBLEMAS = [
 const ORDEN = [0,1,4,2,8,5,6,12,9,7,10,11,18,22,14,21,19,15,13,3,20,16,25,23,24,17,26,29,27,28];
 const SEQ = ORDEN.concat(PROBLEMAS.map((_,i)=>i).filter(i=>!ORDEN.includes(i)));
 
+// Tipo (categoría) de cada problema, por su índice en PROBLEMAS. Se muestra como etiqueta.
+const TIPO = {0:"Geometría",1:"Números",2:"Ingenio",3:"Números",4:"Lógica",5:"Probabilidad",6:"Números",7:"Ingenio",8:"Geometría",9:"Geometría",10:"Números",11:"Lógica",12:"Combinatoria",13:"Lógica",14:"Números",15:"Ingenio",16:"Ingenio",17:"Lógica",18:"Geometría",19:"Geometría",20:"Geometría",21:"Probabilidad",22:"Combinatoria",23:"Ingenio",24:"Probabilidad",25:"Números",26:"Ingenio",27:"Lógica",28:"Combinatoria",29:"Números"};
+
 // ====== LÓGICA ======
 const MS=86400000;
 function aMedianoche(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
@@ -377,10 +386,13 @@ const fmt = new Intl.DateTimeFormat('es-ES',{weekday:'long', day:'numeric', mont
 function problemaDe(i){ const N=SEQ.length; return PROBLEMAS[SEQ[((i%N)+N)%N]]; }
 
 function render(){
-  const p = problemaDe(viewIdx);
+  const N = SEQ.length;
+  const idx = SEQ[((viewIdx%N)+N)%N];
+  const p = PROBLEMAS[idx];
   const fecha = new Date(inicio.getTime() + viewIdx*MS);
   document.getElementById('fecha').textContent = fmt.format(fecha);
   document.getElementById('num').textContent = "Nº " + (viewIdx+1);
+  document.getElementById('tipo').textContent = TIPO[idx] || "";
   document.getElementById('fuente').textContent = "Adaptado de: " + p.fuente;
   document.getElementById('titulo').textContent = p.titulo;
   document.getElementById('enun').textContent = p.enun;
