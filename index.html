@@ -98,6 +98,8 @@
              color:var(--ok); margin-bottom:6px; font-size:.95rem}
   .pista-inner{border-left-color:var(--accent-2); background:color-mix(in srgb,var(--accent-2) 9%,transparent)}
   .pista-label{color:var(--accent-2)}
+  .pista-item + .pista-item{margin-top:8px}
+  .pista-item b{color:var(--accent-2)}
 
   nav{display:flex; justify-content:center; align-items:center; gap:10px; margin-top:26px}
   nav button{background:var(--card); border:1px solid var(--line); color:var(--ink);
@@ -406,32 +408,34 @@ const CLASE_TIPO = {"Geometría":"t-geo","Números":"t-num","Lógica":"t-log","P
 // Dificultad: 1 fácil, 2 media, 3 difícil (por índice en PROBLEMAS).
 const DIF = {0:2,1:2,2:2,3:3,4:2,5:3,6:1,7:3,8:2,9:2,10:3,11:2,12:2,13:2,14:1,15:1,16:2,17:3,18:3,19:3,20:2,21:3,22:3,23:1,24:2,25:3,26:2,27:2,28:1,29:1};
 const DIF_NOMBRE = {1:"Fácil",2:"Media",3:"Difícil"};
-// Pistas: solo para problemas de dificultad media o difícil (por índice en PROBLEMAS).
+// Pistas (empujón ligero): difíciles -> 2 pistas (de suave a más concreta); medias -> 1; fáciles -> ninguna.
 const PISTAS = {
-  0:"No calcules con el tamaño del astro: fíjate solo en cuánto crece el radio cuando la longitud aumenta 1 metro. ¿Aparece el tamaño original en esa cuenta?",
-  1:"¿Qué conjunto de piezas permite formar cualquier cantidad entera, dando y devolviendo trozos? Piensa en cómo cuenta un ordenador.",
-  2:"No sumes los infinitos tramos de la mosca. Pregúntate cuánto tiempo tardan las bicicletas en encontrarse.",
-  3:"El dinero total es un cuadrado perfecto (n² euros). Casi todo sale de pensar bien cómo puede ser ese cuadrado.",
-  4:"Si cada uno llama mentiroso a su vecino, ¿cómo se alternan veraces y mentirosos alrededor de la mesa? ¿Qué exige eso del número de comensales?",
-  5:"Cada nacimiento sigue siendo 50/50 hagan lo que hagan las familias. ¿Cambia eso la regla de parar al tener un varón?",
-  7:"La altura total es 1/2 + 1/3 + 1/4 + … Agrupa los términos (1/3+1/4, luego 1/5+1/6+1/7+1/8, …): ¿cuánto suma cada grupo como mínimo?",
-  8:"Imagina recorrer el contorno girando en cada punta hasta el lado siguiente. ¿Cuánto has girado en total al volver al inicio?",
-  9:"Traza el radio hasta el punto de tangencia y forma un triángulo rectángulo con media cuerda. Pitágoras: ¿qué relación queda entre R, r y la cuerda?",
-  10:"La suma de las diez cifras tiene que ser 10. Empieza por tantear cuántos ceros hay: si hay muchos, la primera cifra es grande.",
-  11:"La gracia está en los viajes de vuelta: a veces alguien debe regresar para no dejar mayoría de caníbales en una orilla. Prueba a empezar pasando dos caníbales.",
-  12:"¿Cuántos trozos añade cada corte nuevo? Cuenta a cuántos cortes anteriores cruza.",
-  13:"Suma cuántas manos estrechó cada persona. Como cada apretón se cuenta dos veces, esa suma es par. ¿Qué implica para los que saludaron un número impar de veces?",
-  16:"Calcula cuánto tiempo tendrías disponible para promediar 20 km/h… y compáralo con el que ya gastaste en la primera vuelta.",
-  17:"Con búsqueda binaria, ¿cuántos análisis hacen falta para 128 vasos? ¿Y para 129? Piensa cuándo gastar un análisis en un único vaso NO te cuesta nada de más.",
-  18:"Olvida la trigonometría. Busca triángulos rectángulos semejantes dentro de la figura: los dos ángulos pequeños 'caben' justos dentro del grande.",
-  19:"Mientras esté muy cerca del centro, ella puede girar alrededor de él más rápido (en ángulo) que el hombre por la orilla. ¿Hasta qué radio le dura esa ventaja?",
-  20:"Las dos tangentes trazadas desde un mismo punto exterior miden lo mismo. Aplica esa idea en A, en B y en C.",
-  21:"Si una de las dos personas 'desanda' su camino, ¿en qué se convierte la separación entre ambas? Y recuerda: la distancia típica tras n pasos al azar es √n.",
-  22:"No te fíes de 1, 2, 4, 8, 16. Dibuja con cuidado el caso de 6 puntos y cuenta las regiones de verdad, una a una…",
-  24:"Solo hay 6 maneras de repartir tres resguardos. Cuenta a mano en cuántas acierta al menos uno (o resta las que no acierta nadie).",
-  25:"Escribe las potencias de n en base n: ¿qué forma tienen? Luego fíjate en cómo queda la suma de dos de ellas en esa misma base.",
-  26:"El truco es que la tostadora no esté nunca a medio llenar. Una rebanada puede salir y volver más tarde para su segunda cara.",
-  27:"¿Qué responde a «¿eres veraz?» un mentiroso? ¿Y un veraz? Compara las dos respuestas y verás que la traducción del nativo bajo tiene que ser cierta."
+  // — Difíciles (2 pistas) —
+  3:["El dinero total es un cuadrado perfecto (n² euros). Empieza por ahí.","Lo que decide quién va ganando es la cifra de las decenas de ese cuadrado. ¿Siempre es la misma?"],
+  5:["No te fíes de la intuición; piensa en un solo nacimiento.","Cada nacimiento es 50/50 pase lo que pase con las reglas. ¿Pueden las reglas torcer esa proporción?"],
+  7:["La altura total es 1/2 + 1/3 + 1/4 + … ¿Esa suma tiene tope o crece sin parar?","Agrupa los términos en bloques (1/3+1/4, luego 1/5+…+1/8…) y mira cuánto suma cada bloque."],
+  10:["Las diez cifras tienen que sumar 10. Tantea.","Si pones muchos ceros, la primera cifra será grande. Fija cuántos ceros hay y sigue desde ahí."],
+  17:["Piensa en cuántos análisis necesita la búsqueda binaria según el número de vasos.","¿Cuántos para 128? ¿Y para 129? Busca el número en el que probar un vaso suelto sale 'gratis'."],
+  18:["Nada de trigonometría: busca triángulos iguales escondidos en la figura.","Los dos ángulos pequeños se pueden 'mover' con triángulos semejantes hasta encajar dentro del grande."],
+  19:["Cerca del centro, ella gira alrededor de él más deprisa (en ángulo) que el hombre por la orilla.","¿Hasta qué radio le dura esa ventaja? Desde ahí, una recta hasta la orilla."],
+  21:["Hay una cuenta muy simple detrás; el 70 y el 30 no se restan sin más.","Si una persona 'desanda' su camino, la separación equivale a un único paseo de 100 pasos. La distancia típica de n pasos es √n."],
+  22:["Desconfía del patrón 2, 4, 8, 16. Dibuja el caso de 6 puntos.","Cuenta las regiones de esos 6 puntos una a una, sin dar por hecho que salen 32."],
+  25:["Cambia de base: escribe los números en base n.","Una potencia de n en base n es un 1 con ceros. ¿Cómo es la suma de dos de ellas?"],
+  // — Medias (1 pista) —
+  0:["Olvida el tamaño del astro; mira solo cuánto crece el radio al añadir 1 metro."],
+  1:["¿Qué piezas permiten formar cualquier cantidad dando y devolviendo? Piensa en binario."],
+  2:["No sumes los tramos de la mosca; calcula cuánto tardan en encontrarse las bicicletas."],
+  4:["Si todos llaman mentiroso a su vecino, veraces y mentirosos se alternan. ¿Qué exige eso?"],
+  8:["Recorre el contorno girando en cada punta: ¿cuánto giras en total al volver al inicio?"],
+  9:["Traza el radio hasta el punto de tangencia y forma un triángulo rectángulo. Pitágoras."],
+  11:["La clave son los viajes de vuelta. Prueba a empezar pasando dos caníbales."],
+  12:["¿Cuántos trozos añade cada corte nuevo, según a cuántos cortes anteriores cruza?"],
+  13:["Suma todos los apretones: cada uno se cuenta dos veces, así que el total es par."],
+  16:["Calcula el tiempo que tendrías para promediar 20 km/h y compáralo con el ya gastado."],
+  20:["Las dos tangentes desde un mismo punto exterior miden lo mismo."],
+  24:["Solo hay 6 repartos posibles de los tres resguardos. Cuéntalos a mano."],
+  26:["Que la tostadora no esté nunca a medio llenar: una rebanada puede salir y volver luego."],
+  27:["¿Qué contesta a «¿eres veraz?» un mentiroso? ¿Y un veraz? Compara las dos respuestas."]
 };
 
 // ====== LÓGICA ======
@@ -440,6 +444,7 @@ function aMedianoche(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDat
 const inicio = aMedianoche(new Date(INICIO + "T00:00:00"));
 const hoyIdx = Math.max(0, Math.floor((aMedianoche(new Date()) - inicio)/MS));
 let viewIdx = hoyIdx;
+let actualIdx = 0, pistaPaso = 0;
 
 const fmt = new Intl.DateTimeFormat('es-ES',{weekday:'long', day:'numeric', month:'long', year:'numeric'});
 function problemaDe(i){ const N=SEQ.length; return PROBLEMAS[SEQ[((i%N)+N)%N]]; }
@@ -468,11 +473,13 @@ function render(){
   else { fig.innerHTML=''; fig.classList.remove('show'); }
   document.getElementById('solwrap').classList.remove('show');
   document.getElementById('verbtn').innerHTML = "<span>💡</span> Ver solución";
-  // pista (solo en dificultad media o difícil)
+  // pista(s) (media -> 1, difícil -> 2, fácil -> ninguna)
+  actualIdx = idx;
+  pistaPaso = 0;
   const pistaBtn = document.getElementById('pistabtn');
-  const tienePista = !!PISTAS[idx];
-  pistaBtn.style.display = tienePista ? "" : "none";
-  if(tienePista) document.getElementById('pista').innerHTML = PISTAS[idx];
+  const pistasArr = PISTAS[idx] || [];
+  pistaBtn.style.display = pistasArr.length ? "" : "none";
+  document.getElementById('pista').innerHTML = "";
   document.getElementById('pistawrap').classList.remove('show');
   pistaBtn.innerHTML = "<span>💭</span> Pista";
   document.getElementById('prev').disabled = (viewIdx<=0);
@@ -488,9 +495,20 @@ document.getElementById('verbtn').onclick = ()=>{
   b.innerHTML = abierto ? "<span>🙈</span> Ocultar solución" : "<span>💡</span> Ver solución";
 };
 document.getElementById('pistabtn').onclick = ()=>{
-  const w=document.getElementById('pistawrap'), b=document.getElementById('pistabtn');
-  const abierto = w.classList.toggle('show');
-  b.innerHTML = abierto ? "<span>🙈</span> Ocultar pista" : "<span>💭</span> Pista";
+  const w=document.getElementById('pistawrap'), b=document.getElementById('pistabtn'), cont=document.getElementById('pista');
+  const arr = PISTAS[actualIdx] || [];
+  if(!arr.length) return;
+  if(pistaPaso >= arr.length){           // ya estaban todas -> ocultar y reiniciar
+    pistaPaso = 0; cont.innerHTML = ""; w.classList.remove('show');
+    b.innerHTML = "<span>💭</span> Pista"; return;
+  }
+  pistaPaso++;
+  cont.innerHTML = arr.slice(0, pistaPaso).map((t,i)=>
+    "<div class='pista-item'>" + (arr.length>1 ? "<b>Pista "+(i+1)+".</b> " : "") + t + "</div>").join("");
+  w.classList.add('show');
+  b.innerHTML = (pistaPaso < arr.length)
+    ? "<span>💭</span> Otra pista"
+    : "<span>🙈</span> Ocultar " + (arr.length>1 ? "pistas" : "pista");
 };
 document.getElementById('prev').onclick = ()=>{ if(viewIdx>0){viewIdx--; render();} };
 document.getElementById('next').onclick = ()=>{ if(viewIdx<hoyIdx){viewIdx++; render();} };
