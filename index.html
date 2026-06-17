@@ -88,6 +88,8 @@
   @media (max-width:480px){ .dibujo{width:46px; height:46px} }
   .dif{white-space:nowrap; font-size:.8rem; letter-spacing:3px; flex:none; cursor:help}
   .dif.d1{color:var(--ok)} .dif.d2{color:var(--accent)} .dif.d3{color:var(--hard)}
+  .dif-wrap{display:inline-flex; align-items:center; gap:6px}
+  .dif-label{font-size:.8rem; color:var(--muted)}
   h2{font-family:var(--display); font-weight:600; font-size:1.55rem; margin:0 0 16px; line-height:1.2}
   .enun{font-size:1.08rem}
 
@@ -175,8 +177,7 @@
     <div class="enun" id="enun"></div>
     <div class="badges">
       <span class="tipo" id="tipo"></span>
-      <span class="fuente" id="fuente"></span>
-      <span class="dif" id="dif"></span>
+      <span class="dif-wrap"><span class="dif-label">Dificultad:</span><span class="dif" id="dif"></span></span>
     </div>
     <div class="acciones">
       <button class="pistabtn" id="pistabtn1"><span>💭</span> Pista 1</button>
@@ -529,7 +530,6 @@ function render(){
   dEl.textContent = "●".repeat(d) + "○".repeat(3 - d);
   dEl.className = "dif d" + d;
   dEl.title = "Dificultad: " + DIF_NOMBRE[d];
-  document.getElementById('fuente').textContent = "Adaptado de: " + p.fuente;
   document.getElementById('titulo').textContent = p.titulo;
   document.getElementById('dibujo').innerHTML = "<svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'>" + PAPEL + (DIBUJOS[idx] || DEFECTO) + "</svg>";
   document.getElementById('enun').textContent = p.enun;
