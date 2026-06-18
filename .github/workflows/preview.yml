@@ -5,6 +5,11 @@ on:
     - cron: "10 22 * * *"   # ~00:10 Madrid (horario de verano)
     - cron: "10 23 * * *"   # ~00:10 Madrid (horario de invierno)
   workflow_dispatch:         # permite lanzarlo a mano
+  push:
+    branches: [main]
+    paths:                   # al cambiar problemas/INICIO o el generador, rehacer tarjetas
+      - index.html
+      - generate_preview.py
 
 permissions:
   contents: write
@@ -25,17 +30,20 @@ jobs:
           sudo apt-get install -y libcairo2 fonts-dejavu-core
           python -m pip install --quiet pillow cairosvg
 
-      - name: Generar preview.png del día
+      - name: Tarjeta del día (preview.png/preview_sq.png + og)
         run: python generate_preview.py
+
+      - name: Tarjetas de TODOS los problemas + galería
+        run: python generate_preview.py --todas
 
       - name: Subir si ha cambiado
         run: |
           git config user.name "preview-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add preview.png preview_sq.png index.html
+          git add preview.png preview_sq.png index.html tarjetas
           if git diff --cached --quiet; then
-            echo "Sin cambios en preview.png"
+            echo "Sin cambios"
           else
-            git commit -m "Preview automático del problema del día"
+            git commit -m "Tarjetas automáticas del problema del día [skip ci]"
             git push
           fi
