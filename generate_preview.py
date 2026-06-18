@@ -163,11 +163,11 @@ def galeria(rows):
     for n,fecha,idx,tit,tipo,dif in rows:
         nn=f"{n:02d}"; f=f"{fecha.day} {MESES[fecha.month]}"
         link=f"{base}/?ver={idx}"
-        h.append(f"<div class='card'><a href='tarjetas/dia-{nn}-sq.png' target='_blank'><img src='tarjetas/dia-{nn}-sq.png' alt='{tit}'></a>"
+        h.append(f"<div class='card'><a href='dia-{nn}-sq.png' target='_blank'><img src='dia-{nn}-sq.png' alt='{tit}'></a>"
                  f"<div class='info'><div class='n'>Día {n} · {f} · {tipo} · dif {dif}</div>"
                  f"<div class='t'>{tit}</div>"
-                 f"<a class='b' href='tarjetas/dia-{nn}-sq.png' download>⬇ Cuadrada (estado)</a>"
-                 f"<a class='b' href='tarjetas/dia-{nn}.png' download>⬇ Horizontal</a>"
+                 f"<a class='b' href='dia-{nn}-sq.png' download>⬇ Cuadrada (estado)</a>"
+                 f"<a class='b' href='dia-{nn}.png' download>⬇ Horizontal</a>"
                  f"<a class='b' href='{link}' target='_blank'>🔗 Enlace del problema</a></div></div>")
     h.append("</body></html>")
     open("tarjetas/index.html","w",encoding="utf-8").write("\n".join(h))
