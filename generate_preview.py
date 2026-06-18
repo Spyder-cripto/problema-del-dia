@@ -122,3 +122,46 @@ if OUT == "preview.png":
     if newhtml != HTML:
         open("index.html","w",encoding="utf-8").write(newhtml)
         print("index.html: og:image -> ?v=" + vparam)
+
+# ===== versión CUADRADA (1080x1080) para estados de WhatsApp =====
+SW=1080
+sq=Image.new("RGB",(SW,SW),CREAM); sd=ImageDraw.Draw(sq)
+for x in range(0,SW,42): sd.line([(x,0),(x,SW)],fill=GRID)
+for y in range(0,SW,42): sd.line([(0,y),(SW,y)],fill=GRID)
+for x in range(SW):
+    t=x/SW; c=tuple(int(GOLD[i]+(BLUE[i]-GOLD[i])*t) for i in range(3))
+    sd.line([(x,0),(x,14)],fill=c)
+f_kS=font(SERIFB,30); f_tS=font(SERIFB,88); f_mS=font(SERIF,36); f_uS=font(SERIF,30)
+def cx_text(y,text,fnt,fill):
+    sd.text(((SW-sd.textlength(text,font=fnt))/2,y),text,font=fnt,fill=fill)
+def cx_tracked(y,text,fnt,fill,tr):
+    w=sum(sd.textlength(c,font=fnt)+tr for c in text)-tr; x=(SW-w)/2
+    for c in text: sd.text((x,y),c,font=fnt,fill=fill); x+=sd.textlength(c,font=fnt)+tr
+cx_tracked(66,"EL PROBLEMA DEL DÍA",f_kS,GOLD,7)
+if cairosvg and idx in DIBUJOS:
+    try:
+        svg2="<svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'>"+PAPEL+DIBUJOS[idx]+"</svg>"
+        png2=cairosvg.svg2png(bytestring=svg2.encode("utf-8"),output_width=400,output_height=400)
+        di=Image.open(io.BytesIO(png2)).convert("RGBA").rotate(-5,expand=True,resample=Image.BICUBIC)
+        sq.paste(di,(int((SW-di.width)/2),130),di)
+    except Exception as e:
+        print("sq: sin dibujo:",e)
+slines=wrap(sd,titulo,f_tS,SW-150)
+block_h=len(slines)*104+72
+ty=int(790-block_h/2)
+for ln in slines:
+    cx_text(ty,ln,f_tS,INK); ty+=104
+my=ty+18
+pcol=TIPO_COL.get(tipo,GOLD); pw=sd.textlength(tipo,font=f_mS)+40
+dlab="Dificultad:"; dl=sd.textlength(dlab,font=f_mS)
+group=pw+28+dl+18+3*34; gx=(SW-group)/2
+sd.rounded_rectangle((gx,my,gx+pw,my+54),radius=27,fill=pcol)
+sd.text((gx+20,my+8),tipo,font=f_mS,fill=(255,255,255))
+tx=gx+pw+28; sd.text((tx,my+8),dlab,font=f_mS,fill=MUTED); tx+=dl+18
+for k in range(3):
+    cxx=tx+k*34+11; cyy=my+27; col=DIF_COL.get(dif,GOLD)
+    if k<dif: sd.ellipse((cxx-11,cyy-11,cxx+11,cyy+11),fill=col)
+    else:     sd.ellipse((cxx-11,cyy-11,cxx+11,cyy+11),outline=col,width=3)
+cx_text(1012,"spyder-cripto.github.io/problema-del-dia",f_uS,BLUE)
+sq.save("preview_sq.png","PNG")
+print("Generado preview_sq.png", sq.size)

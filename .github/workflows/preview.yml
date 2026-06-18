@@ -32,7 +32,7 @@ jobs:
         run: |
           git config user.name "preview-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add preview.png index.html
+          git add preview.png preview_sq.png index.html
           if git diff --cached --quiet; then
             echo "Sin cambios en preview.png"
           else
