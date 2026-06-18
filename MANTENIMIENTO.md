@@ -72,7 +72,10 @@ Solo publicar si `node --check` pasa Y `render()` corre sin throw.
 - **`preview.png`** 1200×630 (horizontal, para enlaces): fondo crema + rejilla, barra superior oro→azul, antetítulo "EL PROBLEMA DEL DÍA" en oro, título grande, píldora de categoría, "Dificultad ●●●", enlace al pie, y el garabato (SVG→PNG vía cairosvg) rotado -5° arriba a la derecha. **La tarjeta NO lleva enunciado** (solo título/categoría/dificultad/dibujo/enlace).
 - **`preview_sq.png`** 1080×1080 (cuadrada, para estados de WhatsApp): título arriba, dibujo en medio, etiquetas abajo, todo centrado.
 
-`cairosvg` solo está en el runner de la nube (Ubuntu), no en local. La **GitHub Action** `.github/workflows/preview.yml` (cron 22:10 y 23:10 UTC ≈ 00:10 Madrid, cubre DST, + `workflow_dispatch`) regenera las imágenes y commitea con cache-buster `og:image -> preview.png?v=YYYYMMDD`.
+`cairosvg` solo está en el runner de la nube (Ubuntu), no en local. La **GitHub Action** `.github/workflows/preview.yml` (cron 22:10 y 23:10 UTC ≈ 00:10 Madrid, cubre DST, + `workflow_dispatch`, + `push` sobre `index.html`/`generate_preview.py`) regenera las imágenes y commitea con cache-buster `og:image -> preview.png?v=YYYYMMDD`. El commit del bot lleva **`[skip ci]`** para no entrar en bucle.
+
+### Archivo de tarjetas por problema (`tarjetas/`)
+`python generate_preview.py --todas` genera, para CADA problema en rotación, `tarjetas/dia-NN.png` (horizontal) y `tarjetas/dia-NN-sq.png` (cuadrada, para estados de WhatsApp), más una **galería** `tarjetas/index.html` con miniatura + descargas + enlace `?ver=` de cada uno. La Action lo ejecuta automáticamente, así que **hay tarjeta de los 39 problemas** (no solo del de hoy), y se regeneran solas cuando cambian los problemas o el `INICIO`. Galería pública: `…github.io/problema-del-dia/tarjetas/`. Tarjeta de un día: `…/tarjetas/dia-NN-sq.png`. (NN = nº de día en la serie; depende de `INICIO`/`ORDEN`, por eso se regeneran al cambiarlos.) **Uso de Fali:** comparte la cuadrada en su estado de WhatsApp junto al enlace `?ver=idx` del problema.
 
 ## Publicar
 
