@@ -52,7 +52,7 @@ def font(paths, size):
     return ImageFont.load_default()
 SERIF =["/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf","C:/Windows/Fonts/georgia.ttf"]
 SERIFB=["/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf","C:/Windows/Fonts/georgiab.ttf"]
-f_kick=font(SERIFB,26); f_title=font(SERIFB,60); f_meta=font(SERIF,30); f_url=font(SERIF,28)
+f_kick=font(SERIFB,26); f_title=font(SERIFB,74); f_meta=font(SERIF,30); f_url=font(SERIF,28)
 
 W,H=1200,630
 img=Image.new("RGB",(W,H),CREAM); d=ImageDraw.Draw(img)
@@ -82,7 +82,7 @@ LX=82; RIGHTW=640
 tracked(d,(LX,84),"EL PROBLEMA DEL DÍA",f_kick,GOLD,6)
 ty=142
 for ln in wrap(d,titulo,f_title,RIGHTW):
-    d.text((LX-2,ty),ln,font=f_title,fill=INK); ty+=72
+    d.text((LX-2,ty),ln,font=f_title,fill=INK); ty+=86
 my=ty+22
 pcol=TIPO_COL.get(tipo,GOLD)
 pw=d.textlength(tipo,font=f_meta)+34
