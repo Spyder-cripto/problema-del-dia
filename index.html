@@ -490,7 +490,7 @@ const PROBLEMAS = [
 // problemas al final de PROBLEMAS, se publican igualmente: se anexan solos al
 // final de la secuencia (aunque para mantener la alternancia, lo ideal es
 // insertar su índice en ORDEN en la posición adecuada).
-const ORDEN = [3,4,25,23,20,24,17,26,29,27,0,1,16,8,2,5,6,12,9,7,10,11,18,22,14,21,19,15,13];
+const ORDEN = [3, 4, 30, 25, 23, 31, 20, 24, 32, 17, 26, 29, 27, 33, 0, 34, 1, 16, 8, 35, 2, 5, 6, 36, 12, 9, 7, 10, 37, 11, 18, 22, 38, 14, 21, 19, 15, 13, 39];
 const EXCLUIDOS = [28]; // "Calcetines a oscuras": retirado de la rotación (demasiado fácil)
 const SEQ = ORDEN.concat(PROBLEMAS.map((_,i)=>i).filter(i=>!ORDEN.includes(i) && !EXCLUIDOS.includes(i)));
 
@@ -597,6 +597,9 @@ function aMedianoche(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDat
 const inicio = aMedianoche(new Date(INICIO + "T00:00:00"));
 const hoyIdx = Math.max(0, Math.floor((aMedianoche(new Date()) - inicio)/MS));
 let viewIdx = hoyIdx;
+// previsualización: ?ver=N muestra el problema con índice N (en su día programado)
+const _ver = parseInt(new URLSearchParams(location.search).get('ver'), 10);
+if(!isNaN(_ver) && SEQ.includes(_ver)){ viewIdx = SEQ.indexOf(_ver); }
 
 const fmt = new Intl.DateTimeFormat('es-ES',{weekday:'long', day:'numeric', month:'long', year:'numeric'});
 const capFecha = s => s.split(' ').map(w => w.toLowerCase()==='de' ? 'de' : w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
