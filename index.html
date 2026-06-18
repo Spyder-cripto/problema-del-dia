@@ -430,8 +430,9 @@ const PROBLEMAS = [
 // problemas al final de PROBLEMAS, se publican igualmente: se anexan solos al
 // final de la secuencia (aunque para mantener la alternancia, lo ideal es
 // insertar su índice en ORDEN en la posición adecuada).
-const ORDEN = [3,16,25,23,20,24,17,26,29,27,28,0,1,4,2,8,5,6,12,9,7,10,11,18,22,14,21,19,15,13];
-const SEQ = ORDEN.concat(PROBLEMAS.map((_,i)=>i).filter(i=>!ORDEN.includes(i)));
+const ORDEN = [3,16,25,23,20,24,17,26,29,27,0,1,4,2,8,5,6,12,9,7,10,11,18,22,14,21,19,15,13];
+const EXCLUIDOS = [28]; // "Calcetines a oscuras": retirado de la rotación (demasiado fácil)
+const SEQ = ORDEN.concat(PROBLEMAS.map((_,i)=>i).filter(i=>!ORDEN.includes(i) && !EXCLUIDOS.includes(i)));
 
 // Tipo (categoría) de cada problema, por su índice en PROBLEMAS. Se muestra como etiqueta.
 const TIPO = {0:"Geometría",1:"Números",2:"Ingenio",3:"Números",4:"Lógica",5:"Probabilidad",6:"Números",7:"Ingenio",8:"Geometría",9:"Geometría",10:"Números",11:"Lógica",12:"Combinatoria",13:"Lógica",14:"Números",15:"Ingenio",16:"Ingenio",17:"Lógica",18:"Geometría",19:"Geometría",20:"Geometría",21:"Probabilidad",22:"Combinatoria",23:"Ingenio",24:"Probabilidad",25:"Números",26:"Ingenio",27:"Lógica",28:"Combinatoria",29:"Números"};
