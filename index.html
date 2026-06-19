@@ -512,7 +512,7 @@ const PROBLEMAS = [
     fig:"<svg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg' style='max-width:260px'><circle cx='60' cy='60' r='30' fill='none' stroke='var(--muted)' stroke-width='2'/><circle cx='60' cy='60' r='3' fill='var(--ink)'/><line x1='60' y1='60' x2='60' y2='15' stroke='var(--accent-2)' stroke-width='2'/><circle cx='60' cy='15' r='15' fill='none' stroke='var(--accent)' stroke-width='3'/><line x1='60' y1='15' x2='60' y2='2' stroke='var(--ink)' stroke-width='2'/><path d='M90 60 A30 30 0 0 1 78 86' fill='none' stroke='var(--ok)' stroke-width='2'/><path d='M78 86 l6 -2 -2 6 z' fill='var(--ok)'/></svg>"
   },
   {
-    titulo:"El reloj de las 143 posiciones",
+    titulo:"El intercambio de las manecillas",
     fuente:"Álgebra recreativa (Perelman)",
     enun:"Las manecillas de un reloj están en una posición válida. Si intercambiamos los papeles del minutero y el horario, en general la posición resultante es imposible en un reloj real. ¿En cuántas posiciones distintas el intercambio vuelve a producir una posición válida?",
     sol:"Exactamente <b>143 posiciones</b>. Con horario x y minutero y (en una escala 0-60), la validez exige 12x ≡ y (mód 60), y la posición intercambiada exige 12y ≡ x (mód 60). Resolviendo el sistema 12x = y + 60m, 12y = x + 60n con m, n entre 0 y 11, se obtiene x = 60(12m+n)/143 e y = 60(12n+m)/143. Los 144 pares (m,n) dan 144 posiciones, pero (0,0) y (11,11) coinciden ambas en las 12:00, el único solapamiento. Por tanto 144 − 1 = <b>143</b>."

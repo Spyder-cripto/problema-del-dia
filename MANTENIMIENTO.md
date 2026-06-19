@@ -111,7 +111,7 @@ Reabastecimiento grande (40 → 63) minado de **`D:\libros_maravillosos\Matemát
 | 41 | El niño que se enfría antes | Ingenio | Media | Matemática Recreativa (Perelman) |
 | 42 | Las cajas sin etiqueta correcta | Lógica | Media | El encanto de la matemática (Pappas) |
 | 43 | La moneda que gira de más | Geometría | Difícil | Matemática Recreativa (Perelman) |
-| 44 | El reloj de las 143 posiciones | Números | Difícil | Álgebra recreativa (Perelman) |
+| 44 | El intercambio de las manecillas | Números | Difícil | Álgebra recreativa (Perelman) |
 | 45 | El río y los dos ferrys | Números | Difícil | Nuevos Acertijos de Sam Loyd (Gardner) |
 | 46 | Por qué una esfera no puede ser toda hexágonos | Geometría | Difícil | Ingeniosos encuentros entre juegos y matemáticas (Stewart) |
 | 47 | Los piratas democráticos | Lógica | Difícil | Locos por las matemáticas (Stewart) |
