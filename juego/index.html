@@ -204,12 +204,31 @@ var PRESETS={
    edges:[{id:"e0",n1:"g",n2:"l",c:"blue"},{id:"e1",n1:"l",n2:"t",c:"red"},{id:"e2",n1:"t",n2:"r",c:"red"},{id:"e3",n1:"r",n2:"g",c:"green"}]},
  diablo:{nombre:"El rombo del diablo",nivel:"Diabólico",
    nodes:[{id:"g",x:190,y:255,g:1},{id:"l",x:120,y:175},{id:"t",x:190,y:108},{id:"r",x:260,y:175}],
-   edges:[{id:"e0",n1:"g",n2:"l",c:"red"},{id:"e1",n1:"l",n2:"t",c:"blue"},{id:"e2",n1:"t",n2:"r",c:"blue"},{id:"e3",n1:"r",n2:"g",c:"green"}]}
+   edges:[{id:"e0",n1:"g",n2:"l",c:"red"},{id:"e1",n1:"l",n2:"t",c:"blue"},{id:"e2",n1:"t",n2:"r",c:"blue"},{id:"e3",n1:"r",n2:"g",c:"green"}]},
+ susurro:{nombre:"El susurro",nivel:"Diabólico",
+   nodes:[{id:"n0",x:190,y:255,g:1},{id:"n1",x:64,y:210},{id:"n2",x:64,y:165},{id:"n3",x:316,y:165},{id:"n4",x:316,y:210},{id:"n5",x:64,y:120},{id:"n6",x:316,y:120},{id:"n7",x:190,y:75}],
+   edges:[{id:"e0",n1:"n0",n2:"n1",c:"blue"},{id:"e1",n1:"n1",n2:"n2",c:"red"},{id:"e2",n1:"n1",n2:"n3",c:"blue"},{id:"e3",n1:"n0",n2:"n4",c:"red"},{id:"e4",n1:"n2",n2:"n5",c:"green"},{id:"e5",n1:"n3",n2:"n6",c:"green"},{id:"e6",n1:"n5",n2:"n7",c:"blue"}]},
+ filo:{nombre:"El filo del genio",nivel:"Diabólico",
+   nodes:[{id:"n0",x:190,y:255,g:1},{id:"n1",x:190,y:209},{id:"n2",x:64,y:163},{id:"n3",x:64,y:117},{id:"n4",x:190,y:163},{id:"n5",x:316,y:117},{id:"n6",x:316,y:163}],
+   edges:[{id:"e0",n1:"n0",n2:"n1",c:"green"},{id:"e1",n1:"n1",n2:"n2",c:"green"},{id:"e2",n1:"n2",n2:"n3",c:"red"},{id:"e3",n1:"n1",n2:"n4",c:"blue"},{id:"e4",n1:"n2",n2:"n5",c:"blue"},{id:"e5",n1:"n1",n2:"n6",c:"green"}]},
+ ventaja:{nombre:"La ventaja oculta",nivel:"Diabólico",
+   nodes:[{id:"n0",x:190,y:255,g:1},{id:"n1",x:64,y:209},{id:"n2",x:148,y:209},{id:"n3",x:232,y:209},{id:"n4",x:64,y:163},{id:"n5",x:316,y:163},{id:"n6",x:190,y:117},{id:"n7",x:316,y:209}],
+   edges:[{id:"e0",n1:"n0",n2:"n1",c:"green"},{id:"e1",n1:"n0",n2:"n2",c:"green"},{id:"e2",n1:"n0",n2:"n3",c:"green"},{id:"e3",n1:"n2",n2:"n4",c:"blue"},{id:"e4",n1:"n2",n2:"n5",c:"green"},{id:"e5",n1:"n4",n2:"n6",c:"green"},{id:"e6",n1:"n0",n2:"n7",c:"blue"}]},
+ desplome:{nombre:"El desplome",nivel:"Diabólico",
+   nodes:[{id:"n0",x:64,y:255,g:1},{id:"n1",x:64,y:209},{id:"n2",x:316,y:255,g:1},{id:"n3",x:64,y:163},{id:"n4",x:148,y:163},{id:"n5",x:316,y:209},{id:"n6",x:316,y:163},{id:"n7",x:232,y:163}],
+   edges:[{id:"e0",n1:"n0",n2:"n1",c:"green"},{id:"e1",n1:"n1",n2:"n2",c:"green"},{id:"e2",n1:"n1",n2:"n3",c:"red"},{id:"e3",n1:"n1",n2:"n4",c:"green"},{id:"e4",n1:"n2",n2:"n5",c:"green"},{id:"e5",n1:"n5",n2:"n6",c:"red"},{id:"e6",n1:"n1",n2:"n7",c:"blue"}]},
+ laberinto:{nombre:"El laberinto",nivel:"Diabólico",
+   nodes:[{id:"n0",x:190,y:255,g:1},{id:"n1",x:64,y:209},{id:"n2",x:64,y:163},{id:"n3",x:316,y:209},{id:"n4",x:190,y:163},{id:"n5",x:316,y:163},{id:"n6",x:190,y:117}],
+   edges:[{id:"e0",n1:"n0",n2:"n1",c:"blue"},{id:"e1",n1:"n1",n2:"n2",c:"red"},{id:"e2",n1:"n2",n2:"n3",c:"blue"},{id:"e3",n1:"n3",n2:"n0",c:"red"},{id:"e4",n1:"n3",n2:"n4",c:"red"},{id:"e5",n1:"n3",n2:"n5",c:"blue"},{id:"e6",n1:"n4",n2:"n6",c:"blue"}]},
+ espejo:{nombre:"El espejo roto",nivel:"Diabólico",
+   nodes:[{id:"n0",x:190,y:255,g:1},{id:"n1",x:64,y:210},{id:"n2",x:190,y:165},{id:"n3",x:316,y:210},{id:"n4",x:190,y:120},{id:"n5",x:190,y:75}],
+   edges:[{id:"e0",n1:"n0",n2:"n1",c:"blue"},{id:"e1",n1:"n1",n2:"n2",c:"blue"},{id:"e2",n1:"n2",n2:"n3",c:"red"},{id:"e3",n1:"n3",n2:"n0",c:"red"},{id:"e4",n1:"n1",n2:"n3",c:"red"},{id:"e5",n1:"n2",n2:"n4",c:"blue"},{id:"e6",n1:"n4",n2:"n5",c:"red"}]}
 };
 var ORDER=["caraacara","media","tira","chispa","torcido","ramaesc","mixto","sumacruel","hidrahielo","roble","abismo","balanza","abanico",
-           "soplo","corriente","ventisca","marea","anillo","conway","amuleto","rombo","diablo"];
+           "soplo","corriente","ventisca","marea","anillo","conway","amuleto","rombo","diablo",
+           "susurro","filo","ventaja","desplome","laberinto","espejo"];
 // pool de retos diarios (los más duros, jugada ganadora única o casi)
-var RETOS=["abismo","roble","hidrahielo","balanza","soplo","anillo","conway","amuleto","rombo","diablo","corriente","ventisca","marea","torcido","ramaesc","sumacruel"];
+var RETOS=["abismo","susurro","laberinto","roble","filo","hidrahielo","espejo","balanza","soplo","anillo","desplome","conway","amuleto","rombo","diablo","ventaja","corriente","ventisca","torcido","ramaesc"];
 function retoKey(){ var d=new Date(); var idx=Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000); return RETOS[((idx%RETOS.length)+RETOS.length)%RETOS.length]; }
 
 var board=document.getElementById("board"), sel=document.getElementById("sel"),
