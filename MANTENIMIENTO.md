@@ -102,9 +102,14 @@ El script que los insertó: `add_problemas.py` (cuidado: tuvo el bug de las coma
 
 ## Juego de Hackenbush (`juego/`)
 
-Página independiente jugable en `juego/index.html` (URL `…/problema-del-dia/juego/`), enlazada desde la principal ("🎮 Juega a Hackenbush", bajo el botón de compartir). Es el juego de Conway: cortar palitos de colores por turnos, con la regla del derrumbe. Tiene su propio HTML/CSS/JS (estética del sitio, modo oscuro). **Funciones:** posiciones en el objeto `PRESETS` + array `ORDER` (constructor `forest(columns,segH)` para bosques de tallos, o `F(...)`, o `{nodes:[{id,x,y,g}],edges:[{id,n1,n2,c}]}` a mano para **árboles ramificados**); el selector las agrupa por `nivel` (Fácil/Media/Difícil/Genio) + opción **Editor**. Modos 2 jugadores y **contra la máquina** (IA óptima por **minimax memoizado** sobre el conjunto de aristas — `canWin(edges,turno)`). Botón **"⚖️ ¿Quién gana?"** = **valor exacto** (`value()`/`simplest()`: surreales dyádicos para posiciones Rojo-Azul; ∗ "no numérico" si hay verdes) + clase de resultado (siempre Azul / siempre Rojo / el primero / el segundo).
+Página independiente jugable en `juego/index.html` (URL `…/problema-del-dia/juego/`), enlazada desde la principal ("🎮 Juega a Hackenbush", bajo el botón de compartir). Es el juego de Conway: cortar palitos de colores por turnos, con la regla del derrumbe. Tiene su propio HTML/CSS/JS (estética del sitio, modo oscuro). **Funciones:** posiciones en el objeto `PRESETS` + array `ORDER`; el selector las agrupa por `nivel` (Fácil/Media/Difícil/Genio/**Diabólico**) + **🗓️ Reto del día** + opción **Editor**. Modos 2 jugadores y **contra la máquina** (IA óptima por **minimax memoizado** `canWin(edges,turno)`). El juego maneja **grafos arbitrarios** (árboles, bosques y **ciclos**) — el derrumbe es por accesibilidad al suelo (`groundedSet`).
 
-**Roster actual (13 posiciones, validadas en node — valor y nº de jugadas ganadoras):**
+### Motor v2 (formas canónicas + infinitesimales) — `2026-06-19`
+El botón **"⚖️ ¿Quién gana?"** da el **valor exacto** y el resultado. El motor calcula la **forma canónica** del juego (números surreales dyádicos **y** infinitesimales: ∗k, ↑, ↓, ↑∗, ⇑, ⇑∗, número+infinitesimal como 1∗/¼∗…). Para que sea rápido en el navegador hay **despacho por composición** (`valueLabel`): rojo-azul puro → valor diádico rápido; todo verde → **Grundy/mex** (∗k); mixto pequeño (≤9-10 aristas) → forma canónica completa; mixto grande → solo resultado por minimax. **Validación:** el motor se construyó con un *workflow* de **4 implementaciones independientes** (definición recursiva de ≤, juego-diferencia, casos especiales, algoritmo de Siegel) que **coincidieron en las 18 posiciones de una batería** (consenso 18/18, sin discrepancias) + auto-checks deterministas (G+(−G)=0, Grundy/mex para verdes, diádico para rojo-azul, tricotomía). Etiquetas humanas vía `labelOf` (números exactos + diccionario perezoso de infinitesimales `ensureNamed`). Hay una librería node reutilizable (regenerable; los `_*.js` del directorio están en `.gitignore`).
+
+**Modo 😈 misère** (quien no puede mover GANA): casilla que invierte la regla. Implementación: `canWin` con el caso base volteado (sin jugadas → `misere?true:false`) y `doCut` que asigna `st.winner = misere ? st.turn : mover`. IA, pista y "¿Quién gana?" lo respetan (el valor surreal no aplica en misère → muestra solo el resultado).
+
+**Roster actual (22 posiciones, validadas en node — valor y nº de jugadas ganadoras):**
 
 | nivel | clave | nombre | valor | resultado |
 |---|---|---|---|---|
@@ -121,16 +126,28 @@ Página independiente jugable en `juego/index.html` (URL `…/problema-del-dia/j
 | Genio | abismo | El abismo | **−1/64** | Rojo · **1 jugada gana** (11 aristas) |
 | Genio | balanza | La balanza del diablo | ∗ | gana el 1º · **1 de 9** (la ramita verde) |
 | Genio | abanico | El cuarteto verde | ∗ | gana el 1º (Nim verde 1·2·3·4) |
+| Diabólico | soplo | El soplo | **↑** | Azul · **1 jugada gana** (bosque ↑∗+∗) |
+| Diabólico | corriente | La corriente | **⇑** | Azul (↑∗+↑∗) |
+| Diabólico | ventisca | La ventisca | **⇑∗** | Azul (↑∗+↑∗+∗) |
+| Diabólico | marea | La marea | **⇓∗** | Rojo (↓∗+↓∗+∗) |
+| Diabólico | anillo | El anillo encantado | **⇑** | Azul · 1 gana · **ciclo** (triáng. verde-azul-verde) |
+| Diabólico | conway | El triángulo de Conway | **∗** | gana el 1º · **ciclo** (fusión) |
+| Diabólico | amuleto | El amuleto | **½∗** | Azul · 1 gana · **ciclo** |
+| Diabólico | rombo | El rombo tramposo | **¼∗** | Azul · 1 gana · **ciclo** (4) |
+| Diabólico | diablo | El rombo del diablo | **−¼∗** | Rojo · 1 gana · **ciclo** (4) |
 
-Las de Genio con 7-11 aristas son **árboles ramificados con jugada ganadora ÚNICA** (megaduras, a petición de Fali el 2026-06-19). Se diseñaron con una búsqueda aleatoria sobre el propio motor (`value`/`canWin`) + auto-layout de árbol; los coeficientes se confirmaron en node antes de pegarlos.
+Las de Genio (7-11 aristas) son **árboles ramificados con jugada ganadora ÚNICA**. Las de **Diabólico** son **infinitesimales** (bosques de gadgets: tallo verde-azul=↑∗, verde-rojo=↓∗, verde=∗) y **ciclos** (triángulos/rombos coloreados que dan ∗, ½∗, ¼∗, ⇑…). Todas se diseñan/verifican en node con el motor v2 (`evalFull`) antes de pegar los literales con coordenadas.
 
-**4 mejoras añadidas el 2026-06-19:**
+**🗓️ Reto del día + compartir:** array `RETOS` (pool de las más duras); `retoKey()` rota por fecha **local** (cambia a medianoche, como los acertijos). Opción "Reto del día" en el selector + botón. **Enlaces:** `?reto` abre el reto de hoy, `?pos=clave` abre una posición concreta (botón 🔗 copia el enlace). El reto no revela el valor (sin spoiler).
+
+**Mejoras de juego (2026-06-19):**
 1. **💡 Pista** (`showHint`/`winningMove`): resalta con halo dorado pulsante el palito que gana con juego perfecto para quien mueve; si el turno ya está perdido, lo dice.
-2. **Editor con RAMAS** (grafo, antes solo tallos en columnas): `editClick` sobre un grafo `editNodes`/`editEdges`. **Modelo de interacción:** pincha el **suelo** → clava una base (queda anclada); toca el **vacío** hacia arriba → crece un palito desde el ancla y re-ancla en la punta (encadena); **toca un nudo existente** → mueve el ancla ahí (para ramificar) o la suelta. `▶ Jugar` poda lo que no toque el suelo (`groundedSet`) y juega.
+2. **Editor con RAMAS y CICLOS** (grafo): `editClick` sobre un grafo `editNodes`/`editEdges`. **Modelo:** pincha el **suelo** → clava una base (queda anclada); toca el **vacío** hacia arriba → crece un palito desde el ancla y re-ancla en la punta (encadena); **toca un nudo existente** → mueve el ancla ahí (ramificar). Con **🔗 Unir nudos** (`linkMode`) tocas dos nudos y nace una arista entre ellos → **ciclos**. `▶ Jugar` poda lo desanclado (`groundedSet`) y juega. (Evita multi-aristas entre los mismos 2 nudos: se solaparían al dibujarse en línea recta.)
 3. **Caída animada** (`ghosts`): los trozos que se desprenden al cortar caen con fade (translateY+rotate, ~0.42 s) antes de re-renderizar.
-4. **Contador de jugadas + Deshacer** en partida (`history`/`snapshot`/`restore`/`undoMove`): en modo IA, Deshacer revierte la ronda entera (hasta volver al turno humano).
+4. **Contador de jugadas + Deshacer** en partida (`history`/`snapshot`/`restore`/`undoMove`): en modo IA, Deshacer revierte la ronda entera.
+5. **Bug corregido (la congelación):** `commitCut` hacía el render final con `lock=true` (durante la animación) y al desbloquear NO redibujaba → tras responder la IA los palitos quedaban sin manejador de clic. Fix: bloquear antes de animar y **re-renderizar al desbloquear** (`setTimeout`→`lock=false; render()`).
 
-**Validar en node antes de publicar:** `node --check` del `<script>` extraído + ejecutar el IIFE con un DOM simulado (stub de document/createElementNS/getElementById…) para que `loadPreset`→`render` corran sin throw (detecta datos/comas rotas). Para el roster, recomputar `value()`/`canWin()`/jugadas-ganadoras de cada preset (1·2·3·4 Nim → 1º; valores ½,⅛,1/16,1/64… exactos). **No depende de la GitHub Action (es estático) → NO hay cache-buster:** al editarlo, en el navegador forzar recarga (Ctrl+F5) o abrir con `?v=N`; si no, se ve la versión cacheada. Surgió el 2026-06-19 al explorar a Conway tras bajar *Winning Ways Vol.1* a `Downloads\Conway`.
+**Validar en node antes de publicar:** (1) `node --check` del `<script>` extraído; (2) ejecutar el IIFE con un DOM simulado (stub de document/createElementNS/getElementById…) para que `loadPreset`→`render` corran sin throw; (3) para el motor v2 y el roster, recomputar con la librería (`evalFull`) el valor canónico y nº de jugadas ganadoras de cada preset (la batería de 18 tiene oráculo fijo; números ½,⅛,1/16,1/64 y nimbers/infinitesimales ∗k,↑,⇑,↑∗ exactos). **OJO rendimiento:** la forma canónica de posiciones mixtas grandes (>10 aristas) explota (abanico de 10 verdes tardaba 64 s) → el despacho rápido lo evita; mantener los niveles mixtos pequeños. **No depende de la GitHub Action (es estático) → NO hay cache-buster:** forzar recarga (Ctrl+F5) o abrir con `?v=N`. Surgió el 2026-06-19 al explorar a Conway tras bajar *Winning Ways Vol.1* a `Downloads\Conway`.
 
 ## Reabastecer problemas
 
