@@ -9,7 +9,7 @@ Guía para retomar y mantener el proyecto en frío. Todo vive en un único **`in
 
 ## Qué es
 
-Una web estática que muestra **un acertijo matemático cada día**. El problema cambia solo a medianoche (hora **local del visitante**), calculado en JS por la fecha — no hay backend ni publicación manual. Hay **40 problemas** (a 2026-06-18); el ciclo dura ~40 días y luego repite.
+Una web estática que muestra **un acertijo matemático cada día**. El problema cambia solo a medianoche (hora **local del visitante**), calculado en JS por la fecha — no hay backend ni publicación manual. Hay **63 problemas** (a 2026-06-19; eran 40, +23 reabastecidos ese día — ver sección al final); el ciclo dura ~62 días y luego repite.
 
 ## Modelo de datos (en `index.html`)
 
@@ -18,8 +18,8 @@ Una web estática que muestra **un acertijo matemático cada día**. El problema
 - **`EXCLUIDOS`** — índices retirados de la rotación (p. ej. `[28]`, "Calcetines a oscuras", demasiado fácil).
 - **`SEQ`** = `ORDEN` + (cualquier índice que no esté en ORDEN ni en EXCLUIDOS, anexado al final). Hoy ORDEN ya contiene todo, así que SEQ = ORDEN (39).
 - **`TIPO`** — `{índice: categoría}`. Categorías válidas (con color en `CLASE_TIPO`): **Geometría, Números, Lógica, Probabilidad, Combinatoria, Ingenio**. NO existe "Álgebra" (usar "Números").
-- **`DIF`** — `{índice: 1|2|3}` (1=Fácil, 2=Media, 3=Difícil).
-- **`PISTAS`** — `{índice: [..]}`. **Difícil → 2 pistas; Media → 1; Fácil → 0.** Respeta el número según la dificultad.
+- **`DIF`** — `{índice: 1|2|3|4}` (1=Fácil, 2=Media, 3=Difícil, **4=Muy difícil**, añadido 2026-06-19). Se pinta como **escala de 4 puntos**: `"●".repeat(d) + "○".repeat(4 - d)` → Media `●●○○`, Difícil `●●●○`, Muy difícil `●●●●`. Hay `DIF_NOMBRE[4]="Muy difícil"` y CSS `.dif.d4` (rojo `--hard`, negrita). **OJO:** la fórmula antes era `repeat(3 - d)`; con `d=4` eso lanzaba `RangeError` (repeat negativo) — por eso se cambió el 3 por 4.
+- **`PISTAS`** — `{índice: [..]}`. **Muy difícil → 2; Difícil → 2 pistas; Media → 1; Fácil → 0.** Respeta el número según la dificultad. (El nº de botones lo decide `PISTAS[idx].length`, no `DIF`.)
 - **`DIBUJOS`** — `{índice: "SVG"}` garabato infantil (viewBox 0 0 100 100, va sobre `PAPEL`). Si falta, usa `DEFECTO` (carita). 
 - **`INICIO`** — fecha del día 1 (`"2026-06-17"`).
 - **`?ver=N`** — parámetro de URL para **previsualizar** cualquier problema (la web normal no deja navegar a días futuros; el botón "Siguiente" se desactiva al llegar a hoy). Ej.: `...github.io/problema-del-dia/?ver=30`.
@@ -83,7 +83,7 @@ Solo publicar si `node --check` pasa Y `render()` corre sin throw.
 
 ## Los 10 problemas difíciles añadidos el 2026-06-18 (índices 30-39, dif 3)
 
-Minados y adaptados de la biblioteca de mate descargada (ver carpeta `Downloads\libros_maravillosos\Matemáticas`, ~110 libros más para seguir):
+Minados y adaptados de la biblioteca de mate descargada (ver carpeta `D:\libros_maravillosos\Matemáticas` — movida de `Downloads` el 2026-06-19):
 
 | idx | título | categoría | fuente |
 |----|--------|-----------|--------|
@@ -99,6 +99,36 @@ Minados y adaptados de la biblioteca de mate descargada (ver carpeta `Downloads\
 | 39 | La corneja y el jarro | Ingenio | Geometría recreativa (Perelman) |
 
 El script que los insertó: `add_problemas.py` (cuidado: tuvo el bug de las comas, corregido a mano después).
+
+## Los 23 problemas añadidos el 2026-06-19 (índices 40-62)
+
+Reabastecimiento grande (40 → 63) minado de **`D:\libros_maravillosos\Matemáticas`** (los libros se movieron de `Downloads` a `D:` el 2026-06-19) con **2 workflows (ultracode)**: (1) 16 lectores → curador → **verificación adversaria** (cada acertijo resuelto desde cero) → selección; (2) un redactor + un revisor de gotchas por problema. Mezcla **10 Media / 10 Difícil / 3 Muy difícil**, las 6 categorías cubiertas. Enunciados con redacción propia (respeta copyright), soluciones verificadas. Scripts del lote en `C:\Proyectos\TRIPLEX\`: `armar_problemas.py` (+ `_nuevos_src.json` / `_nuevos_final.json`). `ORDEN` recalculado sobre los 62 activos con alternancia (0 adyacencias).
+
+| idx | título | categoría | dificultad | fuente |
+|----|--------|-----------|-----------|--------|
+| 40 | La paradoja del ascensor de Gamow | Probabilidad | Media | Que las matemáticas te acompañen (Clara Grima) |
+| 41 | El niño que se enfría antes | Ingenio | Media | Matemática Recreativa (Perelman) |
+| 42 | Las cajas sin etiqueta correcta | Lógica | Media | El encanto de la matemática (Pappas) |
+| 43 | La moneda que gira de más | Geometría | Difícil | Matemática Recreativa (Perelman) |
+| 44 | El reloj de las 143 posiciones | Números | Difícil | Álgebra recreativa (Perelman) |
+| 45 | El río y los dos ferrys | Números | Difícil | Nuevos Acertijos de Sam Loyd (Gardner) |
+| 46 | Por qué una esfera no puede ser toda hexágonos | Geometría | Difícil | Ingeniosos encuentros entre juegos y matemáticas (Stewart) |
+| 47 | Los piratas democráticos | Lógica | Difícil | Locos por las matemáticas (Stewart) |
+| 48 | ¿Quién gana al Chomp? | Combinatoria | Muy difícil | Locos por las matemáticas (Stewart) |
+| 49 | Cuadrar el cuadrado | Geometría | Muy difícil | Locos por las matemáticas (Stewart) |
+| 50 | ¿Quién pasa el aro más fácilmente? | Probabilidad | Difícil | Matemática Recreativa (Perelman) |
+| 51 | La metralla forma una esfera | Geometría | Media | Geometría Recreativa (Perelman) |
+| 52 | La correa y las tres poleas | Geometría | Difícil | Geometría Recreativa (Perelman) |
+| 53 | El horizonte de Gogol | Números | Media | Geometría Recreativa (Perelman) |
+| 54 | Cubos bicolores | Combinatoria | Difícil | Matemática para Divertirse (Gardner) |
+| 55 | Eva habladora | Números | Difícil | Miscelánea matemática (Gardner) |
+| 56 | Los números que se tienen amistad | Números | Media | Miscelánea matemática (Gardner) |
+| 57 | El nenúfar y la profundidad del lago | Geometría | Media | Acertijos de Sam Loyd (Gardner) |
+| 58 | La pelota perfecta | Geometría | Media | Acertijos de Sam Loyd (Gardner) |
+| 59 | Cinco niñas y diez pesadas | Números | Difícil | Nuevos Acertijos de Sam Loyd (Gardner) |
+| 60 | Cuántos cuadrados hay en un tablero | Números | Media | El encanto de la matemática (Pappas) |
+| 61 | El sorteo justo con moneda trucada | Probabilidad | Media | Que las matemáticas te acompañen (Clara Grima) |
+| 62 | La zanja más corta | Geometría | Muy difícil | Locos por las matemáticas (Stewart) |
 
 ## Juego de Hackenbush (`juego/`)
 
@@ -151,4 +181,4 @@ Las de Genio (7-11 aristas) son **árboles ramificados con jugada ganadora ÚNIC
 
 ## Reabastecer problemas
 
-Antes de que el ciclo de ~40 días repita demasiado, minar más acertijos de la biblioteca (`Downloads\libros_maravillosos\Matemáticas`: Perelman, Gardner, Sam Loyd/Dudeney, Malba Tahan, Ignátiev, Yaglom, Steinhaus, Guik, Lucas, Paenza…). Adaptar (reescribir, no copiar; respeta copyright) y seguir el procedimiento de "Cómo añadir un problema".
+Antes de que el ciclo de ~62 días repita demasiado, minar más acertijos de la biblioteca (`D:\libros_maravillosos\Matemáticas`: Perelman, Gardner, Sam Loyd/Dudeney, Malba Tahan, Ignátiev, Yaglom, Steinhaus, Guik, Lucas, Paenza…). Adaptar (reescribir, no copiar; respeta copyright) y seguir el procedimiento de "Cómo añadir un problema".
