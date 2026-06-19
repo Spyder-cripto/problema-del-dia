@@ -514,7 +514,7 @@ const PROBLEMAS = [
   {
     titulo:"El reloj de las 143 posiciones",
     fuente:"Álgebra recreativa (Perelman)",
-    enun:"Las manecillas de un reloj están en una posición válida. Si intercambiamos los papeles del minutero y el horario, en general la posición resultante es imposible en un reloj real. ¿En cuántas posiciones distintas el intercambio sí produce otra posición válida?",
+    enun:"Las manecillas de un reloj están en una posición válida. Si intercambiamos los papeles del minutero y el horario, en general la posición resultante es imposible en un reloj real. ¿En cuántas posiciones distintas el intercambio vuelve a producir una posición válida?",
     sol:"Exactamente <b>143 posiciones</b>. Con horario x y minutero y (en una escala 0-60), la validez exige 12x ≡ y (mód 60), y la posición intercambiada exige 12y ≡ x (mód 60). Resolviendo el sistema 12x = y + 60m, 12y = x + 60n con m, n entre 0 y 11, se obtiene x = 60(12m+n)/143 e y = 60(12n+m)/143. Los 144 pares (m,n) dan 144 posiciones, pero (0,0) y (11,11) coinciden ambas en las 12:00, el único solapamiento. Por tanto 144 − 1 = <b>143</b>."
   },
   {
@@ -553,7 +553,7 @@ const PROBLEMAS = [
     titulo:"¿Quién pasa el aro más fácilmente?",
     fuente:"Matematica Recreativa (Perelman)",
     enun:"En el croquet, los aros tienen una anchura exactamente el doble del diámetro de la bola. Desde la misma distancia, ¿qué es más fácil: pasar la bola por el aro sin tocarlo, o golpear con ella la bola del contrario? La mayoría apuesta por el aro, porque parece el doble de ancho.",
-    sol:"Es <b>dos veces más fácil golpear la bola del contrario</b>. Al pasar el aro, el centro de tu bola no puede acercarse al alambre a menos de un radio por cada lado, así que el margen útil de acierto es 2d − d = <b>d</b>. En cambio, para golpear la bola rival basta con que ambos centros se aproximen a menos de un radio, lo que da un margen útil de <b>2d</b>. La anchura efectiva del blanco es, por tanto, el doble al apuntar a la bola que al pasar el aro, justo lo contrario de lo que sugiere la intuición.",
+    sol:"Es <b>dos veces más fácil golpear la bola del contrario</b>. Al pasar el aro, el centro de tu bola no puede acercarse al alambre a menos de un radio por cada lado, así que el margen útil de acierto es 2d − d = <b>d</b>. En cambio, para golpear la bola rival basta con que ambos centros se aproximen a menos de un diámetro (la suma de los dos radios), lo que da un margen útil de <b>2d</b>. La anchura efectiva del blanco es, por tanto, el doble al apuntar a la bola que al pasar el aro, justo lo contrario de lo que sugiere la intuición.",
     fig:"<svg viewBox='0 0 260 120' xmlns='http://www.w3.org/2000/svg' style='max-width:260px'><line x1='60' y1='20' x2='60' y2='105' stroke='var(--muted)' stroke-width='3'/><line x1='140' y1='20' x2='140' y2='105' stroke='var(--muted)' stroke-width='3'/><circle cx='100' cy='80' r='20' fill='none' stroke='var(--accent)' stroke-width='2.5'/><line x1='80' y1='105' x2='80' y2='95' stroke='var(--ink)' stroke-width='1.5'/><line x1='120' y1='105' x2='120' y2='95' stroke='var(--ink)' stroke-width='1.5'/><line x1='80' y1='100' x2='120' y2='100' stroke='var(--ink)' stroke-width='1.5'/><text x='100' y='115' font-size='11' text-anchor='middle' fill='var(--ink)'>aro: margen d</text><circle cx='200' cy='55' r='20' fill='none' stroke='var(--accent)' stroke-width='2.5'/><circle cx='200' cy='55' r='20' fill='none' stroke='var(--accent-2)' stroke-width='2.5' stroke-dasharray='4 3'/><text x='200' y='95' font-size='11' text-anchor='middle' fill='var(--ink)'>bola: margen 2d</text></svg>"
   },
   {
@@ -573,7 +573,7 @@ const PROBLEMAS = [
     titulo:"El horizonte de Gogol",
     fuente:"Geometria Recreativa (Perelman)",
     enun:"El escritor Gogol afirmó que para ver 160 km de horizonte desde una torre bastaba con añadir «uno o dos pisos más». ¿Tenía razón? ¿A qué altura habría que subir realmente para ver 160 km hasta el horizonte en terreno llano?",
-    sol:"Gogol estaba <b>equivocado</b>. La distancia al horizonte crece como la raíz cuadrada de la altura (d ≈ √(2Rh), con R ≈ 6400 km): si la altura se multiplica por 100, el horizonte solo se aleja 10 veces. Para ver 160 km haría falta una h tal que 160 = √(2·6400·h), es decir <b>h ≈ 2000 metros</b>, la altura de una montaña, no «dos pisos más». Añadir dos pisos a un edificio de ocho aumenta el horizonte apenas un 10%, algo imperceptible."
+    sol:"Gogol estaba <b>equivocado</b>. La distancia al horizonte crece como la raíz cuadrada de la altura (d ≈ √(2Rh), con R ≈ 6400 km): si la altura se multiplica por 100, el horizonte solo se aleja 10 veces. Para ver 160 km haría falta una h tal que 160 = √(2·6400·h), es decir <b>h ≈ 2000 metros</b>, la altura de una montaña, no «dos pisos más». Añadir dos pisos a un edificio de ocho aumenta el horizonte poco más del 10%, algo imperceptible."
   },
   {
     titulo:"Cubos bicolores",
@@ -585,13 +585,13 @@ const PROBLEMAS = [
     titulo:"Eva habladora",
     fuente:"Miscelanea matematica (Gardner)",
     enun:"En el criptaritmo EVE÷DID = 0,TALKTALKTALK… cada letra es un dígito distinto (puede haber ceros). La fracción EVE/DID es irreducible y su expansión decimal es periódica con un período de exactamente cuatro cifras, TALK, que se repite sin fin. Halla los números EVE y DID.",
-    sol:"La solución única es <b>EVE = 242</b> y <b>DID = 303</b>, ya que 242÷303 = 0,79867986… con período TALK = 7986. Como TALK/9999 simplificada debe coincidir con EVE/DID, el denominador DID divide a 9999; los únicos divisores palíndromos de tres cifras son 101, 303 y 909. Se descarta 101 (su período da un producto de 5 cifras) y 909, de modo que DID = 303; con EVE < 303 e irreducible, la única candidata válida es <b>242/303</b>."
+    sol:"La solución única es <b>EVE = 242</b> y <b>DID = 303</b>, ya que 242÷303 = 0,79867986… con período TALK = 7986. Como TALK/9999 simplificada debe coincidir con EVE/DID, el denominador DID divide a 9999; los únicos divisores palíndromos de tres cifras son 101, 303 y 909, pero solo 303 admite un EVE menor que él, irreducible, que haga que las ocho letras E, V, D, I, T, A, L, K representen cifras distintas; la única candidata válida es entonces <b>242/303</b>."
   },
   {
     titulo:"Los números que se tienen amistad",
     fuente:"Miscelanea matematica (Gardner)",
     enun:"Dos números son «amigos» si cada uno es igual a la suma de los divisores propios del otro. El par más pequeño es 220 y 284. En 1867, un italiano de 16 años descubrió el segundo par más pequeño, que durante siglos había pasado inadvertido a los grandes matemáticos. ¿Cuál es ese par y sabrías comprobar que de verdad son amigos?",
-    sol:"El segundo par es <b>1184 y 1210</b>. Divisores propios de 1184: 1, 2, 4, 8, 16, 32, 37, 74, 148, 296, 592 → suman 1210. Divisores propios de 1210: 1, 2, 5, 10, 11, 22, 55, 110, 121, 242, 605 → suman 1184. Cada uno reconstruye al otro, así que son amigos. Lo asombroso es que un par tan pequeño fuese hallado tan tarde, por el joven <i>B. Nicolò Paganini</i> en 1867, cuando ya se conocían pares amigos de cinco cifras desde hacía siglos."
+    sol:"El segundo par es <b>1184 y 1210</b>. Divisores propios de 1184: 1, 2, 4, 8, 16, 32, 37, 74, 148, 296, 592 → suman 1210. Divisores propios de 1210: 1, 2, 5, 10, 11, 22, 55, 110, 121, 242, 605 → suman 1184. Cada uno reconstruye al otro, así que son amigos. Lo asombroso es que un par tan pequeño fuese hallado tan tarde, por el joven <i>B. Nicolò Paganini</i> en 1866, cuando ya se conocían pares amigos de cinco cifras desde hacía siglos."
   },
   {
     titulo:"El nenúfar y la profundidad del lago",
@@ -611,7 +611,7 @@ const PROBLEMAS = [
     titulo:"Cinco niñas y diez pesadas",
     fuente:"Nuevos Acertijos de Sam Loyd (Gardner)",
     enun:"Cinco niñas se pesan de dos en dos en todas las combinaciones posibles, obteniendo estos diez resultados (en libras): 129, 125, 124, 123, 122, 121, 120, 118, 116 y 114. ¿Cuánto pesa cada niña por separado?",
-    sol:"Pesan <b>56, 58, 60, 64 y 65 libras</b>. Cada niña aparece en 4 de los diez pares, así que al sumar los diez valores (1212) contamos el peso total 4 veces: la suma de los cinco pesos es 1212 ÷ 4 = <b>303</b>. La pareja más ligera (114) son las dos más livianas (56 + 58 = 114) y la más pesada (129) son las dos mayores (64 + 65 = 129). Restando ambos extremos del total, la niña intermedia pesa 303 − 114 − 129 = 60; y con 56 + 58 y 64 + 65 quedan fijados de forma <i>única</i> los cinco pesos. Comprobación: las diez sumas de parejas reproducen exactamente la lista dada."
+    sol:"Pesan <b>56, 58, 60, 64 y 65 libras</b>. Cada niña aparece en 4 de los diez pares, así que al sumar los diez valores (1212) contamos el peso total 4 veces: la suma de los cinco pesos es 1212 ÷ 4 = <b>303</b>. La pareja más ligera (114) son las dos más livianas (56 + 58 = 114) y la más pesada (129) son las dos mayores (64 + 65 = 129). Restando ambos extremos del total, la niña intermedia pesa 303 − 114 − 129 = 60; la segunda suma más pequeña (116 = 56 + 60) parte la pareja ligera en 56 y 58, y la segunda mayor (125 = 60 + 65) parte la pesada en 64 y 65, con lo que los cinco pesos quedan fijados de forma <i>única</i>. Comprobación: las diez sumas de parejas reproducen exactamente la lista dada."
   },
   {
     titulo:"Cuántos cuadrados hay en un tablero",
@@ -627,10 +627,10 @@ const PROBLEMAS = [
     sol:"Lánzala <b>dos veces seguidas</b>. Los dos resultados mixtos, (cara, cruz) y (cruz, cara), tienen exactamente la misma probabilidad p·(1−p), sea cual sea el sesgo p. Asigna a cada persona uno de esos dos resultados mixtos. Si salen dos iguales, (cara, cara) o (cruz, cruz), se descarta y se repite la pareja de lanzamientos. Este truco, ideado por John von Neumann, da un sorteo <b>perfectamente justo (50-50)</b> por trucada que esté la moneda."
   },
   {
-    titulo:"La zanja más corta",
+    titulo:"La zanja más astuta",
     fuente:"Locos por las matemáticas (Stewart)",
-    enun:"Una alcantarilla recta pasa a menos de 100 metros de cierta fuente, pero no sabes en qué dirección corre. Debes cavar una zanja que garantice cruzarla, sea cual sea su orientación. ¿Cuál es la zanja más corta que corta con certeza cualquier recta que diste 100 metros o menos de la fuente?",
-    sol:"Cualquier recta que pase a 100 m o menos de la fuente es tangente (o secante) al círculo de radio 100 centrado en ella, así que basta con una zanja que toque todas esas tangentes. La circunferencia completa (628 m) sirve, pero hay algo mejor: la solución conocida es un semicírculo de radio 100 m prolongado con dos segmentos rectos tangentes, formando una especie de horquilla. Su longitud total es aproximadamente <b>(π + 2)·100 ≈ 514 metros</b>, bastante menos que los 628 m de la circunferencia entera. Cualquier recta que diste 100 m o menos del centro queda atrapada por esa zanja.",
+    enun:"Una alcantarilla recta pasa a menos de 100 metros de cierta fuente, pero no sabes en qué dirección corre. Quieres cavar una zanja que, sea cual sea su orientación, la corte con certeza. Lo obvio es rodear la fuente con un círculo de 100 m de radio: 628 m de zanja. ¿Sabrías garantizar el cruce cavando bastante menos?",
+    sol:"Cualquier recta que pase a 100 m o menos de la fuente toca el círculo de radio 100 centrado en ella, así que basta con una zanja que corte todas sus tangentes. No hace falta el círculo entero: un semicírculo de radio 100 prolongado con dos segmentos rectos tangentes (una especie de horquilla) atrapa cualquiera de esas rectas y mide solo <b>(π + 2)·100 ≈ 514 metros</b>, frente a los 628 de la circunferencia. Lo más curioso: <i>cuál es la zanja mínima absoluta sigue siendo un problema abierto</i> — se conocen barreras aún más cortas, pero nadie ha demostrado cuál es la más corta posible.",
     fig:"<svg viewBox='0 0 200 170' xmlns='http://www.w3.org/2000/svg' style='max-width:260px'><circle cx='100' cy='80' r='55' fill='none' stroke='var(--muted)' stroke-width='2' stroke-dasharray='6 5'/><circle cx='100' cy='80' r='4' fill='var(--accent-2)'/><path d='M45 80 A55 55 0 0 1 155 80' fill='none' stroke='var(--accent)' stroke-width='5' stroke-linecap='round'/><path d='M45 80 L45 150' fill='none' stroke='var(--accent)' stroke-width='5' stroke-linecap='round'/><path d='M155 80 L155 150' fill='none' stroke='var(--accent)' stroke-width='5' stroke-linecap='round'/><line x1='20' y1='45' x2='185' y2='118' stroke='var(--ink)' stroke-width='2'/><text x='100' y='165' text-anchor='middle' fill='var(--muted)' font-size='13' font-family='sans-serif'>(π + 2)·100 ≈ 514 m</text></svg>"
   },
 ];
@@ -716,7 +716,7 @@ const PISTAS = {
   59:["Cada niña interviene en varias de las diez pesadas; cuenta en cuántas aparece cada una y suma los diez resultados.","La pesada menor te da las dos niñas más ligeras y la mayor las dos más pesadas; con el peso total de las cinco lo demás sale solo."],
   60:["No cuentes solo las casillas sueltas: para cada tamaño k×k, piensa en cuántas posiciones distintas cabe ese cuadrado y cómo se reduce el margen al crecer k."],
   61:["No mires un solo lanzamiento, sino lo que ocurre al lanzar dos veces: ¿qué dos resultados distintos son siempre igual de probables aunque la moneda esté sesgada?"],
-  62:["Toda recta que pase a 100 m o menos de la fuente es tangente al círculo de radio 100; te basta una zanja que corte todas esas tangentes.","La circunferencia entera funciona, pero sobra: prueba a sustituir parte del arco por tramos rectos tangentes sin dejar de tocar ninguna recta posible."],
+  62:["Toda recta que amenaza la fuente roza el círculo de radio 100 a su alrededor; te basta con cortar todas las tangentes a ese círculo.","No necesitas la circunferencia entera: con medio círculo y dos tramos rectos bien colocados ya no se escapa ninguna recta (cuál es la mínima absoluta, en cambio, nadie lo sabe)."],
 };
 
 // ====== DIBUJOS (estilo garabato infantil, uno por problema) ======

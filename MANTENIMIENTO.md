@@ -128,7 +128,7 @@ Reabastecimiento grande (40 → 63) minado de **`D:\libros_maravillosos\Matemát
 | 59 | Cinco niñas y diez pesadas | Números | Difícil | Nuevos Acertijos de Sam Loyd (Gardner) |
 | 60 | Cuántos cuadrados hay en un tablero | Números | Media | El encanto de la matemática (Pappas) |
 | 61 | El sorteo justo con moneda trucada | Probabilidad | Media | Que las matemáticas te acompañen (Clara Grima) |
-| 62 | La zanja más corta | Geometría | Muy difícil | Locos por las matemáticas (Stewart) |
+| 62 | La zanja más astuta | Geometría | Muy difícil | Locos por las matemáticas (Stewart) |
 
 ## Juego de Hackenbush (`juego/`)
 
