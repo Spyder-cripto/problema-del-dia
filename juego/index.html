@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hackenbush · El problema del día</title>
-<meta name="description" content="Juega a Hackenbush: corta palitos de colores por turnos. El juego de John Horton Conway que esconde los números surreales.">
+<meta name="description" content="Juega a Hackenbush: corta palitos de colores por turnos. El juego de John Horton Conway que esconde los números surreales. Posiciones para genios y editor propio.">
 <style>
   :root{
     --bg:#f3efe6; --bg2:#ece5d6; --card:#fffdf8; --ink:#2b2620; --muted:#857c6e;
@@ -16,25 +16,30 @@
   *{box-sizing:border-box}
   body{font-family:var(--body);background:var(--bg);color:var(--ink);margin:0;padding:0 16px 48px;line-height:1.6}
   .wrap{max-width:720px;margin:0 auto}
-  header{text-align:center;padding:30px 0 14px}
+  header{text-align:center;padding:28px 0 12px}
   h1{font-family:var(--display);font-weight:600;font-size:2.3rem;margin:0}
   .sub{color:var(--muted);font-style:italic;margin:6px 0 0}
   .back{display:inline-block;margin-top:10px;color:var(--azul);text-decoration:none;font-size:.95rem}
   .back:hover{text-decoration:underline}
   .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin:16px 0;box-shadow:0 8px 24px rgba(60,45,20,.08)}
   .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
-  .controls .grp{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .grp{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  label.lab{color:var(--muted);font-size:.9rem}
   select,button{font-family:var(--body);font-size:.95rem;padding:7px 12px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer}
   select{background:var(--card)}
   button:hover{border-color:var(--accent)}
   button.primary{background:var(--accent);color:#fff;border:none}
-  .status{font-size:1.15rem;margin:12px 0 8px;min-height:1.5em}
-  #board{display:block;margin:0 auto;background:color-mix(in srgb,var(--card) 80%,var(--bg));border:1px solid var(--line);border-radius:12px;max-width:440px;width:100%}
+  button.sel{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 30%,transparent)}
+  .status{font-size:1.12rem;margin:12px 0 8px;min-height:1.5em}
+  .nivel{display:inline-block;font-size:.78rem;padding:2px 9px;border-radius:999px;color:#fff;margin-left:4px;vertical-align:2px}
+  #board{display:block;margin:0 auto;background:color-mix(in srgb,var(--card) 80%,var(--bg));border:1px solid var(--line);border-radius:12px;max-width:440px;width:100%;touch-action:manipulation}
   .legend{font-size:.92rem;color:var(--muted);margin-top:12px}
   .legend b.az{color:var(--azul)} .legend b.ro{color:var(--rojo)} .legend b.ve{color:var(--verde)}
+  .editbar{display:none;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+  .editbar.show{display:flex}
+  .val{font-weight:bold}
   h2{font-family:var(--display);font-weight:600;font-size:1.4rem;margin:0 0 8px}
   p{margin:.5em 0}
-  .win{font-weight:bold}
   footer{text-align:center;color:var(--muted);font-size:.82rem;margin-top:30px}
   footer a{color:var(--azul);text-decoration:none}
 </style>
@@ -50,22 +55,33 @@
   <div class="card">
     <div class="controls">
       <div class="grp">
-        <label style="color:var(--muted);font-size:.9rem">Posición</label>
+        <label class="lab">Posición</label>
         <select id="sel"></select>
       </div>
       <div class="grp">
-        <label style="color:var(--muted);font-size:.9rem">Modo</label>
+        <label class="lab">Modo</label>
         <select id="mode">
           <option value="2p">2 jugadores</option>
-          <option value="ai">Contra la máquina (juega Rojo)</option>
+          <option value="ai">Contra la máquina (Rojo)</option>
         </select>
         <button id="who">¿Quién gana?</button>
         <button id="reset">Reiniciar</button>
       </div>
     </div>
+
+    <div class="editbar" id="editbar">
+      <label class="lab">Pinta con:</label>
+      <button class="colbtn sel" data-c="blue" style="color:var(--azul)">● Azul</button>
+      <button class="colbtn" data-c="red" style="color:var(--rojo)">● Rojo</button>
+      <button class="colbtn" data-c="green" style="color:var(--verde)">● Verde</button>
+      <button id="undo">Deshacer</button>
+      <button id="clear">Limpiar</button>
+      <button id="play" class="primary">▶ Jugar</button>
+    </div>
+
     <div class="status" id="status"></div>
     <svg id="board" viewBox="0 0 380 300"></svg>
-    <div class="legend">
+    <div class="legend" id="legend">
       <b class="az">Azul</b> corta palitos azules, <b class="ro">Rojo</b> los rojos, los <b class="ve">verdes</b> cualquiera.
       Al cortar, todo lo que quede sin tocar el suelo <i>se cae</i>. <b>Quien no puede mover, pierde.</b>
     </div>
@@ -73,25 +89,8 @@
 
   <div class="card">
     <h2>Cómo se juega</h2>
-    <p>Cada figura está hecha de palitos unidos al suelo. En tu turno borras un palito de tu color; si al hacerlo algún trozo queda sin tocar el suelo, ese trozo <i>se cae</i> también. Pierde quien se queda sin jugada.</p>
-    <svg viewBox="0 0 560 150" width="100%" style="max-width:560px">
-      <text x="14" y="20" font-family="Georgia,serif" font-size="13" fill="#857c6e">la posición</text>
-      <line x1="40" y1="110" x2="110" y2="110" stroke="#857c6e" stroke-width="2.5"/>
-      <line x1="75" y1="110" x2="75" y2="78" stroke="#1f5fa6" stroke-width="8" stroke-linecap="round"/>
-      <line x1="75" y1="78" x2="75" y2="46" stroke="#c0432f" stroke-width="8" stroke-linecap="round"/>
-      <line x1="300" y1="14" x2="300" y2="140" stroke="#ece2cc" stroke-width="1.5"/>
-      <text x="320" y="20" font-family="Georgia,serif" font-size="13" fill="#857c6e">la regla del derrumbe</text>
-      <line x1="340" y1="110" x2="392" y2="110" stroke="#857c6e" stroke-width="2.5"/>
-      <line x1="366" y1="110" x2="366" y2="82" stroke="#1f5fa6" stroke-width="7" stroke-linecap="round"/>
-      <line x1="366" y1="82" x2="366" y2="54" stroke="#c0432f" stroke-width="7" stroke-linecap="round"/>
-      <text x="338" y="130" font-family="Georgia,serif" font-size="12" fill="#857c6e">quitas el azul…</text>
-      <text x="410" y="92" font-family="Georgia,serif" font-size="22" fill="#857c6e">→</text>
-      <line x1="450" y1="110" x2="502" y2="110" stroke="#857c6e" stroke-width="2.5"/>
-      <line x1="476" y1="74" x2="476" y2="48" stroke="#c0432f" stroke-width="7" stroke-linecap="round" opacity="0.55"/>
-      <text x="470" y="98" font-family="Georgia,serif" font-size="18" fill="#c0432f" opacity="0.7">↓</text>
-      <text x="446" y="130" font-family="Georgia,serif" font-size="12" fill="#857c6e">…y el rojo cae</text>
-    </svg>
-    <p style="font-size:.95rem;color:var(--muted)">Lo asombroso: cada posición tiene un “valor” numérico exacto. El tallo azul-abajo/rojo-arriba vale <b>½</b>, y combinando colores salen todas las fracciones e incluso los <i>números surreales</i>. ¡De borrar palitos nacen los números!</p>
+    <p>Cada figura está hecha de palitos unidos al suelo. En tu turno borras un palito de tu color; si al hacerlo algún trozo queda sin tocar el suelo, ese trozo <i>se cae</i> también. Pierde quien se quede sin jugada.</p>
+    <p style="font-size:.95rem;color:var(--muted)">Cada posición tiene un <b>valor</b> exacto (pulsa “¿Quién gana?”). El tallo azul-abajo/rojo-arriba vale <b>½</b>; combinando colores salen todas las fracciones e incluso los <i>números surreales</i> de Conway. Los <b style="color:var(--verde)">verdes</b> (que corta cualquiera) dan posiciones tipo <b>∗</b> (Nim): ahí no gana un color fijo, sino el primero o el segundo según la jugada.</p>
   </div>
 
   <footer>
@@ -103,30 +102,64 @@
 (function(){
 "use strict";
 var NS="http://www.w3.org/2000/svg", FLOOR=255;
-var PRESETS={
- simple:{nombre:"Tallo bicolor (= ½)",
-   nodes:[{id:0,x:190,y:FLOOR,g:1},{id:1,x:190,y:190},{id:2,x:190,y:125}],
-   edges:[{id:"a",n1:0,n2:1,c:"blue"},{id:"b",n1:1,n2:2,c:"red"}]},
- escalera:{nombre:"Escalera (= ¾)",
-   nodes:[{id:0,x:190,y:FLOOR,g:1},{id:1,x:190,y:198},{id:2,x:190,y:141},{id:3,x:190,y:84}],
-   edges:[{id:"a",n1:0,n2:1,c:"blue"},{id:"b",n1:1,n2:2,c:"red"},{id:"c",n1:2,n2:3,c:"blue"}]},
- arbol:{nombre:"Arbolito",
-   nodes:[{id:0,x:190,y:FLOOR,g:1},{id:1,x:190,y:200},{id:2,x:190,y:148},{id:3,x:140,y:112},{id:4,x:240,y:112},{id:5,x:110,y:76}],
-   edges:[{id:"a",n1:0,n2:1,c:"blue"},{id:"b",n1:1,n2:2,c:"blue"},{id:"c",n1:2,n2:3,c:"red"},{id:"d",n1:2,n2:4,c:"green"},{id:"e",n1:3,n2:5,c:"blue"}]},
- gemelas:{nombre:"Dos torres gemelas",
-   nodes:[{id:0,x:130,y:FLOOR,g:1},{id:1,x:130,y:205},{id:2,x:130,y:155},{id:3,x:130,y:105},
-          {id:10,x:250,y:FLOOR,g:1},{id:11,x:250,y:205},{id:12,x:250,y:155},{id:13,x:250,y:105}],
-   edges:[{id:"a",n1:0,n2:1,c:"blue"},{id:"b",n1:1,n2:2,c:"blue"},{id:"c",n1:2,n2:3,c:"blue"},
-          {id:"x",n1:10,n2:11,c:"red"},{id:"y",n1:11,n2:12,c:"red"},{id:"z",n1:12,n2:13,c:"red"}]},
- puente:{nombre:"El puente verde",
-   nodes:[{id:0,x:110,y:FLOOR,g:1},{id:1,x:110,y:170},{id:2,x:270,y:FLOOR,g:1},{id:3,x:270,y:170},{id:4,x:190,y:120}],
-   edges:[{id:"a",n1:0,n2:1,c:"blue"},{id:"b",n1:2,n2:3,c:"red"},{id:"c",n1:1,n2:4,c:"green"},{id:"d",n1:3,n2:4,c:"green"}]}
-};
-var board=document.getElementById("board"), sel=document.getElementById("sel"),
-    statusEl=document.getElementById("status"), modeEl=document.getElementById("mode");
-var st=null, NODES=[], lock=false;
+var NIVELCOL={"Fácil":"#2e7d4f","Media":"#9a6f2e","Difícil":"#c0432f","Genio":"#7a4ea6"};
 
-Object.keys(PRESETS).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=PRESETS[k].nombre;sel.appendChild(o);});
+// ---- constructor de bosques (tallos en columnas) ----
+function forest(columns, segH){
+  var nodes=[], edges=[], nid=0, eid=0;
+  columns.forEach(function(c){
+    var gnode={id:nid++, x:c.x, y:FLOOR, g:1}; nodes.push(gnode);
+    var prev=gnode;
+    c.cols.forEach(function(color){
+      var top={id:nid++, x:c.x, y:prev.y-segH}; nodes.push(top);
+      edges.push({id:"e"+(eid++), n1:prev.id, n2:top.id, c:color}); prev=top;
+    });
+  });
+  return {nodes:nodes, edges:edges};
+}
+function F(cols,segH,nombre,nivel){var f=forest(cols,segH);return {nombre:nombre,nivel:nivel,nodes:f.nodes,edges:f.edges};}
+
+var PRESETS={
+ simple:   F([{x:190,cols:["blue","red"]}],62,"Tallo bicolor","Fácil"),
+ escalera: F([{x:190,cols:["blue","red","blue"]}],55,"Escalera","Media"),
+ arbol:    {nombre:"Arbolito",nivel:"Media",
+            nodes:[{id:0,x:190,y:FLOOR,g:1},{id:1,x:190,y:200},{id:2,x:190,y:148},{id:3,x:140,y:112},{id:4,x:240,y:112},{id:5,x:110,y:76}],
+            edges:[{id:"a",n1:0,n2:1,c:"blue"},{id:"b",n1:1,n2:2,c:"blue"},{id:"c",n1:2,n2:3,c:"red"},{id:"d",n1:2,n2:4,c:"green"},{id:"e",n1:3,n2:5,c:"blue"}]},
+ octavo:   F([{x:190,cols:["blue","red","red","red"]}],46,"El octavo escondido","Difícil"),
+ gemelas:  F([{x:130,cols:["blue","blue","blue"]},{x:250,cols:["red","red","red"]}],46,"Dos torres gemelas","Difícil"),
+ puente:   {nombre:"El puente verde",nivel:"Difícil",
+            nodes:[{id:0,x:110,y:FLOOR,g:1},{id:1,x:110,y:170},{id:2,x:270,y:FLOOR,g:1},{id:3,x:270,y:170},{id:4,x:190,y:120}],
+            edges:[{id:"a",n1:0,n2:1,c:"blue"},{id:"b",n1:2,n2:3,c:"red"},{id:"c",n1:1,n2:4,c:"green"},{id:"d",n1:3,n2:4,c:"green"}]},
+ espejismo:F([{x:190,cols:["blue","red","red","red","red","red"]}],34,"El espejismo rojo","Genio"),
+ nim123:   F([{x:90,cols:["green"]},{x:190,cols:["green","green"]},{x:290,cols:["green","green","green"]}],42,"Nim verde 1·2·3","Genio"),
+ nim124:   F([{x:90,cols:["green"]},{x:190,cols:["green","green"]},{x:290,cols:["green","green","green","green"]}],36,"Nim verde 1·2·4","Genio"),
+ mixto:    {nombre:"El duelo del genio",nivel:"Genio",
+            nodes:[{id:0,x:110,y:FLOOR,g:1},{id:1,x:110,y:205},{id:2,x:110,y:155},{id:3,x:110,y:105},
+                   {id:10,x:210,y:FLOOR,g:1},{id:11,x:210,y:205},{id:12,x:210,y:155},
+                   {id:20,x:290,y:FLOOR,g:1},{id:21,x:290,y:205}],
+            edges:[{id:"a",n1:0,n2:1,c:"blue"},{id:"b",n1:1,n2:2,c:"red"},{id:"c",n1:2,n2:3,c:"blue"},
+                   {id:"x",n1:10,n2:11,c:"red"},{id:"y",n1:11,n2:12,c:"blue"},
+                   {id:"g",n1:20,n2:21,c:"green"}]}
+};
+var ORDER=["simple","escalera","arbol","octavo","gemelas","puente","espejismo","nim123","nim124","mixto"];
+
+var board=document.getElementById("board"), sel=document.getElementById("sel"),
+    statusEl=document.getElementById("status"), modeEl=document.getElementById("mode"),
+    editbar=document.getElementById("editbar"), legend=document.getElementById("legend");
+var st=null, NODES=[], lock=false;
+var editing=false, editCols=[], editColor="blue", customPos=null, current="simple";
+
+// poblar selector con grupos por nivel
+(function(){
+  var groups={"Fácil":[],"Media":[],"Difícil":[],"Genio":[]};
+  ORDER.forEach(function(k){groups[PRESETS[k].nivel].push(k);});
+  ["Fácil","Media","Difícil","Genio"].forEach(function(niv){
+    var og=document.createElement("optgroup"); og.label=niv;
+    groups[niv].forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=PRESETS[k].nombre;og.appendChild(o);});
+    sel.appendChild(og);
+  });
+  var oe=document.createElement("option"); oe.value="editor"; oe.textContent="✏️ Editor (construye el tuyo)"; sel.appendChild(oe);
+})();
 
 function col(c){return c==="blue"?"var(--azul)":c==="red"?"var(--rojo)":"var(--verde)";}
 function nd(id){for(var i=0;i<NODES.length;i++)if(NODES[i].id===id)return NODES[i];}
@@ -138,34 +171,42 @@ function groundedSet(edges){
   while(q.length){var u=q.pop();adj[u].forEach(function(v){if(!seen[v]){seen[v]=1;q.push(v);}});}
   return seen;
 }
-function applyCut(edges,e){
-  var rem=edges.filter(function(x){return x.id!==e.id;});
-  var g=groundedSet(rem);
-  return rem.filter(function(x){return g[x.n1]&&g[x.n2];});
+function applyCut(edges,e){var rem=edges.filter(function(x){return x.id!==e.id;});var g=groundedSet(rem);return rem.filter(function(x){return g[x.n1]&&g[x.n2];});}
+
+// ---- valor exacto (Rojo-Azul) y resultado (minimax) ----
+var memoV={};
+function vkey(es){return es.map(function(e){return e.id;}).sort().join(",");}
+function value(es){
+  if(es.some(function(e){return e.c==="green";}))return null;
+  var k=vkey(es); if(k in memoV)return memoV[k];
+  var GL=es.filter(function(e){return e.c==="blue";}).map(function(e){return value(applyCut(es,e));});
+  var GR=es.filter(function(e){return e.c==="red";}).map(function(e){return value(applyCut(es,e));});
+  var L=GL.length?Math.max.apply(null,GL):-Infinity, R=GR.length?Math.min.apply(null,GR):Infinity;
+  return memoV[k]=simplest(L,R);
 }
-// ---- IA: minimax memoizado (¿gana el jugador 'turn' al mover?) ----
-var memo={};
-function key(edges,turn){return edges.map(function(e){return e.id;}).sort().join(",")+"|"+turn;}
-function canWin(edges,turn){
-  var k=key(edges,turn); if(k in memo)return memo[k];
-  var mv=legalEdges(edges,turn);
-  if(mv.length===0){memo[k]=false;return false;}
-  var other=turn==="L"?"R":"L", win=false;
-  for(var i=0;i<mv.length;i++){ if(!canWin(applyCut(edges,mv[i]),other)){win=true;break;} }
-  memo[k]=win; return win;
-}
+function simplest(L,R){ if(L<0&&0<R)return 0; if(R<=0)return -simplest(-R,-L); var k=Math.floor(L)+1; if(k<R)return k; var lo=Math.floor(L),hi=lo+1,mid; for(var i=0;i<44;i++){mid=(lo+hi)/2; if(mid<=L)lo=mid; else if(mid>=R)hi=mid; else return mid;} return mid;}
+function fmtVal(v){if(v===null)return null;if(Number.isInteger(v))return""+v;var n=v,d=1;while(!Number.isInteger(n)&&d<2097152){n*=2;d*=2;}n=Math.round(n);var s=n<0?"−":"";n=Math.abs(n);var w=Math.floor(n/d),r=n%d;var P={"1/2":"½","1/4":"¼","3/4":"¾","1/8":"⅛","3/8":"⅜","5/8":"⅝","7/8":"⅞"};var f=P[r+"/"+d]||r+"/"+d;return s+(w?w+" "+f:f);}
+var memoW={};
+function wkey(es,t){return es.map(function(e){return e.id;}).sort().join(",")+"|"+t;}
+function canWin(es,turn){var k=wkey(es,turn);if(k in memoW)return memoW[k];var mv=legalEdges(es,turn);if(!mv.length){return memoW[k]=false;}var o=turn==="L"?"R":"L",w=false;for(var i=0;i<mv.length;i++){if(!canWin(applyCut(es,mv[i]),o)){w=true;break;}}return memoW[k]=w;}
+function outcome(){var A=canWin(st.edges,"L"),B=canWin(st.edges,"R");return A&&!B?"siempre Azul":!A&&B?"siempre Rojo":A&&B?"el primero":"el segundo";}
+
 function machineColor(){return "R";}
 function isHumanTurn(){return modeEl.value==="2p" || st.turn!==machineColor();}
 
 function mk(tag,a){var el=document.createElementNS(NS,tag);for(var k in a)el.setAttribute(k,a[k]);return el;}
-function render(){
-  while(board.firstChild)board.removeChild(board.firstChild);
+function drawGround(){
   board.appendChild(mk("line",{x1:24,y1:FLOOR,x2:356,y2:FLOOR,stroke:"#857c6e","stroke-width":3}));
   for(var x=34;x<=346;x+=20)board.appendChild(mk("line",{x1:x,y1:FLOOR,x2:x-10,y2:FLOOR+10,stroke:"#857c6e","stroke-width":1.4}));
+}
+function clearBoard(){while(board.firstChild)board.removeChild(board.firstChild);}
+
+function render(){
+  clearBoard(); drawGround();
   st.edges.forEach(function(e){
-    var a=nd(e.n1),b=nd(e.n2), clickable=!st.over && !lock && isHumanTurn() && legalEdges([e],st.turn).length>0;
-    var vis=mk("line",{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:col(e.c),"stroke-width":8,"stroke-linecap":"round",
-      opacity:(st.over||legalEdges([e],st.turn).length>0)?1:0.4});
+    var a=nd(e.n1),b=nd(e.n2), isLegal=legalEdges([e],st.turn).length>0,
+        clickable=!st.over && !lock && isHumanTurn() && isLegal;
+    var vis=mk("line",{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:col(e.c),"stroke-width":8,"stroke-linecap":"round",opacity:(st.over||isLegal)?1:0.4});
     board.appendChild(vis);
     var hit=mk("line",{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:"transparent","stroke-width":20,style:"cursor:"+(clickable?"pointer":"default")});
     if(clickable){
@@ -179,47 +220,80 @@ function render(){
   updateStatus();
 }
 function updateStatus(){
-  if(st.over){var w=st.winner==="L"?"Azul":"Rojo";statusEl.innerHTML='<span class="win" style="color:'+(st.winner==="L"?"var(--azul)":"var(--rojo)")+'">¡Gana '+w+'! 🎉</span>';return;}
+  if(st.over){var w=st.winner==="L"?"Azul":"Rojo";statusEl.innerHTML='<span class="val" style="color:'+(st.winner==="L"?"var(--azul)":"var(--rojo)")+'">¡Gana '+w+'! 🎉</span>';return;}
   var t=st.turn==="L"?"Azul":"Rojo", c=st.turn==="L"?"var(--azul)":"var(--rojo)";
   var extra=(modeEl.value==="ai"&&st.turn===machineColor())?" (pensando…)":"";
   statusEl.innerHTML='Turno: <b style="color:'+c+'">'+t+'</b>'+extra;
 }
-function doCut(e){
-  st.edges=applyCut(st.edges,e);
-  var mover=st.turn; st.turn=mover==="L"?"R":"L";
-  if(legalEdges(st.edges,st.turn).length===0){st.over=true;st.winner=mover;}
-}
+function doCut(e){st.edges=applyCut(st.edges,e);var mover=st.turn;st.turn=mover==="L"?"R":"L";if(legalEdges(st.edges,st.turn).length===0){st.over=true;st.winner=mover;}}
 function humanCut(e){
   if(st.over||lock||!isHumanTurn())return;
   if(legalEdges([e],st.turn).length===0)return;
   doCut(e); render();
-  if(!st.over && modeEl.value==="ai" && st.turn===machineColor()){ lock=true; render(); setTimeout(machineMove,550); }
+  if(!st.over && modeEl.value==="ai" && st.turn===machineColor()){lock=true;render();setTimeout(machineMove,560);}
 }
 function machineMove(){
   if(st.over){lock=false;return;}
-  var mv=legalEdges(st.edges,st.turn), best=mv[0], other=st.turn==="L"?"R":"L";
-  for(var i=0;i<mv.length;i++){ if(!canWin(applyCut(st.edges,mv[i]),other)){best=mv[i];break;} }
-  doCut(best); lock=false; render();
+  memoW={};
+  var mv=legalEdges(st.edges,st.turn),best=mv[0],other=st.turn==="L"?"R":"L";
+  for(var i=0;i<mv.length;i++){if(!canWin(applyCut(st.edges,mv[i]),other)){best=mv[i];break;}}
+  doCut(best);lock=false;render();
 }
-function outcome(){
-  memo={};
-  var A=canWin(st.edges,"L"), B=canWin(st.edges,"R");
-  if(A&&!B)return"Con juego perfecto gana SIEMPRE Azul (valor &gt; 0).";
-  if(!A&&B)return"Con juego perfecto gana SIEMPRE Rojo (valor &lt; 0).";
-  if(A&&B)return"Con juego perfecto gana QUIEN EMPIECE (posición tipo ∗).";
-  return"Con juego perfecto gana EL SEGUNDO en mover (valor = 0).";
+function showWho(){
+  memoW={}; memoV={};
+  var v=value(st.edges), o=outcome();
+  var vs = (v===null) ? "valor no numérico (hay verdes, tipo ∗)" : "valor exacto = <b>"+fmtVal(v)+"</b>";
+  var gan = o==="siempre Azul"?'<span style="color:var(--azul)">gana siempre Azul</span>'
+          : o==="siempre Rojo"?'<span style="color:var(--rojo)">gana siempre Rojo</span>'
+          : o==="el primero"?'gana <b>el primero</b> en mover'
+          : 'gana <b>el segundo</b> en mover';
+  statusEl.innerHTML="Con juego perfecto: "+gan+" · "+vs+".";
 }
-function load(key){
-  memo={}; lock=false;
-  var p=JSON.parse(JSON.stringify(PRESETS[key]));
-  NODES=p.nodes; st={edges:p.edges,turn:"L",over:false,winner:null};
-  render();
+
+function setPlayUIFromPos(pos){ NODES=pos.nodes.map(function(n){return Object.assign({},n);}); st={edges:pos.edges.map(function(e){return Object.assign({},e);}),turn:"L",over:false,winner:null}; memoW={};memoV={}; lock=false; render(); }
+function loadPreset(key){ current=key; editing=false; editbar.classList.remove("show"); var p=JSON.parse(JSON.stringify(PRESETS[key])); setPlayUIFromPos(p); var nv=PRESETS[key].nivel; }
+
+// ---- editor ----
+function enterEditor(){ current="editor"; editing=true; editCols=[]; editbar.classList.add("show"); renderEditor(); statusEl.innerHTML='Editor: toca el tablero para ir apilando palitos. Elige color arriba. Luego pulsa <b>▶ Jugar</b>.'; }
+function renderEditor(){
+  clearBoard(); drawGround();
+  editCols.forEach(function(c){
+    var y=FLOOR; board.appendChild(mk("circle",{cx:c.x,cy:y,r:4,fill:"#2b2620"}));
+    c.cols.forEach(function(color){ var ny=y-40; board.appendChild(mk("line",{x1:c.x,y1:y,x2:c.x,y2:ny,stroke:col(color),"stroke-width":8,"stroke-linecap":"round"})); y=ny; board.appendChild(mk("circle",{cx:c.x,cy:y,r:3,fill:"#5f5e5a"})); });
+  });
+  var rect=mk("rect",{x:0,y:0,width:380,height:300,fill:"transparent",style:"cursor:crosshair"});
+  rect.addEventListener("click",editClick);
+  board.appendChild(rect);
 }
-sel.addEventListener("change",function(){load(sel.value);});
-modeEl.addEventListener("change",function(){load(sel.value);});
-document.getElementById("reset").addEventListener("click",function(){load(sel.value);});
-document.getElementById("who").addEventListener("click",function(){statusEl.innerHTML=outcome();});
-load("simple");
+function editClick(ev){
+  var r=board.getBoundingClientRect(); var x=(ev.clientX-r.left)/r.width*380;
+  if(x<30)x=30; if(x>350)x=350;
+  var near=null,bd=29;
+  editCols.forEach(function(c){var d=Math.abs(c.x-x); if(d<bd){bd=d;near=c;}});
+  if(near){ if(near.cols.length<6) near.cols.push(editColor); }
+  else { editCols.push({x:Math.round(x), cols:[editColor]}); }
+  renderEditor();
+}
+function playCustom(){
+  var cols=editCols.filter(function(c){return c.cols.length>0;});
+  if(!cols.length){statusEl.textContent="Dibuja algo primero 🙂";return;}
+  var segH=Math.min(48, Math.floor(210/Math.max.apply(null,cols.map(function(c){return c.cols.length;}))));
+  customPos=forest(cols.map(function(c){return {x:c.x,cols:c.cols};}),segH);
+  editing=false; editbar.classList.remove("show");
+  setPlayUIFromPos(customPos);
+}
+
+// ---- eventos ----
+sel.addEventListener("change",function(){ if(sel.value==="editor")enterEditor(); else loadPreset(sel.value); });
+modeEl.addEventListener("change",function(){ if(current==="editor"&&customPos)setPlayUIFromPos(customPos); else if(current!=="editor")loadPreset(current); });
+document.getElementById("reset").addEventListener("click",function(){ if(current==="editor"){ if(customPos&&!editing)setPlayUIFromPos(customPos); else {editCols=[];renderEditor();} } else loadPreset(current); });
+document.getElementById("who").addEventListener("click",function(){ if(!editing&&st)showWho(); });
+Array.prototype.forEach.call(document.querySelectorAll(".colbtn"),function(b){ b.addEventListener("click",function(){ editColor=b.getAttribute("data-c"); Array.prototype.forEach.call(document.querySelectorAll(".colbtn"),function(x){x.classList.remove("sel");}); b.classList.add("sel"); }); });
+document.getElementById("undo").addEventListener("click",function(){ for(var i=editCols.length-1;i>=0;i--){ if(editCols[i].cols.length){ editCols[i].cols.pop(); if(!editCols[i].cols.length)editCols.splice(i,1); break; } } renderEditor(); });
+document.getElementById("clear").addEventListener("click",function(){ editCols=[]; renderEditor(); });
+document.getElementById("play").addEventListener("click",playCustom);
+
+loadPreset("simple");
 })();
 </script>
 </body>
