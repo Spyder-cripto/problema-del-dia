@@ -65,6 +65,7 @@
           <option value="2p">2 jugadores</option>
           <option value="ai">Contra la máquina (Rojo)</option>
         </select>
+        <label class="lab" id="misLab" title="Quien no puede mover GANA (en vez de perder)" style="cursor:pointer;user-select:none"><input type="checkbox" id="misere" style="vertical-align:-1px"> 😈 Misère</label>
       </div>
     </div>
     <div class="controls">
@@ -84,6 +85,7 @@
       <button class="colbtn sel" data-c="blue" style="color:var(--azul)">● Azul</button>
       <button class="colbtn" data-c="red" style="color:var(--rojo)">● Rojo</button>
       <button class="colbtn" data-c="green" style="color:var(--verde)">● Verde</button>
+      <button id="link" title="Únelo: toca dos nudos y nace una arista entre ellos (para hacer ciclos)">🔗 Unir nudos</button>
       <button id="eundo">Deshacer</button>
       <button id="clear">Limpiar</button>
       <button id="play" class="primary">▶ Jugar</button>
@@ -100,8 +102,9 @@
   <div class="card">
     <h2>Cómo se juega</h2>
     <p>Cada figura está hecha de palitos unidos al suelo. En tu turno borras un palito de tu color; si al hacerlo algún trozo queda sin tocar el suelo, ese trozo <i>se cae</i> también. Pierde quien se quede sin jugada.</p>
-    <p style="font-size:.95rem;color:var(--muted)">Cada posición tiene un <b>valor</b> exacto (pulsa “⚖️ ¿Quién gana?”). El tallo azul-abajo/rojo-arriba vale <b>½</b>; combinando colores salen todas las fracciones e incluso los <i>números surreales</i> de Conway. Los <b style="color:var(--verde)">verdes</b> (que corta cualquiera) dan posiciones tipo <b>∗</b> (Nim): ahí no gana un color fijo, sino el primero o el segundo según la jugada. ¿Atascado? “💡 Pista” resalta la jugada que gana con juego perfecto.</p>
-    <p style="font-size:.95rem;color:var(--muted)"><b>Editor con ramas:</b> elige “✏️ Editor”, pincha el <b>suelo</b> para clavar una base y ve <b>tocando hacia arriba</b> para apilar palitos. Para hacer una <b>rama</b>, toca un nudo ya dibujado (se resalta) y luego pincha hacia otro lado: nace una rama desde ahí. Cambia de color cuando quieras y pulsa <b>▶ Jugar</b>.</p>
+    <p style="font-size:.95rem;color:var(--muted)">Cada posición tiene un <b>valor</b> exacto (pulsa “⚖️ ¿Quién gana?”). El tallo azul-abajo/rojo-arriba vale <b>½</b>; combinando colores salen todas las fracciones e incluso los <i>números surreales</i> de Conway. Los <b style="color:var(--verde)">verdes</b> (que corta cualquiera) dan posiciones tipo <b>∗</b> (Nim). Y mezclando verde con color aparecen los <i>infinitesimales</i> <b>↑</b> (arriba), <b>⇑</b>, <b>↑∗</b>…: valores más pequeños que cualquier fracción positiva, donde gana “el segundo por un pelo”. ¿Atascado? “💡 Pista” resalta la jugada ganadora.</p>
+    <p style="font-size:.95rem;color:var(--muted)"><b>😈 Misère:</b> marca la casilla y se invierte la regla — <b>quien no puede mover, GANA</b>. Toda tu intuición se da la vuelta; cada posición esconde una partida nueva.</p>
+    <p style="font-size:.95rem;color:var(--muted)"><b>Editor con ramas y ciclos:</b> elige “✏️ Editor”, pincha el <b>suelo</b> para clavar una base y ve <b>tocando hacia arriba</b> para apilar. Toca un nudo para <b>ramificar</b> desde ahí. Con <b>🔗 Unir nudos</b> conectas dos nudos cualesquiera para cerrar un <b>ciclo</b> (un polígono): ahí cortar un lado <i>no derrumba nada</i>, que es donde Hackenbush se pone diabólico. Pulsa <b>▶ Jugar</b>.</p>
   </div>
 
   <footer>
@@ -172,23 +175,51 @@ var PRESETS={
    edges:[{id:"A0",n1:"g0",n2:"a0",c:"green"},
           {id:"B0",n1:"g1",n2:"b0",c:"green"},{id:"B1",n1:"b0",n2:"b1",c:"green"},
           {id:"C0",n1:"g2",n2:"c0",c:"green"},{id:"C1",n1:"c0",n2:"c1",c:"green"},{id:"C2",n1:"c1",n2:"c2",c:"green"},
-          {id:"D0",n1:"g3",n2:"d0",c:"green"},{id:"D1",n1:"d0",n2:"d1",c:"green"},{id:"D2",n1:"d1",n2:"d2",c:"green"},{id:"D3",n1:"d2",n2:"d3",c:"green"}]}
+          {id:"D0",n1:"g3",n2:"d0",c:"green"},{id:"D1",n1:"d0",n2:"d1",c:"green"},{id:"D2",n1:"d1",n2:"d2",c:"green"},{id:"D3",n1:"d2",n2:"d3",c:"green"}]},
+ soplo:{nombre:"El soplo",nivel:"Diabólico",
+   nodes:[{id:"n0",x:80,y:255,g:1},{id:"n1",x:80,y:209},{id:"n2",x:80,y:163},{id:"n3",x:300,y:255,g:1},{id:"n4",x:300,y:209}],
+   edges:[{id:"e0",n1:"n0",n2:"n1",c:"green"},{id:"e1",n1:"n1",n2:"n2",c:"blue"},{id:"e2",n1:"n3",n2:"n4",c:"green"}]},
+ corriente:{nombre:"La corriente",nivel:"Diabólico",
+   nodes:[{id:"n0",x:80,y:255,g:1},{id:"n1",x:80,y:209},{id:"n2",x:80,y:163},{id:"n3",x:300,y:255,g:1},{id:"n4",x:300,y:209},{id:"n5",x:300,y:163}],
+   edges:[{id:"e0",n1:"n0",n2:"n1",c:"green"},{id:"e1",n1:"n1",n2:"n2",c:"blue"},{id:"e2",n1:"n3",n2:"n4",c:"green"},{id:"e3",n1:"n4",n2:"n5",c:"blue"}]},
+ ventisca:{nombre:"La ventisca",nivel:"Diabólico",
+   nodes:[{id:"n0",x:80,y:255,g:1},{id:"n1",x:80,y:209},{id:"n2",x:80,y:163},{id:"n3",x:190,y:255,g:1},{id:"n4",x:190,y:209},{id:"n5",x:190,y:163},{id:"n6",x:300,y:255,g:1},{id:"n7",x:300,y:209}],
+   edges:[{id:"e0",n1:"n0",n2:"n1",c:"green"},{id:"e1",n1:"n1",n2:"n2",c:"blue"},{id:"e2",n1:"n3",n2:"n4",c:"green"},{id:"e3",n1:"n4",n2:"n5",c:"blue"},{id:"e4",n1:"n6",n2:"n7",c:"green"}]},
+ marea:{nombre:"La marea",nivel:"Diabólico",
+   nodes:[{id:"n0",x:80,y:255,g:1},{id:"n1",x:80,y:209},{id:"n2",x:80,y:163},{id:"n3",x:190,y:255,g:1},{id:"n4",x:190,y:209},{id:"n5",x:190,y:163},{id:"n6",x:300,y:255,g:1},{id:"n7",x:300,y:209}],
+   edges:[{id:"e0",n1:"n0",n2:"n1",c:"green"},{id:"e1",n1:"n1",n2:"n2",c:"red"},{id:"e2",n1:"n3",n2:"n4",c:"green"},{id:"e3",n1:"n4",n2:"n5",c:"red"},{id:"e4",n1:"n6",n2:"n7",c:"green"}]},
+ anillo:{nombre:"El anillo encantado",nivel:"Diabólico",
+   nodes:[{id:"g",x:190,y:255,g:1},{id:"a",x:140,y:150},{id:"b",x:240,y:150}],
+   edges:[{id:"e0",n1:"g",n2:"a",c:"green"},{id:"e1",n1:"a",n2:"b",c:"blue"},{id:"e2",n1:"b",n2:"g",c:"green"}]},
+ conway:{nombre:"El triángulo de Conway",nivel:"Diabólico",
+   nodes:[{id:"g",x:190,y:255,g:1},{id:"a",x:140,y:150},{id:"b",x:240,y:150}],
+   edges:[{id:"e0",n1:"g",n2:"a",c:"blue"},{id:"e1",n1:"a",n2:"b",c:"green"},{id:"e2",n1:"b",n2:"g",c:"red"}]},
+ amuleto:{nombre:"El amuleto",nivel:"Diabólico",
+   nodes:[{id:"g",x:190,y:255,g:1},{id:"a",x:140,y:150},{id:"b",x:240,y:150}],
+   edges:[{id:"e0",n1:"g",n2:"a",c:"blue"},{id:"e1",n1:"a",n2:"b",c:"red"},{id:"e2",n1:"b",n2:"g",c:"green"}]},
+ rombo:{nombre:"El rombo tramposo",nivel:"Diabólico",
+   nodes:[{id:"g",x:190,y:255,g:1},{id:"l",x:120,y:175},{id:"t",x:190,y:108},{id:"r",x:260,y:175}],
+   edges:[{id:"e0",n1:"g",n2:"l",c:"blue"},{id:"e1",n1:"l",n2:"t",c:"red"},{id:"e2",n1:"t",n2:"r",c:"red"},{id:"e3",n1:"r",n2:"g",c:"green"}]},
+ diablo:{nombre:"El rombo del diablo",nivel:"Diabólico",
+   nodes:[{id:"g",x:190,y:255,g:1},{id:"l",x:120,y:175},{id:"t",x:190,y:108},{id:"r",x:260,y:175}],
+   edges:[{id:"e0",n1:"g",n2:"l",c:"red"},{id:"e1",n1:"l",n2:"t",c:"blue"},{id:"e2",n1:"t",n2:"r",c:"blue"},{id:"e3",n1:"r",n2:"g",c:"green"}]}
 };
-var ORDER=["caraacara","media","tira","chispa","torcido","ramaesc","mixto","sumacruel","hidrahielo","roble","abismo","balanza","abanico"];
+var ORDER=["caraacara","media","tira","chispa","torcido","ramaesc","mixto","sumacruel","hidrahielo","roble","abismo","balanza","abanico",
+           "soplo","corriente","ventisca","marea","anillo","conway","amuleto","rombo","diablo"];
 
 var board=document.getElementById("board"), sel=document.getElementById("sel"),
     statusEl=document.getElementById("status"), modeEl=document.getElementById("mode"),
     editbar=document.getElementById("editbar"), metaEl=document.getElementById("meta"),
     undo2=document.getElementById("undo2");
-var st=null, NODES=[], lock=false, history=[], hintId=null;
+var st=null, NODES=[], lock=false, history=[], hintId=null, misere=false;
 var editing=false, customPos=null, current="caraacara";
-var editNodes=[], editEdges=[], selNode=null, editColor="blue", editNid=0, editEid=0;
+var editNodes=[], editEdges=[], selNode=null, editColor="blue", editNid=0, editEid=0, linkMode=false;
 
 // poblar selector con grupos por nivel
 (function(){
-  var groups={"Fácil":[],"Media":[],"Difícil":[],"Genio":[]};
+  var groups={"Fácil":[],"Media":[],"Difícil":[],"Genio":[],"Diabólico":[]};
   ORDER.forEach(function(k){groups[PRESETS[k].nivel].push(k);});
-  ["Fácil","Media","Difícil","Genio"].forEach(function(niv){
+  ["Fácil","Media","Difícil","Genio","Diabólico"].forEach(function(niv){
     if(!groups[niv].length)return;
     var og=document.createElement("optgroup"); og.label=niv;
     groups[niv].forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=PRESETS[k].nombre;og.appendChild(o);});
@@ -209,22 +240,69 @@ function groundedSet(edges){
 }
 function applyCut(edges,e){var rem=edges.filter(function(x){return x.id!==e.id;});var g=groundedSet(rem);return rem.filter(function(x){return g[x.n1]&&g[x.n2];});}
 
-// ---- valor exacto (Rojo-Azul) y resultado (minimax) ----
-var memoV={};
-function vkey(es){return es.map(function(e){return e.id;}).sort().join(",");}
-function value(es){
-  if(es.some(function(e){return e.c==="green";}))return null;
-  var k=vkey(es); if(k in memoV)return memoV[k];
-  var GL=es.filter(function(e){return e.c==="blue";}).map(function(e){return value(applyCut(es,e));});
-  var GR=es.filter(function(e){return e.c==="red";}).map(function(e){return value(applyCut(es,e));});
-  var L=GL.length?Math.max.apply(null,GL):-Infinity, R=GR.length?Math.min.apply(null,GR):Infinity;
-  return memoV[k]=simplest(L,R);
+// ====== MOTOR v2: forma canónica (números + infinitesimales) — validado por 4 motores independientes ======
+// Juego abstracto = {L:[game...], R:[game...]}. ZERO = {|}.
+var ZERO={L:[],R:[]};
+function serialize(g){var L=g.L.map(serialize),R=g.R.map(serialize);L=Array.from(new Set(L)).sort();R=Array.from(new Set(R)).sort();return "{"+L.join(",")+"|"+R.join(",")+"}";}
+var _leqMemo={};
+function leq(G,H){var key=serialize(G)+"#"+serialize(H);if(key in _leqMemo)return _leqMemo[key];var res=true;for(var i=0;i<G.L.length;i++){if(leq(H,G.L[i])){res=false;break;}}if(res){for(var j=0;j<H.R.length;j++){if(leq(H.R[j],G)){res=false;break;}}}return _leqMemo[key]=res;}
+function dedup(arr){var seen={},out=[];for(var i=0;i<arr.length;i++){var s=serialize(arr[i]);if(!(s in seen)){seen[s]=1;out.push(arr[i]);}}return out;}
+var _canonMemo={};
+function canonicalForm(g){var key=serialize(g);if(key in _canonMemo)return _canonMemo[key];
+  var L=dedup(g.L.map(canonicalForm)),R=dedup(g.R.map(canonicalForm)),changed=true;
+  while(changed){changed=false;
+    var Gc={L:L,R:R},nL=[];for(var i=0;i<L.length;i++){var A=L[i],rv=false;for(var r=0;r<A.R.length;r++){if(leq(A.R[r],Gc)){for(var k=0;k<A.R[r].L.length;k++)nL.push(A.R[r].L[k]);rv=true;changed=true;break;}}if(!rv)nL.push(A);}L=dedup(nL);
+    Gc={L:L,R:R};var nR=[];for(var i2=0;i2<R.length;i2++){var B=R[i2],rb=false;for(var l=0;l<B.L.length;l++){if(leq(Gc,B.L[l])){for(var k2=0;k2<B.L[l].R.length;k2++)nR.push(B.L[l].R[k2]);rb=true;changed=true;break;}}if(!rb)nR.push(B);}R=dedup(nR);
+    var kL=[];for(var a=0;a<L.length;a++){var dm=false;for(var b=0;b<L.length;b++){if(a===b)continue;if(serialize(L[a])===serialize(L[b])){if(a>b){dm=true;break;}else continue;}if(leq(L[a],L[b])){dm=true;break;}}if(!dm)kL.push(L[a]);}if(kL.length!==L.length)changed=true;L=kL;
+    var kR=[];for(var c=0;c<R.length;c++){var dr=false;for(var d=0;d<R.length;d++){if(c===d)continue;if(serialize(R[c])===serialize(R[d])){if(c>d){dr=true;break;}else continue;}if(leq(R[d],R[c])){dr=true;break;}}if(!dr)kR.push(R[c]);}if(kR.length!==R.length)changed=true;R=kR;
+  }
+  var res={L:dedup(L),R:dedup(R)};_canonMemo[key]=res;_canonMemo[serialize(res)]=res;return res;}
+function neg(g){return {L:g.R.map(neg),R:g.L.map(neg)};}
+function add(g,h){var L=[],R=[];g.L.forEach(function(x){L.push(add(x,h));});h.L.forEach(function(x){L.push(add(g,x));});g.R.forEach(function(x){R.push(add(x,h));});h.R.forEach(function(x){R.push(add(g,x));});return {L:L,R:R};}
+// valor numérico de un juego canónico (o null)
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){var t=b;b=a%b;a=t;}return a||1;}
+function cmpF(a,b){return a.num*b.den-b.num*a.den;}
+function numVal(G){var Ls=[],Rs=[];for(var i=0;i<G.L.length;i++){var v=numVal(G.L[i]);if(v===null)return null;Ls.push(v);}for(var j=0;j<G.R.length;j++){var w=numVal(G.R[j]);if(w===null)return null;Rs.push(w);}var L=Ls.length?Ls.reduce(function(a,b){return cmpF(a,b)>=0?a:b;}):null,R=Rs.length?Rs.reduce(function(a,b){return cmpF(a,b)<=0?a:b;}):null;if(L!==null&&R!==null&&cmpF(L,R)>=0)return null;return simplestBetween(L,R);}
+function simplestBetween(L,R){var lo=L===null?-Infinity:L.num/L.den,hi=R===null?Infinity:R.num/R.den;if(lo<0&&0<hi)return {num:0,den:1};if(hi<=0){var n=simplestBetween(R?{num:-R.num,den:R.den}:null,L?{num:-L.num,den:L.den}:null);return {num:-n.num,den:n.den};}var k=Math.floor(lo)+1;if(k<hi)return {num:k,den:1};var den=1,num;for(var q=0;q<40;q++){den*=2;for(num=Math.floor(lo*den)+1;num<hi*den;num++){if(num%2===1||den===1){var v=num/den;if(lo<v&&v<hi)return {num:num,den:den};}}}return {num:Math.round((lo+hi)/2*1024),den:1024};}
+function fmtNum(f){var num=f.num,den=f.den,g=gcd(num,den);num/=g;den/=g;if(den<0){den=-den;num=-num;}var sign=num<0?"−":"";num=Math.abs(num);var w=Math.floor(num/den),r=num%den;if(r===0)return sign+w;var P={"1/2":"½","1/4":"¼","3/4":"¾","1/8":"⅛","3/8":"⅜","5/8":"⅝","7/8":"⅞"};var fr=P[r+"/"+den]||(r+"/"+den);return sign+(w?(w+" "+fr):fr);}
+// diccionario de infinitesimales/nimbers (perezoso)
+var _nimC={};
+function nimber(k){if(k in _nimC)return _nimC[k];var o=[];for(var i=0;i<k;i++)o.push(nimber(i));return _nimC[k]=canonicalForm({L:o.slice(),R:o.slice()});}
+function intGame(n){if(n===0)return ZERO;if(n>0)return {L:[intGame(n-1)],R:[]};return {L:[],R:[intGame(n+1)]};}
+function dyadic(num,den){while(den>1&&num%2===0){num/=2;den/=2;}if(den===1)return canonicalForm(intGame(num));return canonicalForm({L:[dyadic(num-1,den)],R:[dyadic(num+1,den)]});}
+var _named=null;
+function ensureNamed(){if(_named)return;_named={};
+  var UP=canonicalForm({L:[ZERO],R:[nimber(1)]}),DOWN=canonicalForm(neg(UP));
+  function times(g,n){var r=ZERO;for(var i=0;i<n;i++)r=canonicalForm(add(r,g));return r;}
+  for(var k=0;k<=6;k++)_named[serialize(nimber(k))]=k===0?"0":(k===1?"∗":"∗"+k);
+  var infs=[["↑",UP],["↓",DOWN],["↑∗",canonicalForm(add(UP,nimber(1)))],["↓∗",canonicalForm(add(DOWN,nimber(1)))],["⇑",times(UP,2)],["⇓",times(DOWN,2)],["⇑∗",canonicalForm(add(times(UP,2),nimber(1)))],["⇓∗",canonicalForm(add(times(DOWN,2),nimber(1)))],["3↑",times(UP,3)],["3↓",times(DOWN,3)],["3↑∗",canonicalForm(add(times(UP,3),nimber(1)))]];
+  infs.forEach(function(p){_named[serialize(p[1])]=p[0];});
+  var nums=[[1,1],[-1,1],[2,1],[-2,1],[1,2],[-1,2],[1,4],[-1,4],[3,4],[-3,4]];
+  var parts=[["∗",nimber(1)],["∗2",nimber(2)],["∗3",nimber(3)],["↑",UP],["↓",DOWN],["↑∗",canonicalForm(add(UP,nimber(1)))],["↓∗",canonicalForm(add(DOWN,nimber(1)))],["⇑",times(UP,2)],["⇓",times(DOWN,2)]];
+  nums.forEach(function(nm){var ng=dyadic(nm[0],nm[1]),nl=fmtNum({num:nm[0],den:nm[1]});parts.forEach(function(pp){var s=serialize(canonicalForm(add(ng,pp[1])));if(!(s in _named))_named[s]=nl+pp[0];});});}
+function labelOf(G){var nv=numVal(G);if(nv!==null)return fmtNum(nv);ensureNamed();var s=serialize(G);return (s in _named)?_named[s]:null;}
+function outcomeOf(G){var ge=leq(ZERO,G),le=leq(G,ZERO);if(ge&&le)return "el segundo";if(ge&&!le)return "siempre Azul";if(le&&!ge)return "siempre Rojo";return "el primero";}
+// caminos rápidos por composición + árbol crudo (usan NODES global vía applyCut/legalEdges)
+var _rawMemo={};
+function rawGame(edges){var k=edges.map(function(e){return e.id;}).sort().join(",");if(k in _rawMemo)return _rawMemo[k];var node={L:null,R:null};_rawMemo[k]=node;node.L=legalEdges(edges,"L").map(function(e){return rawGame(applyCut(edges,e));});node.R=legalEdges(edges,"R").map(function(e){return rawGame(applyCut(edges,e));});return node;}
+var _fdMemo={};
+function fastDyadic(edges){var k=edges.map(function(e){return e.id;}).sort().join(",");if(k in _fdMemo)return _fdMemo[k];var GL=legalEdges(edges,"L").map(function(e){return fastDyadic(applyCut(edges,e));}),GR=legalEdges(edges,"R").map(function(e){return fastDyadic(applyCut(edges,e));});var L=GL.length?Math.max.apply(null,GL):-Infinity,R=GR.length?Math.min.apply(null,GR):Infinity;return _fdMemo[k]=simplestFloat(L,R);}
+function simplestFloat(L,R){if(L<0&&0<R)return 0;if(R<=0)return -simplestFloat(-R,-L);var k=Math.floor(L)+1;if(k<R)return k;var lo=Math.floor(L),hi=lo+1,mid;for(var i=0;i<44;i++){mid=(lo+hi)/2;if(mid<=L)lo=mid;else if(mid>=R)hi=mid;else return mid;}return mid;}
+function fmtFloat(v){if(Number.isInteger(v))return (v<0?"−":"")+Math.abs(v);var n=v,d=1;while(!Number.isInteger(n)&&d<2097152){n*=2;d*=2;}n=Math.round(n);return fmtNum({num:n,den:d});}
+var _gMemo={};
+function grundy(edges){var k=edges.map(function(e){return e.id;}).sort().join(",");if(k in _gMemo)return _gMemo[k];_gMemo[k]=0;var seen={};edges.forEach(function(e){seen[grundy(applyCut(edges,e))]=1;});var m=0;while(seen[m])m++;return _gMemo[k]=m;}
+// despacho: número puro -> diádico rápido; todo verde -> Grundy; mixto pequeño -> forma canónica; mixto grande -> solo resultado
+function valueLabel(edges){
+  if(!edges.length)return {label:"0",outcome:"el segundo"};
+  var hasG=edges.some(function(e){return e.c==="green";}),hasC=edges.some(function(e){return e.c!=="green";});
+  if(!hasG){_fdMemo={};var v=fastDyadic(edges);return {label:fmtFloat(v),outcome:v>0?"siempre Azul":v<0?"siempre Rojo":"el segundo"};}
+  if(!hasC){_gMemo={};var k=grundy(edges);return {label:k===0?"0":(k===1?"∗":"∗"+k),outcome:k===0?"el segundo":"el primero"};}
+  if(edges.length<=9){_rawMemo={};var cf=canonicalForm(rawGame(edges));return {label:labelOf(cf),outcome:outcomeOf(cf)};}
+  return {label:null,outcome:null,big:true};
 }
-function simplest(L,R){ if(L<0&&0<R)return 0; if(R<=0)return -simplest(-R,-L); var k=Math.floor(L)+1; if(k<R)return k; var lo=Math.floor(L),hi=lo+1,mid; for(var i=0;i<44;i++){mid=(lo+hi)/2; if(mid<=L)lo=mid; else if(mid>=R)hi=mid; else return mid;} return mid;}
-function fmtVal(v){if(v===null)return null;if(Number.isInteger(v))return""+v;var n=v,d=1;while(!Number.isInteger(n)&&d<2097152){n*=2;d*=2;}n=Math.round(n);var s=n<0?"−":"";n=Math.abs(n);var w=Math.floor(n/d),r=n%d;var P={"1/2":"½","1/4":"¼","3/4":"¾","1/8":"⅛","3/8":"⅜","5/8":"⅝","7/8":"⅞"};var f=P[r+"/"+d]||r+"/"+d;return s+(w?w+" "+f:f);}
 var memoW={};
 function wkey(es,t){return es.map(function(e){return e.id;}).sort().join(",")+"|"+t;}
-function canWin(es,turn){var k=wkey(es,turn);if(k in memoW)return memoW[k];var mv=legalEdges(es,turn);if(!mv.length){return memoW[k]=false;}var o=turn==="L"?"R":"L",w=false;for(var i=0;i<mv.length;i++){if(!canWin(applyCut(es,mv[i]),o)){w=true;break;}}return memoW[k]=w;}
+function canWin(es,turn){var k=wkey(es,turn);if(k in memoW)return memoW[k];var mv=legalEdges(es,turn);if(!mv.length){return memoW[k]=(misere?true:false);}var o=turn==="L"?"R":"L",w=false;for(var i=0;i<mv.length;i++){if(!canWin(applyCut(es,mv[i]),o)){w=true;break;}}return memoW[k]=w;}
 function outcome(){var A=canWin(st.edges,"L"),B=canWin(st.edges,"R");return A&&!B?"siempre Azul":!A&&B?"siempre Rojo":A&&B?"el primero":"el segundo";}
 function winningMove(es,turn){memoW={};var mv=legalEdges(es,turn),o=turn==="L"?"R":"L";for(var i=0;i<mv.length;i++){if(!canWin(applyCut(es,mv[i]),o))return mv[i].id;}return null;}
 
@@ -283,7 +361,7 @@ function ghosts(removed){
   setTimeout(function(){if(g.parentNode)g.parentNode.removeChild(g);},480);
 }
 
-function doCut(e){st.edges=applyCut(st.edges,e);var mover=st.turn;st.turn=mover==="L"?"R":"L";if(legalEdges(st.edges,st.turn).length===0){st.over=true;st.winner=mover;}}
+function doCut(e){st.edges=applyCut(st.edges,e);var mover=st.turn;st.turn=mover==="L"?"R":"L";if(legalEdges(st.edges,st.turn).length===0){st.over=true;st.winner=misere?st.turn:mover;}}
 function snapshot(){return {edges:st.edges.map(function(e){return Object.assign({},e);}),turn:st.turn,over:st.over,winner:st.winner};}
 function restore(s){st.edges=s.edges.map(function(e){return Object.assign({},e);});st.turn=s.turn;st.over=s.over;st.winner=s.winner;}
 
@@ -317,15 +395,15 @@ function undoMove(){
 
 function showWho(){
   if(editing||!st)return;
-  hintId=null; memoW={}; memoV={};
-  var v=value(st.edges), o=outcome();
-  render();
-  var vs = (v===null) ? "valor no numérico (hay verdes, tipo ∗)" : "valor exacto = <b>"+fmtVal(v)+"</b>";
+  hintId=null; memoW={}; render();
+  var o, vs;
+  if(misere){ o=outcome(); vs="modo <b>misère</b> (sin valor numérico)"; }
+  else { var r=valueLabel(st.edges); o=r.outcome||outcome(); vs = r.label ? ("valor exacto = <b>"+r.label+"</b>") : "valor infinitesimal (no numérico)"; }
   var gan = o==="siempre Azul"?'<span style="color:var(--azul)">gana siempre Azul</span>'
           : o==="siempre Rojo"?'<span style="color:var(--rojo)">gana siempre Rojo</span>'
           : o==="el primero"?'gana <b>el primero</b> en mover'
           : 'gana <b>el segundo</b> en mover';
-  statusEl.innerHTML="Con juego perfecto: "+gan+" · "+vs+".";
+  statusEl.innerHTML=(misere?"Con juego perfecto (misère): ":"Con juego perfecto: ")+gan+" · "+vs+".";
 }
 function showHint(){
   if(editing||!st||st.over)return;
@@ -340,20 +418,22 @@ function showHint(){
 function setPlayUIFromPos(pos){
   NODES=pos.nodes.map(function(n){return Object.assign({},n);});
   st={edges:pos.edges.map(function(e){return Object.assign({},e);}),turn:"L",over:false,winner:null};
-  memoW={};memoV={};history=[];hintId=null;lock=false; render(); updateMeta();
+  memoW={};history=[];hintId=null;lock=false; render(); updateMeta();
 }
 function loadPreset(key){current=key;editing=false;editbar.classList.remove("show");var p=JSON.parse(JSON.stringify(PRESETS[key]));setPlayUIFromPos(p);}
 
 // ---- editor con ramas (grafo) ----
 function enode(id){for(var i=0;i<editNodes.length;i++)if(editNodes[i].id===id)return editNodes[i];}
 function enterEditor(){
-  current="editor";editing=true;editNodes=[];editEdges=[];selNode=null;editNid=0;editEid=0;
+  current="editor";editing=true;editNodes=[];editEdges=[];selNode=null;editNid=0;editEid=0;linkMode=false;
+  document.getElementById("link").classList.remove("sel");
   editbar.classList.add("show"); st=null; updateMeta(); renderEditor(); editMsg();
 }
 function editMsg(){
+  if(linkMode){ statusEl.innerHTML='Editor · <b>modo unir 🔗</b>: toca <b>dos nudos</b> y nace una arista entre ellos (así cierras <b>ciclos</b>). Pulsa 🔗 otra vez para salir.'; return; }
   var n=editEdges.length;
-  statusEl.innerHTML = n? ('Editor · '+n+' palito'+(n===1?'':'s')+'. Toca un nudo para ramificar, o el suelo para otra base. Pulsa <b>▶ Jugar</b>.')
-                        : 'Editor · pincha el <b>suelo</b> para clavar una base y ve tocando hacia arriba. Toca un nudo para empezar una <b>rama</b>.';
+  statusEl.innerHTML = n? ('Editor · '+n+' palito'+(n===1?'':'s')+'. Toca un nudo para ramificar, o el suelo para otra base. 🔗 une nudos (ciclos). Pulsa <b>▶ Jugar</b>.')
+                        : 'Editor · pincha el <b>suelo</b> para clavar una base y ve tocando hacia arriba. Toca un nudo para ramificar; 🔗 para unir dos nudos.';
 }
 function renderEditor(){
   clearBoard(); drawGround();
@@ -371,6 +451,11 @@ function editClick(ev){
   var x=(ev.clientX-r.left)/r.width*380, y=(ev.clientY-r.top)/r.height*300;
   var near=null,bd=16;
   editNodes.forEach(function(n){var d=Math.sqrt((n.x-x)*(n.x-x)+(n.y-y)*(n.y-y));if(d<bd){bd=d;near=n;}});
+  if(linkMode){ // modo unir: dos nudos -> arista entre ellos (ciclos)
+    if(near){ if(selNode===null)selNode=near.id; else if(selNode===near.id)selNode=null; else {editEdges.push({id:"u"+(editEid++),n1:selNode,n2:near.id,c:editColor});selNode=null;} }
+    else selNode=null;
+    renderEditor(); editMsg(); return;
+  }
   if(near){
     selNode = (selNode===near.id) ? null : near.id;   // tocar un nudo = mover el ancla ahí (para ramificar) o soltarla
   } else {
@@ -404,6 +489,8 @@ Array.prototype.forEach.call(document.querySelectorAll(".colbtn"),function(b){ b
 document.getElementById("eundo").addEventListener("click",function(){ if(editEdges.length)editEdges.pop(); else if(editNodes.length){var n=editNodes.pop(); if(selNode===n.id)selNode=null;} selNode=null; renderEditor(); editMsg(); });
 document.getElementById("clear").addEventListener("click",function(){ editNodes=[];editEdges=[];selNode=null; renderEditor(); editMsg(); });
 document.getElementById("play").addEventListener("click",playCustom);
+document.getElementById("link").addEventListener("click",function(){ linkMode=!linkMode; selNode=null; this.classList.toggle("sel",linkMode); renderEditor(); editMsg(); });
+document.getElementById("misere").addEventListener("change",function(){ misere=this.checked; memoW={}; if(!editing){ if(current==="editor"&&customPos)setPlayUIFromPos(customPos); else if(current!=="editor")loadPreset(current); } });
 
 loadPreset("caraacara");
 })();
