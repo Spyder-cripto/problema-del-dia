@@ -100,6 +100,10 @@ Minados y adaptados de la biblioteca de mate descargada (ver carpeta `Downloads\
 
 El script que los insertó: `add_problemas.py` (cuidado: tuvo el bug de las comas, corregido a mano después).
 
+## Juego de Hackenbush (`juego/`)
+
+Página independiente jugable en `juego/index.html` (URL `…/problema-del-dia/juego/`), enlazada desde la principal ("🎮 Juega a Hackenbush", bajo el botón de compartir). Es el juego de Conway: cortar palitos de colores por turnos, con la regla del derrumbe. Tiene su propio HTML/CSS/JS (estética del sitio, modo oscuro). Funciones: 5 posiciones preset, modo 2 jugadores y **contra la máquina** (IA óptima por **minimax memoizado** sobre el conjunto de aristas — `canWin(edges,turno)`), botón "¿Quién gana?" (clase de resultado con juego perfecto: siempre Azul / siempre Rojo / el primero / el segundo). **La lógica se validó en node** (½→gana Azul, torres gemelas→gana el segundo). No depende de la GitHub Action (es estático). Surgió el 2026-06-19 al explorar a Conway tras bajar *Winning Ways Vol.1* a `Downloads\Conway`.
+
 ## Reabastecer problemas
 
 Antes de que el ciclo de ~40 días repita demasiado, minar más acertijos de la biblioteca (`Downloads\libros_maravillosos\Matemáticas`: Perelman, Gardner, Sam Loyd/Dudeney, Malba Tahan, Ignátiev, Yaglom, Steinhaus, Guik, Lucas, Paenza…). Adaptar (reescribir, no copiar; respeta copyright) y seguir el procedimiento de "Cómo añadir un problema".
