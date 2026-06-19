@@ -102,7 +102,35 @@ El script que los insertó: `add_problemas.py` (cuidado: tuvo el bug de las coma
 
 ## Juego de Hackenbush (`juego/`)
 
-Página independiente jugable en `juego/index.html` (URL `…/problema-del-dia/juego/`), enlazada desde la principal ("🎮 Juega a Hackenbush", bajo el botón de compartir). Es el juego de Conway: cortar palitos de colores por turnos, con la regla del derrumbe. Tiene su propio HTML/CSS/JS (estética del sitio, modo oscuro). **Funciones:** posiciones en el objeto `PRESETS` + array `ORDER` (constructor `forest(columns,segH)` para bosques de tallos, o `F(...)`, o nodos/aristas a mano para árboles); el selector las agrupa por `nivel` (Fácil/Media/Difícil/Genio) + opción **Editor** (construye posiciones propias clicando). Modos 2 jugadores y **contra la máquina** (IA óptima por **minimax memoizado** sobre el conjunto de aristas — `canWin(edges,turno)`). Botón **"¿Quién gana?"** = **valor exacto** (`value()`/`simplest()`: números surreales dyádicos para posiciones Rojo-Azul; ∗ "no numérico" si hay verdes) + clase de resultado (siempre Azul / siempre Rojo / el primero / el segundo). **Validar en node antes de publicar** (`node --check` del script + test de `value()`/`canWin()` sobre las posiciones nuevas; valores tipo ½,¾,⅛,1/32,1/64, Nim verde 1·2·3 → segundo). Estado actual: podado a 2 posiciones Genio («El duelo del genio», «La suma imposible»=⅛) + Editor. **No depende de la GitHub Action (es estático) → NO hay cache-buster:** al editarlo, en el navegador hay que forzar recarga (Ctrl+F5) o abrir con `?v=N`; si no, se ve la versión cacheada. Surgió el 2026-06-19 al explorar a Conway tras bajar *Winning Ways Vol.1* a `Downloads\Conway`.
+Página independiente jugable en `juego/index.html` (URL `…/problema-del-dia/juego/`), enlazada desde la principal ("🎮 Juega a Hackenbush", bajo el botón de compartir). Es el juego de Conway: cortar palitos de colores por turnos, con la regla del derrumbe. Tiene su propio HTML/CSS/JS (estética del sitio, modo oscuro). **Funciones:** posiciones en el objeto `PRESETS` + array `ORDER` (constructor `forest(columns,segH)` para bosques de tallos, o `F(...)`, o `{nodes:[{id,x,y,g}],edges:[{id,n1,n2,c}]}` a mano para **árboles ramificados**); el selector las agrupa por `nivel` (Fácil/Media/Difícil/Genio) + opción **Editor**. Modos 2 jugadores y **contra la máquina** (IA óptima por **minimax memoizado** sobre el conjunto de aristas — `canWin(edges,turno)`). Botón **"⚖️ ¿Quién gana?"** = **valor exacto** (`value()`/`simplest()`: surreales dyádicos para posiciones Rojo-Azul; ∗ "no numérico" si hay verdes) + clase de resultado (siempre Azul / siempre Rojo / el primero / el segundo).
+
+**Roster actual (13 posiciones, validadas en node — valor y nº de jugadas ganadoras):**
+
+| nivel | clave | nombre | valor | resultado |
+|---|---|---|---|---|
+| Fácil | caraacara | Cara a cara | 0 | gana el 2º (espejo) |
+| Fácil | media | La media justa | ½ | Azul |
+| Media | tira | Tira y afloja | 0 | gana el 2º |
+| Media | chispa | Chispa verde | ∗ | gana el 1º (Nim 1·2) |
+| Difícil | torcido | El árbol torcido | −⅛ | Rojo · **1 jugada gana** |
+| Difícil | ramaesc | La rama escondida | ½ | Azul · **1 jugada gana** |
+| Genio | mixto | El duelo del genio | ∗ | siempre Azul |
+| Genio | sumacruel | La suma imposible | ⅛ | Azul · 1 de muchas |
+| Genio | hidrahielo | La hidra de hielo | 1/16 | Azul · **1 jugada gana** (9 aristas) |
+| Genio | roble | El roble de Conway | ⅛ | Azul · **1 jugada gana** (11 aristas) |
+| Genio | abismo | El abismo | **−1/64** | Rojo · **1 jugada gana** (11 aristas) |
+| Genio | balanza | La balanza del diablo | ∗ | gana el 1º · **1 de 9** (la ramita verde) |
+| Genio | abanico | El cuarteto verde | ∗ | gana el 1º (Nim verde 1·2·3·4) |
+
+Las de Genio con 7-11 aristas son **árboles ramificados con jugada ganadora ÚNICA** (megaduras, a petición de Fali el 2026-06-19). Se diseñaron con una búsqueda aleatoria sobre el propio motor (`value`/`canWin`) + auto-layout de árbol; los coeficientes se confirmaron en node antes de pegarlos.
+
+**4 mejoras añadidas el 2026-06-19:**
+1. **💡 Pista** (`showHint`/`winningMove`): resalta con halo dorado pulsante el palito que gana con juego perfecto para quien mueve; si el turno ya está perdido, lo dice.
+2. **Editor con RAMAS** (grafo, antes solo tallos en columnas): `editClick` sobre un grafo `editNodes`/`editEdges`. **Modelo de interacción:** pincha el **suelo** → clava una base (queda anclada); toca el **vacío** hacia arriba → crece un palito desde el ancla y re-ancla en la punta (encadena); **toca un nudo existente** → mueve el ancla ahí (para ramificar) o la suelta. `▶ Jugar` poda lo que no toque el suelo (`groundedSet`) y juega.
+3. **Caída animada** (`ghosts`): los trozos que se desprenden al cortar caen con fade (translateY+rotate, ~0.42 s) antes de re-renderizar.
+4. **Contador de jugadas + Deshacer** en partida (`history`/`snapshot`/`restore`/`undoMove`): en modo IA, Deshacer revierte la ronda entera (hasta volver al turno humano).
+
+**Validar en node antes de publicar:** `node --check` del `<script>` extraído + ejecutar el IIFE con un DOM simulado (stub de document/createElementNS/getElementById…) para que `loadPreset`→`render` corran sin throw (detecta datos/comas rotas). Para el roster, recomputar `value()`/`canWin()`/jugadas-ganadoras de cada preset (1·2·3·4 Nim → 1º; valores ½,⅛,1/16,1/64… exactos). **No depende de la GitHub Action (es estático) → NO hay cache-buster:** al editarlo, en el navegador forzar recarga (Ctrl+F5) o abrir con `?v=N`; si no, se ve la versión cacheada. Surgió el 2026-06-19 al explorar a Conway tras bajar *Winning Ways Vol.1* a `Downloads\Conway`.
 
 ## Reabastecer problemas
 
