@@ -108,17 +108,17 @@ Reabastecimiento grande (40 → 63) minado de **`D:\libros_maravillosos\Matemát
 | idx | título | categoría | dificultad | fuente |
 |----|--------|-----------|-----------|--------|
 | 40 | La paradoja del ascensor de Gamow | Probabilidad | Media | Que las matemáticas te acompañen (Clara Grima) |
-| 41 | El niño que se enfría antes | Ingenio | Media | Matemática Recreativa (Perelman) |
+| 41 | ¿Quién siente más frío? | Ingenio | Media | Matemática Recreativa (Perelman) |
 | 42 | Las cajas sin etiqueta correcta | Lógica | Media | El encanto de la matemática (Pappas) |
-| 43 | La moneda que gira de más | Geometría | Difícil | Matemática Recreativa (Perelman) |
+| 43 | La moneda que rueda | Geometría | Difícil | Matemática Recreativa (Perelman) |
 | 44 | El intercambio de las manecillas | Números | Difícil | Álgebra recreativa (Perelman) |
 | 45 | El río y los dos ferrys | Números | Difícil | Nuevos Acertijos de Sam Loyd (Gardner) |
-| 46 | Por qué una esfera no puede ser toda hexágonos | Geometría | Difícil | Ingeniosos encuentros entre juegos y matemáticas (Stewart) |
+| 46 | El secreto del balón de fútbol | Geometría | Difícil | Ingeniosos encuentros entre juegos y matemáticas (Stewart) |
 | 47 | Los piratas democráticos | Lógica | Difícil | Locos por las matemáticas (Stewart) |
 | 48 | ¿Quién gana al Chomp? | Combinatoria | Muy difícil | Locos por las matemáticas (Stewart) |
 | 49 | Cuadrar el cuadrado | Geometría | Muy difícil | Locos por las matemáticas (Stewart) |
 | 50 | ¿Quién pasa el aro más fácilmente? | Probabilidad | Difícil | Matemática Recreativa (Perelman) |
-| 51 | La metralla forma una esfera | Geometría | Media | Geometría Recreativa (Perelman) |
+| 51 | La forma de la metralla | Geometría | Media | Geometría Recreativa (Perelman) |
 | 52 | La correa y las tres poleas | Geometría | Difícil | Geometría Recreativa (Perelman) |
 | 53 | El horizonte de Gogol | Números | Media | Geometría Recreativa (Perelman) |
 | 54 | Cubos bicolores | Combinatoria | Difícil | Matemática para Divertirse (Gardner) |
