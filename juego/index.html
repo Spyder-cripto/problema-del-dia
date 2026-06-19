@@ -70,12 +70,14 @@
     </div>
     <div class="controls">
       <div class="grp">
+        <button id="reto" class="primary" title="Una posición durísima distinta cada día">🗓️ Reto del día</button>
         <button id="hint">💡 Pista</button>
         <button id="who">⚖️ ¿Quién gana?</button>
       </div>
       <div class="grp">
         <button id="undo2">↶ Deshacer</button>
         <button id="reset">⟳ Reiniciar</button>
+        <button id="share" title="Copia un enlace a esta posición">🔗</button>
         <span class="lab" id="meta"></span>
       </div>
     </div>
@@ -206,6 +208,9 @@ var PRESETS={
 };
 var ORDER=["caraacara","media","tira","chispa","torcido","ramaesc","mixto","sumacruel","hidrahielo","roble","abismo","balanza","abanico",
            "soplo","corriente","ventisca","marea","anillo","conway","amuleto","rombo","diablo"];
+// pool de retos diarios (los más duros, jugada ganadora única o casi)
+var RETOS=["abismo","roble","hidrahielo","balanza","soplo","anillo","conway","amuleto","rombo","diablo","corriente","ventisca","marea","torcido","ramaesc","sumacruel"];
+function retoKey(){ var d=new Date(); var idx=Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000); return RETOS[((idx%RETOS.length)+RETOS.length)%RETOS.length]; }
 
 var board=document.getElementById("board"), sel=document.getElementById("sel"),
     statusEl=document.getElementById("status"), modeEl=document.getElementById("mode"),
@@ -217,6 +222,7 @@ var editNodes=[], editEdges=[], selNode=null, editColor="blue", editNid=0, editE
 
 // poblar selector con grupos por nivel
 (function(){
+  var or=document.createElement("option"); or.value="reto"; or.textContent="🗓️ Reto del día"; sel.appendChild(or);
   var groups={"Fácil":[],"Media":[],"Difícil":[],"Genio":[],"Diabólico":[]};
   ORDER.forEach(function(k){groups[PRESETS[k].nivel].push(k);});
   ["Fácil","Media","Difícil","Genio","Diabólico"].forEach(function(niv){
@@ -421,6 +427,16 @@ function setPlayUIFromPos(pos){
   memoW={};history=[];hintId=null;lock=false; render(); updateMeta();
 }
 function loadPreset(key){current=key;editing=false;editbar.classList.remove("show");var p=JSON.parse(JSON.stringify(PRESETS[key]));setPlayUIFromPos(p);}
+function loadReto(){ var key=retoKey(); loadPreset(key); sel.value="reto";
+  var d=new Date(); statusEl.innerHTML='🗓️ <b>Reto del día</b> ('+d.getDate()+'/'+(d.getMonth()+1)+'): ¿puedes ganar? Mueves tú (Azul). Pulsa 💡 si te atascas.'; }
+function shareLink(){
+  var key = (current==="editor") ? null : (sel.value==="reto" ? "reto" : current);
+  if(!key){ statusEl.textContent="Para compartir, elige una posición (el editor no se comparte)."; return; }
+  var url = location.origin+location.pathname+(key==="reto"?"?reto":("?pos="+key));
+  function ok(){ statusEl.innerHTML='🔗 <b>Enlace copiado</b> — ya puedes pegarlo. <span class="lab">'+url+'</span>'; }
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(ok,function(){statusEl.innerHTML='🔗 Copia este enlace: <span class="lab">'+url+'</span>';}); }
+  else statusEl.innerHTML='🔗 Copia este enlace: <span class="lab">'+url+'</span>';
+}
 
 // ---- editor con ramas (grafo) ----
 function enode(id){for(var i=0;i<editNodes.length;i++)if(editNodes[i].id===id)return editNodes[i];}
@@ -479,7 +495,9 @@ function playCustom(){
 }
 
 // ---- eventos ----
-sel.addEventListener("change",function(){ if(sel.value==="editor")enterEditor(); else loadPreset(sel.value); });
+sel.addEventListener("change",function(){ if(sel.value==="editor")enterEditor(); else if(sel.value==="reto")loadReto(); else loadPreset(sel.value); });
+document.getElementById("reto").addEventListener("click",loadReto);
+document.getElementById("share").addEventListener("click",shareLink);
 modeEl.addEventListener("change",function(){ if(current==="editor"&&customPos)setPlayUIFromPos(customPos); else if(current!=="editor")loadPreset(current); });
 document.getElementById("reset").addEventListener("click",function(){ if(current==="editor"){ if(customPos&&!editing)setPlayUIFromPos(customPos); else {editNodes=[];editEdges=[];selNode=null;renderEditor();editMsg();} } else loadPreset(current); });
 document.getElementById("who").addEventListener("click",showWho);
@@ -492,7 +510,13 @@ document.getElementById("play").addEventListener("click",playCustom);
 document.getElementById("link").addEventListener("click",function(){ linkMode=!linkMode; selNode=null; this.classList.toggle("sel",linkMode); renderEditor(); editMsg(); });
 document.getElementById("misere").addEventListener("change",function(){ misere=this.checked; memoW={}; if(!editing){ if(current==="editor"&&customPos)setPlayUIFromPos(customPos); else if(current!=="editor")loadPreset(current); } });
 
-loadPreset("caraacara");
+(function init(){
+  var params=new URLSearchParams(location.search);
+  if(params.has("reto")){ loadReto(); return; }
+  var pos=params.get("pos");
+  if(pos && PRESETS[pos]){ loadPreset(pos); sel.value=pos; return; }
+  loadPreset("caraacara"); sel.value="caraacara";
+})();
 })();
 </script>
 </body>
