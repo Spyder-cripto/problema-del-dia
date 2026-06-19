@@ -796,15 +796,21 @@ const hoyIdx = Math.max(0, Math.floor((aMedianoche(new Date()) - inicio)/MS));
 let viewIdx = hoyIdx;
 // previsualización: ?ver=N muestra el problema con índice N (en su día programado)
 const _ver = parseInt(new URLSearchParams(location.search).get('ver'), 10);
-if(!isNaN(_ver) && SEQ.includes(_ver)){ viewIdx = SEQ.indexOf(_ver); }
+const verMode = !isNaN(_ver) && SEQ.includes(_ver);
+if(verMode){ viewIdx = SEQ.indexOf(_ver); }
+
+// Override puntual por fecha (YYYY-MM-DD local -> índice de problema). Tiene prioridad sobre el ciclo; NO se aplica en modo ?ver.
+const OVERRIDES = {"2026-06-20": 43};  // 20-jun: repetir «La moneda que gira de más» (Fali, 2026-06-19)
+const claveFecha = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+function idxDeDia(i){ const N=SEQ.length; const f=new Date(inicio.getTime()+i*MS); const k=claveFecha(f); return (!verMode && (k in OVERRIDES)) ? OVERRIDES[k] : SEQ[((i%N)+N)%N]; }
 
 const fmt = new Intl.DateTimeFormat('es-ES',{weekday:'long', day:'numeric', month:'long', year:'numeric'});
 const capFecha = s => s.split(' ').map(w => w.toLowerCase()==='de' ? 'de' : w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
-function problemaDe(i){ const N=SEQ.length; return PROBLEMAS[SEQ[((i%N)+N)%N]]; }
+function problemaDe(i){ return PROBLEMAS[idxDeDia(i)]; }
 
 function render(){
   const N = SEQ.length;
-  const idx = SEQ[((viewIdx%N)+N)%N];
+  const idx = idxDeDia(viewIdx);
   const p = PROBLEMAS[idx];
   const fecha = new Date(inicio.getTime() + viewIdx*MS);
   document.getElementById('fecha').textContent = capFecha(fmt.format(fecha));

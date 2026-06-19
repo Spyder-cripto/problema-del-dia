@@ -21,6 +21,7 @@ def grab(pat):
 INICIO    = grab(r'const INICIO = "([^"]+)"')
 ORDEN     = eval(grab(r'const ORDEN = (\[[^\]]+\]);'))
 EXCLUIDOS = eval(grab(r'const EXCLUIDOS = (\[[^\]]*\]);') or "[]")
+OVERRIDES = eval(grab(r'const OVERRIDES = (\{[^}]*\});') or "{}")  # fecha YYYY-MM-DD -> índice (prioridad sobre el ciclo)
 TITULOS   = re.findall(r'titulo:"([^"]*)"', HTML)
 TIPO      = eval("{" + grab(r'const TIPO = \{([^}]+)\};') + "}")
 DIF       = eval("{" + grab(r'const DIF = \{([^}]+)\};') + "}")
@@ -188,8 +189,8 @@ if "--todas" in sys.argv:
 else:
     hoy = datetime.datetime.now(ZoneInfo("Europe/Madrid")).date()
     dayidx = max(0,(hoy-inicio).days)
-    idx = SEQ[dayidx % len(SEQ)]
-    print(f"HOY día {dayidx+1}: {TITULOS[idx]}")
+    idx = OVERRIDES.get(hoy.isoformat(), SEQ[dayidx % len(SEQ)])
+    print(f"HOY día {dayidx+1}: {TITULOS[idx]}" + (" [OVERRIDE]" if hoy.isoformat() in OVERRIDES else ""))
     make_horizontal(idx).save("preview.png","PNG")
     make_square(idx).save("preview_sq.png","PNG")
     vparam = hoy.strftime("%Y%m%d")
