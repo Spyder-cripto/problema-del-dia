@@ -21,7 +21,8 @@ Una web estática que muestra **un acertijo matemático cada día**. El problema
 - **`DIF`** — `{índice: 1|2|3|4}` (1=Fácil, 2=Media, 3=Difícil, **4=Muy difícil**, añadido 2026-06-19). Se pinta como **escala de 4 puntos**: `"●".repeat(d) + "○".repeat(4 - d)` → Media `●●○○`, Difícil `●●●○`, Muy difícil `●●●●`. Hay `DIF_NOMBRE[4]="Muy difícil"` y CSS `.dif.d4` (rojo `--hard`, negrita). **OJO:** la fórmula antes era `repeat(3 - d)`; con `d=4` eso lanzaba `RangeError` (repeat negativo) — por eso se cambió el 3 por 4.
 - **`PISTAS`** — `{índice: [..]}`. **Muy difícil → 2; Difícil → 2 pistas; Media → 1; Fácil → 0.** Respeta el número según la dificultad. (El nº de botones lo decide `PISTAS[idx].length`, no `DIF`.)
 - **`DIBUJOS`** — `{índice: "SVG"}` garabato infantil (viewBox 0 0 100 100, va sobre `PAPEL`). Si falta, usa `DEFECTO` (carita). 
-- **`INICIO`** — fecha del día 1 (`"2026-06-17"`).
+- **`INICIO`** — fecha del día 1 (en el `index.html` es `"2026-06-01"`).
+- **`OVERRIDES`** — mapa `{ "YYYY-MM-DD": índice }` (añadido 2026-06-19) para **forzar un problema concreto en una fecha concreta**, con prioridad sobre el ciclo y SIN tocar `ORDEN`. La función `idxDeDia(i)` lo consulta; `generate_preview.py` también (para que la tarjeta de ese día coincida). **No se aplica en modo `?ver`** (ahí mandas tú el problema). El día así forzado **salta** el problema que tocaba por ciclo (no lo recoloca: ese problema reaparece en la siguiente vuelta del ciclo). Útil para repetir/cambiar un día puntual; es inocuo dejar entradas pasadas (solo afectan a esa fecha exacta, que no se repite hasta dentro de un ciclo entero). Ej. actual: `{"2026-06-20": 43}` repite «La moneda que gira de más».
 - **`?ver=N`** — parámetro de URL para **previsualizar** cualquier problema (la web normal no deja navegar a días futuros; el botón "Siguiente" se desactiva al llegar a hoy). Ej.: `...github.io/problema-del-dia/?ver=30`.
 
 ## Diseño
