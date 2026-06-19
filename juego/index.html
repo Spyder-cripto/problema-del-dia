@@ -291,9 +291,8 @@ function commitCut(e,onDone){
   hintId=null; history.push(snapshot());
   var before=st.edges, after=applyCut(before,e);
   var removed=before.filter(function(x){return !after.some(function(y){return y.id===x.id;});});
-  doCut(e); render(); ghosts(removed); updateMeta();
-  lock=true; updateMeta();
-  setTimeout(function(){lock=false; updateMeta(); if(onDone)onDone();}, ANIM);
+  doCut(e); lock=true; render(); ghosts(removed); updateMeta();
+  setTimeout(function(){lock=false; render(); updateMeta(); if(onDone)onDone();}, ANIM);
 }
 function humanCut(e){
   if(st.over||lock||!isHumanTurn())return;
