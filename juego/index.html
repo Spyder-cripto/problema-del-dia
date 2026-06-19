@@ -126,9 +126,10 @@ var PRESETS={
                    {id:20,x:290,y:FLOOR,g:1},{id:21,x:290,y:205}],
             edges:[{id:"a",n1:0,n2:1,c:"blue"},{id:"b",n1:1,n2:2,c:"red"},{id:"c",n1:2,n2:3,c:"blue"},
                    {id:"x",n1:10,n2:11,c:"red"},{id:"y",n1:11,n2:12,c:"blue"},
-                   {id:"g",n1:20,n2:21,c:"green"}]}
+                   {id:"g",n1:20,n2:21,c:"green"}]},
+ sumacruel:F([{x:70,cols:["blue"]},{x:140,cols:["red","blue"]},{x:210,cols:["red","blue","blue"]},{x:290,cols:["red","blue","blue","blue"]}],40,"La suma imposible","Genio")
 };
-var ORDER=["mixto"];
+var ORDER=["mixto","sumacruel"];
 
 var board=document.getElementById("board"), sel=document.getElementById("sel"),
     statusEl=document.getElementById("status"), modeEl=document.getElementById("mode"),
