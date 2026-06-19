@@ -120,19 +120,6 @@ function forest(columns, segH){
 function F(cols,segH,nombre,nivel){var f=forest(cols,segH);return {nombre:nombre,nivel:nivel,nodes:f.nodes,edges:f.edges};}
 
 var PRESETS={
- simple:   F([{x:190,cols:["blue","red"]}],62,"Tallo bicolor","Fácil"),
- escalera: F([{x:190,cols:["blue","red","blue"]}],55,"Escalera","Media"),
- arbol:    {nombre:"Arbolito",nivel:"Media",
-            nodes:[{id:0,x:190,y:FLOOR,g:1},{id:1,x:190,y:200},{id:2,x:190,y:148},{id:3,x:140,y:112},{id:4,x:240,y:112},{id:5,x:110,y:76}],
-            edges:[{id:"a",n1:0,n2:1,c:"blue"},{id:"b",n1:1,n2:2,c:"blue"},{id:"c",n1:2,n2:3,c:"red"},{id:"d",n1:2,n2:4,c:"green"},{id:"e",n1:3,n2:5,c:"blue"}]},
- octavo:   F([{x:190,cols:["blue","red","red","red"]}],46,"El octavo escondido","Difícil"),
- gemelas:  F([{x:130,cols:["blue","blue","blue"]},{x:250,cols:["red","red","red"]}],46,"Dos torres gemelas","Difícil"),
- puente:   {nombre:"El puente verde",nivel:"Difícil",
-            nodes:[{id:0,x:110,y:FLOOR,g:1},{id:1,x:110,y:170},{id:2,x:270,y:FLOOR,g:1},{id:3,x:270,y:170},{id:4,x:190,y:120}],
-            edges:[{id:"a",n1:0,n2:1,c:"blue"},{id:"b",n1:2,n2:3,c:"red"},{id:"c",n1:1,n2:4,c:"green"},{id:"d",n1:3,n2:4,c:"green"}]},
- espejismo:F([{x:190,cols:["blue","red","red","red","red","red"]}],34,"El espejismo rojo","Genio"),
- nim123:   F([{x:90,cols:["green"]},{x:190,cols:["green","green"]},{x:290,cols:["green","green","green"]}],42,"Nim verde 1·2·3","Genio"),
- nim124:   F([{x:90,cols:["green"]},{x:190,cols:["green","green"]},{x:290,cols:["green","green","green","green"]}],36,"Nim verde 1·2·4","Genio"),
  mixto:    {nombre:"El duelo del genio",nivel:"Genio",
             nodes:[{id:0,x:110,y:FLOOR,g:1},{id:1,x:110,y:205},{id:2,x:110,y:155},{id:3,x:110,y:105},
                    {id:10,x:210,y:FLOOR,g:1},{id:11,x:210,y:205},{id:12,x:210,y:155},
@@ -141,7 +128,7 @@ var PRESETS={
                    {id:"x",n1:10,n2:11,c:"red"},{id:"y",n1:11,n2:12,c:"blue"},
                    {id:"g",n1:20,n2:21,c:"green"}]}
 };
-var ORDER=["simple","escalera","arbol","octavo","gemelas","puente","espejismo","nim123","nim124","mixto"];
+var ORDER=["mixto"];
 
 var board=document.getElementById("board"), sel=document.getElementById("sel"),
     statusEl=document.getElementById("status"), modeEl=document.getElementById("mode"),
@@ -154,6 +141,7 @@ var editing=false, editCols=[], editColor="blue", customPos=null, current="simpl
   var groups={"Fácil":[],"Media":[],"Difícil":[],"Genio":[]};
   ORDER.forEach(function(k){groups[PRESETS[k].nivel].push(k);});
   ["Fácil","Media","Difícil","Genio"].forEach(function(niv){
+    if(!groups[niv].length)return;
     var og=document.createElement("optgroup"); og.label=niv;
     groups[niv].forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=PRESETS[k].nombre;og.appendChild(o);});
     sel.appendChild(og);
@@ -293,7 +281,7 @@ document.getElementById("undo").addEventListener("click",function(){ for(var i=e
 document.getElementById("clear").addEventListener("click",function(){ editCols=[]; renderEditor(); });
 document.getElementById("play").addEventListener("click",playCustom);
 
-loadPreset("simple");
+loadPreset("mixto");
 })();
 </script>
 </body>
