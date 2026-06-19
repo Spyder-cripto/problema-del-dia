@@ -800,7 +800,7 @@ const verMode = !isNaN(_ver) && SEQ.includes(_ver);
 if(verMode){ viewIdx = SEQ.indexOf(_ver); }
 
 // Override puntual por fecha (YYYY-MM-DD local -> índice de problema). Tiene prioridad sobre el ciclo; NO se aplica en modo ?ver.
-const OVERRIDES = {"2026-06-20": 43};  // 20-jun: repetir «La moneda que gira de más» (Fali, 2026-06-19)
+const OVERRIDES = {};  // sin overrides activos (20-jun: override retirado por Fali el 2026-06-20 → vuelve al ciclo «Tres gatos, cien ratones»)
 const claveFecha = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 function idxDeDia(i){ const N=SEQ.length; const f=new Date(inicio.getTime()+i*MS); const k=claveFecha(f); return (!verMode && (k in OVERRIDES)) ? OVERRIDES[k] : SEQ[((i%N)+N)%N]; }
 
