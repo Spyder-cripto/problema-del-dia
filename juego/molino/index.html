@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Molino · El problema del día</title>
+<meta name="description" content="Juega al Molino (Nine Men's Morris): coloca y mueve tus nueve fichas, forma líneas de tres para capturar y deja al rival con menos de tres. Milenario, con IA y pista.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  #board .mline{ stroke:color-mix(in srgb,var(--ink) 50%,transparent); stroke-width:2; stroke-linecap:round; }
+  #board .spot{ fill:color-mix(in srgb,var(--ink) 38%,transparent); }
+  #board .piece0{ fill:var(--azul); stroke:color-mix(in srgb,var(--azul) 60%,#000); stroke-width:1.5; }
+  #board .piece1{ fill:var(--rojo); stroke:color-mix(in srgb,var(--rojo) 60%,#000); stroke-width:1.5; }
+  #board .selring{ fill:none; stroke:var(--accent); stroke-width:3; }
+  #board .pickable{ fill:transparent; cursor:pointer; }
+  /* Fichas rivales capturables: aro rojo discontinuo. */
+  #board .removehit{ fill:color-mix(in srgb,var(--rojo) 18%,transparent); stroke:var(--rojo); stroke-width:2.5; stroke-dasharray:4 3; cursor:pointer; }
+  #board .removehit:hover{ fill:color-mix(in srgb,var(--rojo) 38%,transparent); }
+  #board .mhalo{ fill:none; stroke:var(--accent); stroke-width:3; animation:halo 1.1s ease-in-out infinite; }
+  #board .mhalo.rem{ stroke:var(--rojo); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
