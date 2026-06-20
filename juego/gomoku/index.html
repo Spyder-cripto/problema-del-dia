@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gomoku · El problema del día</title>
+<meta name="description" content="Juega a Gomoku (cinco en raya): alinea cinco piedras antes que el rival en horizontal, vertical o diagonal. Estilo libre, con IA que busca amenazas y pista.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  #board{ background:color-mix(in srgb,#e8c889 38%,var(--card)); }
+  @media(prefers-color-scheme:dark){ #board{ background:color-mix(in srgb,#7a5a2a 26%,var(--card)); } }
+  #board .gline{ stroke:color-mix(in srgb,var(--ink) 45%,transparent); stroke-width:1; }
+  #board .stone{ stroke-width:1.2; }
+  #board .stone.s0{ fill:#22201b; stroke:#000; }            /* Negras */
+  #board .stone.s1{ fill:#f7f4ec; stroke:#9a917f; }         /* Blancas */
+  #board .stone.last{ stroke:var(--accent); stroke-width:2.4; }
+  /* Zonas-clic en intersecciones candidatas. */
+  #board .ghit{ fill:transparent; cursor:pointer; }
+  #board .ghit:hover{ fill:color-mix(in srgb,var(--accent) 30%,transparent); }
+  #board .hinthalo{ fill:none; stroke:var(--accent); stroke-width:3; animation:halo 1.1s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
