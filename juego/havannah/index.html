@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Havannah · El problema del día</title>
+<meta name="description" content="Juega a Havannah: gana por puente, horquilla o anillo sobre un tablero hexagonal de hexágonos. El juego de conexión de Christian Freeling, con IA y pista.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  /* Celdas hexagonales del tablero de Havannah. */
+  #board .hexcell{ fill:var(--cell); stroke:var(--line); stroke-width:1.4; }
+  #board .hexedge{ fill:color-mix(in srgb, var(--accent) 9%, var(--cell)); }
+  #board .hexcorner{ fill:color-mix(in srgb, var(--accent) 26%, var(--cell)); stroke:var(--accent); stroke-width:2; }
+  /* Piedras y fantasmas reutilizan .piece0/.piece1 y .ghost.g0/.g1 del motor. */
+  #board .piece0{ stroke:rgba(0,0,0,.18); stroke-width:1; }
+  #board .piece1{ stroke:rgba(0,0,0,.18); stroke-width:1; }
+  #board .halo{ fill:none; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
