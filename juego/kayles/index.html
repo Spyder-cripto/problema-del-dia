@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kayles · El problema del día</title>
+<meta name="description" content="Juega a Kayles: derriba un bolo o dos contiguos de la fila y deja sin jugada al rival. El juego imparcial de Dudeney y Sam Loyd, con IA perfecta basada en los nim-values de Sprague-Grundy y pista de la jugada ganadora.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  /* Estilos propios de Kayles (no tocamos _engine/style.css).
+     Los bolos se dibujan con dos piezas: cabeza redonda (.pinhead) y cuerpo (.pinbody).
+     No son clicables: encima van los fantasmas (.ghost) que capturan el clic. */
+  #board .pinhead{ fill:var(--ink); stroke:color-mix(in srgb,var(--ink) 55%,var(--bg)); stroke-width:1; }
+  #board .pinbody{ fill:var(--ink); stroke:color-mix(in srgb,var(--ink) 55%,var(--bg)); stroke-width:1; }
+  #board .pin{ pointer-events:none; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>

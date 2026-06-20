@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TacTix · El problema del día</title>
+<meta name="description" content="Juega a TacTix, el Nim bidimensional de Piet Hein en versión misère: retira bloques de fichas contiguas de una fila o columna y evita quedarte con la última. Con IA y pista de la jugada ganadora.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  /* Estilos propios de TacTix (no tocamos _engine/style.css) */
+  #board .tx-piece{ fill:var(--accent); stroke:color-mix(in srgb,var(--accent) 60%,#000); stroke-width:1.5; transition:opacity .12s, transform .12s; }
+  #board .tx-piece:hover{ opacity:.78; }
+  #board .tx-sel{ fill:var(--azul); stroke:color-mix(in srgb,var(--azul) 55%,#000); stroke-width:2.5; }
+  #board .tx-band{ fill:none; }
+  #board .tx-band.tx-preview{ fill:none; stroke:var(--azul); stroke-width:3; stroke-dasharray:6 5; opacity:.85; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
