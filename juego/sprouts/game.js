@@ -38,6 +38,14 @@ function canonBoundary(b){
 }
 // clave canónica de una región: sus boundaries canónicos, ordenados
 function canonRegion(reg){ return reg.map(canonBoundary).sort().join('|'); }
+// clave SEMI-canónica (CONSERVA las ids de los puntos): insensible a orden/rotación pero
+// distingue jugadas sobre puntos distintos (p.ej. bucle en A vs en B) -> para el menú humano
+// y para dedup de duplicados EXACTOS (no isomorfos). minRot por secuencia de ids.
+function minRotId(b){ let best = null; for (let i = 0; i < b.length; i++){ const r = rotate(b, i).join('.'); if (best === null || r < best) best = r; } return best; }
+function semiKey(s){
+  const regs = s.regions.map(r => r.map(minRotId).sort().join('|')).sort().join('#');
+  return regs + '~' + s.lives.join(',') + '~' + s.turn;
+}
 // clave canónica del estado: regiones ordenadas + turno (+ vidas, reindexadas por estructura)
 function stateKey(s){
   const regs = s.regions.map(canonRegion).sort().join('#');
@@ -60,11 +68,11 @@ function livesSignature(s){
 // ---- enumeración de jugadas (calcula cada sucesor) ----
 function genMoves(s){
   const out = [], seen = new Set();
-  const push = (next) => {
-    const k = stateKey(next);
-    if (seen.has(k)) return;       // dedup de jugadas estructuralmente idénticas
+  const push = (next, a, b) => {
+    const k = semiKey(next);
+    if (seen.has(k)) return;       // dedup de duplicados EXACTOS (conserva jugadas distintas por punto)
     seen.add(k);
-    out.push({ next });
+    out.push({ next, a, b });      // a,b = puntos unidos (a===b -> bucle), para la etiqueta del menú
   };
 
   for (let ri = 0; ri < s.regions.length; ri++){
@@ -130,8 +138,9 @@ function splitMoves(s, ri, A, B, push){
     const nb = baseNext(s, A.id === B.id ? { [A.id]: 2 } : { [A.id]: 1, [B.id]: 1 });
     const reg1 = [part1.concat([nb.N]), ...extra1.map(x => x.slice())];
     const reg2 = [part2.concat([nb.N]), ...extra2.map(x => x.slice())];
+    const edges = s.edges.concat([[A.id, nb.N], [nb.N, B.id]]);
     const regions = s.regions.filter((_, k) => k !== ri).concat([reg1, reg2]);
-    push({ lives: nb.lives, regions, turn: nb.turn, next: nb.next });
+    push({ lives: nb.lives, regions, edges, turn: nb.turn, next: nb.next }, A.id, B.id);
   }
 }
 
@@ -145,8 +154,9 @@ function mergeMove(s, ri, A, B, push){
   const merged = r1.concat([nb.N], r2, [nb.N]);
   const others = reg.filter((_, bi) => bi !== A.bi && bi !== B.bi);
   const newReg = [merged, ...others.map(x => x.slice())];
+  const edges = s.edges.concat([[A.id, nb.N], [nb.N, B.id]]);
   const regions = s.regions.filter((_, k) => k !== ri).concat([newReg]);
-  push({ lives: nb.lives, regions, turn: nb.turn, next: nb.next });
+  push({ lives: nb.lives, regions, edges, turn: nb.turn, next: nb.next }, A.id, B.id);
 }
 
 // LOOP: bucle en una esquina (A=B misma ocurrencia). Crea un ciclo [id, N] que parte la
@@ -164,8 +174,9 @@ function loopMoves(s, ri, A, push){
     const outsideExtra = extra2.map(x => x.slice());
     const outside = [loop.slice(), ...outsideExtra];
     if (restOfBd.length) outside.push(restOfBd.slice());  // resto del borde original, fuera
+    const edges = s.edges.concat([[A.id, nb.N], [nb.N, A.id]]);
     const regions = s.regions.filter((_, k) => k !== ri).concat([inside, outside]);
-    push({ lives: nb.lives, regions, turn: nb.turn, next: nb.next });
+    push({ lives: nb.lives, regions, edges, turn: nb.turn, next: nb.next }, A.id, A.id);
   }
 }
 
@@ -187,7 +198,7 @@ export const game = {
   initial(key){
     const c = cfg(key), lives = [], regions = [[]];
     for (let i = 0; i < c.n; i++){ lives.push(3); regions[0].push([i]); }
-    return { lives, regions, turn: 0, next: c.n };
+    return { lives, regions, edges: [], turn: 0, next: c.n };
   },
 
   current(s){ return s.turn; },
@@ -205,6 +216,83 @@ export const game = {
   key(s){ return stateKey(s); },
   exactOK(s){ let v = 0; for (const x of s.lives) v += x; return v <= 12; },
 
-  viewBox(){ return '0 0 420 360'; },
-  render(svg){ el('text', { x: 210, y: 180, 'text-anchor': 'middle', fill: 'var(--muted)' }, svg).textContent = '(render pendiente: primero el oráculo)'; },
+  // alto variable según nº de jugadas (el diagrama va arriba y NO se mueve; solo crece el menú)
+  viewBox(s){ const rows = this.legalMoves(s).length; return '0 0 420 ' + (300 + Math.max(rows, 1) * 26 + 12); },
+
+  render(svg, s, ctx){
+    const L = (id) => id < 26 ? String.fromCharCode(65 + id) : 'Z' + (id - 25);
+    const DIA = { cx: 210, cy: 150, r: 105 };
+    // mapa de coordenadas PERSISTENTE en el nodo svg (estabilidad: los puntos no saltan).
+    if (!svg._spr || s.edges.length === 0) svg._spr = {};   // edges vacío == posición inicial
+    const pos = svg._spr, n = s.lives.length;
+
+    // adyacencia desde las aristas
+    const adj = {};
+    for (const [a, b] of s.edges){ (adj[a] = adj[a] || []).push(b); (adj[b] = adj[b] || []).push(a); }
+
+    // asignar coordenadas que falten: los iniciales (sin vecinos) en círculo; los nuevos en el
+    // punto medio de sus vecinos ya colocados (determinista -> estable).
+    const need = []; for (let id = 0; id < n; id++) if (!(id in pos)) need.push(id);
+    const circ = need.filter(id => !(adj[id] && adj[id].length));
+    circ.forEach((id, k) => { const a = -Math.PI / 2 + 2 * Math.PI * k / Math.max(circ.length, 1); pos[id] = [DIA.cx + DIA.r * Math.cos(a), DIA.cy + DIA.r * Math.sin(a)]; });
+    let rem = need.filter(id => adj[id] && adj[id].length), guard = 0;
+    while (rem.length && guard++ < 200){
+      const still = [];
+      for (const id of rem){
+        const nb = adj[id].filter(x => x in pos);
+        if (!nb.length){ still.push(id); continue; }
+        let mx = 0, my = 0; for (const x of nb){ mx += pos[x][0]; my += pos[x][1]; } mx /= nb.length; my /= nb.length;
+        if (nb.every(x => x === nb[0])){            // bucle: empuja hacia afuera del centro
+          let dx = mx - DIA.cx, dy = my - DIA.cy; const d = Math.hypot(dx, dy) || 1;
+          pos[id] = [mx + 42 * dx / d, my + 42 * dy / d];
+        } else {                                     // punto medio + desvío perpendicular
+          const [x0, y0] = pos[nb[0]]; let dx = mx - x0, dy = my - y0; const d = Math.hypot(dx, dy) || 1;
+          const off = (id % 2 ? 1 : -1) * (20 + (id % 3) * 9);
+          pos[id] = [mx + off * (-dy / d), my + off * (dx / d)];
+        }
+      }
+      if (still.length === rem.length) break;
+      rem = still;
+    }
+    for (const id of rem) if (!(id in pos)) pos[id] = [DIA.cx, DIA.cy];
+
+    // aristas (arcos): leve comba alterna para separar paralelas (bucles)
+    s.edges.forEach(([a, b], i) => {
+      const [x1, y1] = pos[a], [x2, y2] = pos[b];
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2; let dx = x2 - x1, dy = y2 - y1; const d = Math.hypot(dx, dy) || 1;
+      const bow = (i % 2 ? 1 : -1) * (7 + (i % 3) * 5);
+      el('path', { class: 'spr-edge', d: `M${x1.toFixed(1)},${y1.toFixed(1)} Q${(mx + bow * (-dy / d)).toFixed(1)},${(my + bow * (dx / d)).toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}` }, svg);
+    });
+
+    // puntos (vivos / muertos) con etiqueta
+    for (let id = 0; id < n; id++){
+      const [x, y] = pos[id], alive = s.lives[id] > 0;
+      el('circle', { class: alive ? 'spr-spot' : 'spr-dead', cx: x.toFixed(1), cy: y.toFixed(1), r: 8 }, svg);
+      el('text', { class: 'spr-label', x: x.toFixed(1), y: (y - 13).toFixed(1), 'text-anchor': 'middle' }, svg).textContent = L(id);
+    }
+
+    if (!ctx.interactive) return;
+
+    // MENÚ de jugadas legales (Opción B): la lista ya verificada por el oráculo.
+    const moves = this.legalMoves(s);
+    const baseLabel = (m) => m.a === m.b ? ('Bucle en ' + L(m.a)) : ('Unir ' + L(m.a) + '–' + L(m.b));
+    const total = {}; moves.forEach(m => { const l = baseLabel(m); total[l] = (total[l] || 0) + 1; });
+    const seen = {};
+    const hov = el('g', {}, svg);
+    const clearHov = () => { while (hov.firstChild) hov.removeChild(hov.firstChild); };
+    const hintKey = ctx.hint ? semiKey(ctx.hint.next) : null;
+
+    el('text', { class: 'spr-menu-title', x: 22, y: 298 }, svg).textContent = 'Elige tu jugada:';
+    moves.forEach((m, i) => {
+      const l = baseLabel(m); seen[l] = (seen[l] || 0) + 1;
+      const label = total[l] > 1 ? (l + ' · var. ' + seen[l]) : l;
+      const ry = 308 + i * 26;
+      const isHint = hintKey && semiKey(m.next) === hintKey;
+      const row = el('rect', { class: 'spr-row' + (isHint ? ' spr-hint' : ''), x: 18, y: ry, width: 384, height: 22, rx: 6 }, svg);
+      el('text', { class: 'spr-row-text', x: 30, y: ry + 16 }, svg).textContent = '▸ ' + label;
+      row.addEventListener('click', () => ctx.onMove(m));
+      row.addEventListener('mouseenter', () => { clearHov(); for (const id of [m.a, m.b]){ const [x, y] = pos[id]; el('circle', { class: 'spr-halo', cx: x.toFixed(1), cy: y.toFixed(1), r: 13 }, hov); } });
+      row.addEventListener('mouseleave', clearHov);
+    });
+  },
 };

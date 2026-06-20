@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sprouts · El problema del día</title>
+<meta name="description" content="Juega a Sprouts (Brotes): une puntos con curvas que no se cruzan y coloca un punto nuevo encima; cada punto admite 3 líneas. El juego topológico de Conway y Paterson, con IA que juega perfecto.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  #board .spr-edge{ fill:none; stroke:var(--ink); stroke-width:2.4; opacity:.78 }
+  #board .spr-spot{ fill:var(--card); stroke:var(--accent); stroke-width:2.6 }
+  #board .spr-dead{ fill:var(--muted); stroke:var(--muted) }
+  #board .spr-label{ fill:var(--muted); font-family:var(--body); font-size:13px; font-weight:bold }
+  #board .spr-menu-title{ fill:var(--muted); font-family:var(--body); font-size:14px }
+  #board .spr-row{ fill:transparent; cursor:pointer }
+  #board .spr-row:hover{ fill:color-mix(in srgb,var(--accent) 14%,transparent) }
+  #board .spr-hint{ fill:color-mix(in srgb,var(--accent) 20%,transparent); stroke:var(--accent); stroke-width:1.5 }
+  #board .spr-row-text{ fill:var(--ink); font-family:var(--body); font-size:14px; pointer-events:none }
+  #board .spr-halo{ fill:none; stroke:var(--accent); stroke-width:3 }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
