@@ -4,9 +4,9 @@ import { createController, other } from './core.js';
 import { chooseMove, solve, deepScore } from './ai.js';
 
 const DIFFS = {
-  facil:   { label: 'Fácil',   depth: 2, randomness: 0.40 },
-  media:   { label: 'Media',   depth: 4, randomness: 0.10 },
-  dificil: { label: 'Difícil', depth: 6, randomness: 0    },
+  facil:   { label: 'Fácil',   depth: 2, randomness: 0.40, timeMs: 700 },
+  media:   { label: 'Media',   depth: 4, randomness: 0.10, timeMs: 1500 },
+  dificil: { label: 'Difícil', depth: 8, randomness: 0,    timeMs: 2500 },
 };
 
 export function mount(root, game){
@@ -127,7 +127,7 @@ export function mount(root, game){
       status.innerHTML = mv ? 'Pista: <b>esta jugada gana</b> con juego perfecto.' : 'Pista: vas <b>perdiendo</b> con juego perfecto — aguanta lo que puedas.';
       return;
     }
-    hint = chooseMove(game, s, { depth: 7, randomness: 0 }); render();
+    hint = chooseMove(game, s, { depth: 8, randomness: 0, timeMs: 2500 }); render();
     status.innerHTML = 'Pista: la jugada que la máquina cree mejor.';
   }
   function whoWins(){
@@ -136,7 +136,7 @@ export function mount(root, game){
       const r = solve(game, s);
       if (!r.capped){ const w = r.winnerIsCurrent ? ctrl.current() : other(ctrl.current()); status.innerHTML = 'Con juego perfecto gana <b style="color:' + players[w].color + '">' + players[w].nombre + '</b>.'; return; }
     }
-    const sc = deepScore(game, s, 5), cur = ctrl.current();
+    const sc = deepScore(game, s, 4, 1500), cur = ctrl.current();
     const lead = sc > 0 ? cur : other(cur);
     status.innerHTML = '(Tablero grande para resolverlo exacto.) La máquina cree que va mejor <b style="color:' + players[lead].color + '">' + players[lead].nombre + '</b>.';
   }

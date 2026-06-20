@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hex · El problema del día</title>
+<meta name="description" content="Juega a Hex: Azul une arriba y abajo, Rojo une izquierda y derecha sobre un rombo de hexágonos. El juego de conexión de Piet Hein y John Nash, sin empates, con IA y pista.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  /* Celdas hexagonales y bordes de color propios de Hex. */
+  #board .hexcell{ fill:var(--cell); stroke:var(--line); stroke-width:1.4; }
+  #board .edge{ fill:none; stroke-width:5; stroke-linejoin:round; opacity:.85; }
+  #board .edge-az{ stroke:var(--azul); }
+  #board .edge-ro{ stroke:var(--rojo); }
+  /* Las piedras y fantasmas reutilizan .piece0/.piece1 y .ghost.g0/.g1 del motor. */
+  #board .piece0{ stroke:rgba(0,0,0,.18); stroke-width:1; }
+  #board .piece1{ stroke:rgba(0,0,0,.18); stroke-width:1; }
+  #board .halo{ fill:none; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>

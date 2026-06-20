@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Y · El problema del día</title>
+<meta name="description" content="Juega al juego de Y: une tus piedras en una cadena que toque los tres lados del triángulo. Un juego de conexión que nunca empata, generalización de Hex, con IA y pista.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  /* Clases SVG propias del tablero triangular de Y */
+  #board .hex{fill:var(--cell);stroke:var(--line);stroke-width:1.4}
+  #board .piece0{fill:var(--azul)}
+  #board .piece1{fill:var(--rojo)}
+  #board .side{stroke-width:5;stroke-linecap:round;opacity:.85}
+  #board .side-l{stroke:var(--accent)}
+  #board .side-r{stroke:var(--accent)}
+  #board .side-b{stroke:var(--accent)}
+  #board .ghost{transition:opacity .12s;cursor:pointer;opacity:.18}
+  #board .ghost:hover{opacity:.6}
+  #board .ghost.g0{fill:var(--azul)}
+  #board .ghost.g1{fill:var(--rojo)}
+  #board .halo{fill:none;stroke:var(--accent);stroke-width:3;animation:halo 1.1s ease-in-out infinite}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
