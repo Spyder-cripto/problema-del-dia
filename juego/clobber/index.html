@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clobber · El problema del día</title>
+<meta name="description" content="Juega a Clobber: coge una ficha tuya, muévela sobre una ficha contigua del rival y aplástala. Pierde quien se queda sin movimientos. El juego partisano del damero de Albert, Grossman y Nowakowski, con IA y pista de la jugada ganadora.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  /* Ficha propia seleccionada: anillo dorado que la destaca. */
+  #board .piece0.sel,
+  #board .piece1.sel{ stroke:var(--accent); stroke-width:4 }
+  /* Las fichas movibles invitan al clic. */
+  #board circle.piece0,
+  #board circle.piece1{ transition:stroke .12s }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>

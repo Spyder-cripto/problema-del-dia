@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sapos y Ranas · El problema del día</title>
+<meta name="description" content="Juega a Sapos y Ranas (Toads and Frogs): los sapos avanzan a la derecha, las ranas a la izquierda, mueven o saltan, y pierde quien se queda sin jugada. El juego partisano de Conway con los números surreales, con IA y pista de la jugada ganadora.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  /* Estilos propios de Sapos y Ranas (no tocamos _engine/style.css).
+     Cada ficha es un círculo de color con una letra encima (S = sapo, R = rana).
+     Los glifos no capturan el clic: encima van los fantasmas (.ghost) en el destino. */
+  #board .tf-piece{ stroke:color-mix(in srgb,var(--ink) 30%,transparent); stroke-width:1.5; }
+  #board .tf-glyph{ fill:#fff; font-family:var(--display); font-weight:600; pointer-events:none; user-select:none; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>

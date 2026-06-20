@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Breakthrough · El problema del día</title>
+<meta name="description" content="Juega a Breakthrough: corre con tus peones hacia la fila del fondo enemiga, captura solo en diagonal y gana quien rompe la línea primero. El juego de carrera de Dan Troyka, con IA y pista de la mejor jugada.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  /* Filas-meta: el fondo del rival al que cada bando intenta llegar. */
+  #board .goal0{ fill:color-mix(in srgb,var(--azul) 14%,var(--cell)); stroke:color-mix(in srgb,var(--azul) 40%,var(--line)); }
+  #board .goal1{ fill:color-mix(in srgb,var(--rojo) 14%,var(--cell)); stroke:color-mix(in srgb,var(--rojo) 40%,var(--line)); }
+  /* Peones con un pequeño relieve. */
+  #board .piece0{ stroke:color-mix(in srgb,var(--azul) 60%,#000); stroke-width:1.5; }
+  #board .piece1{ stroke:color-mix(in srgb,var(--rojo) 60%,#000); stroke-width:1.5; }
+  /* Aro de selección del peón elegido. */
+  #board .selring{ fill:none; stroke:var(--accent); stroke-width:3; }
+  /* Zonas clicables sobre los peones propios movibles (invisibles, solo cursor). */
+  #board .pickable{ fill:transparent; cursor:pointer; }
+  #board .pickable.picked{ cursor:pointer; }
+  /* Un destino de captura se marca con un anillo. */
+  #board .ghost.capture{ stroke:var(--accent); stroke-width:2.5; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
