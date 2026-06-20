@@ -127,9 +127,20 @@ function reach(s, p, cap){
   const ss = sideCost.slice().sort((a, b) => a - b);
   const bridgeProxy = (cornerCosts[0] ?? cap) + (cornerCosts[1] ?? cap);
   const forkProxy = ss[0] + ss[1] + ss[2];
+  // ANILLO INMINENTE: una celda interior (6 vecinos) sin ningún vecino rival a la que
+  // a `p` le faltan <=2 piedras para rodearla (anillo mínimo). Solo cuenta cuando está
+  // cerca de cerrarse, para que la IA remate/BLOQUEE anillos sin amontonar en la apertura.
+  let ringProxy = cap;
+  for (let c = 0; c < N; c++){
+    const ns = g.neighbors[c];
+    if (ns.length !== 6) continue;
+    let eN = 0, oN = 0;
+    for (let k = 0; k < ns.length; k++){ const cv = cells[ns[k]]; if (cv === -1) eN++; else if (cv === opp) oN++; }
+    if (oN === 0 && eN <= 2 && eN < ringProxy) ringProxy = eN;
+  }
   let cornTouch = 0; for (const ci of g.corners) if (cells[ci] === p) cornTouch++;
   const touched = new Set(); for (let i = 0; i < N; i++) if (cells[i] === p && g.edgeOf[i] >= 0) touched.add(g.edgeOf[i]);
-  return { proxy: Math.min(bridgeProxy, forkProxy), cornTouch, edgeTouch: touched.size };
+  return { proxy: Math.min(bridgeProxy, forkProxy, ringProxy), cornTouch, edgeTouch: touched.size };
 }
 
 export const game = {
