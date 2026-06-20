@@ -7,7 +7,8 @@ frieze de glifos de los juegos (dado, montones de Nim, hexágono, dominó)
 directamente con PIL, sin depender de cairosvg.
 
 Uso:
-  python generate_mes.py        -> mes-recreativa.png (1200x630) + mes-recreativa-sq.png (1080x1080)
+  python generate_mes.py        -> tarjetas/mes-recreativa.png (1200x630) + tarjetas/mes-recreativa-sq.png (1080x1080)
+  (también lo invoca generate_preview.py --todas para incrustar la tarjeta en la galería)
 """
 from PIL import Image, ImageDraw, ImageFont
 
@@ -25,7 +26,7 @@ def font(paths, size):
     return ImageFont.load_default()
 SERIF =["C:/Windows/Fonts/georgia.ttf","/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf"]
 SERIFB=["C:/Windows/Fonts/georgiab.ttf","/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"]
-SERIFI=["C:/Windows/Fonts/georgiai.ttf","/usr/share/fonts/truetype/dejavu/DejaVuSerif-Italic.ttf"]
+SERIFI=["C:/Windows/Fonts/georgiai.ttf","/usr/share/fonts/truetype/dejavu/DejaVuSerif-Italic.ttf","/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf"]  # último recurso romano: evita load_default() si falta la itálica
 
 def wrap(draw,text,fnt,maxw):
     out=[]; cur=""
@@ -167,6 +168,8 @@ def make_horizontal():
     return img
 
 if __name__=="__main__":
-    make_horizontal().save("mes-recreativa.png","PNG")
-    make_square().save("mes-recreativa-sq.png","PNG")
-    print("Generadas: mes-recreativa.png (1200x630) y mes-recreativa-sq.png (1080x1080)")
+    import os
+    os.makedirs("tarjetas", exist_ok=True)
+    make_horizontal().save("tarjetas/mes-recreativa.png","PNG")
+    make_square().save("tarjetas/mes-recreativa-sq.png","PNG")
+    print("Generadas: tarjetas/mes-recreativa.png (1200x630) y tarjetas/mes-recreativa-sq.png (1080x1080)")

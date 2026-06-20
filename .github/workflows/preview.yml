@@ -27,7 +27,7 @@ jobs:
       - name: Instalar dependencias
         run: |
           sudo apt-get update
-          sudo apt-get install -y libcairo2 fonts-dejavu-core
+          sudo apt-get install -y libcairo2 fonts-dejavu-core fonts-dejavu-extra
           python -m pip install --quiet pillow cairosvg
 
       - name: Tarjeta del día (preview.png/preview_sq.png + og)

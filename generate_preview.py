@@ -13,6 +13,7 @@ try:
     import cairosvg
 except Exception:
     cairosvg = None  # en local puede no estar; en el runner sí
+import generate_mes  # tarjeta especial "Mes de la Matemática Recreativa" (PIL puro, sin cairosvg)
 
 HTML = open("index.html", encoding="utf-8").read()
 def grab(pat):
@@ -158,9 +159,21 @@ def galeria(rows):
        ".card img{width:200px;height:200px;border-radius:10px;border:1px solid #e4ddcd}",
        ".info{flex:1;min-width:240px}.t{font-size:1.3rem;margin:.1em 0}",
        "a{color:#1f5fa6;text-decoration:none}a:hover{text-decoration:underline}",
-       ".b{display:inline-block;margin:4px 10px 0 0;font-size:.95rem}</style></head><body>",
+       ".b{display:inline-block;margin:4px 10px 0 0;font-size:.95rem}",
+       ".card.mes{border:2px solid #9a6f2e;background:#fff8ec}.card.mes .t{color:#9a6f2e}",
+       ".badge{display:inline-block;background:#9a6f2e;color:#fff;font-size:.78rem;border-radius:6px;padding:1px 8px}</style></head><body>",
        "<h1>Tarjetas para compartir</h1>",
        "<p class='n'>La imagen <b>cuadrada</b> es para tu estado de WhatsApp. Comparte la cuadrada + el enlace del problema. (También hay versión horizontal para enlaces.)</p>"]
+    # tarjeta especial PERMANENTE del "Mes de la Matemática Recreativa" (siempre la primera de la galería)
+    h.append(
+        "<div class='card mes'>"
+        "<a href='mes-recreativa-sq.png' target='_blank'><img src='mes-recreativa-sq.png' alt='Mes de la Matemática Recreativa'></a>"
+        "<div class='info'><div class='n'><span class='badge'>★ Especial</span> &nbsp;siempre disponible</div>"
+        "<div class='t'>Mes de la Matemática Recreativa</div>"
+        "<div class='n' style='margin:.25em 0 .5em'>Un acertijo nuevo cada día y 9 juegos matemáticos para jugar.</div>"
+        "<a class='b' href='mes-recreativa-sq.png' download>⬇ Cuadrada (estado)</a>"
+        "<a class='b' href='mes-recreativa.png' download>⬇ Horizontal</a>"
+        f"<a class='b' href='{base}/juego/' target='_blank'>🎮 Ir a los juegos</a></div></div>")
     for n,fecha,idx,tit,tipo,dif in rows:
         nn=f"{n:02d}"; f=f"{fecha.day} {MESES[fecha.month]}"
         link=f"{base}/?ver={idx}"
@@ -176,6 +189,10 @@ def galeria(rows):
 # ===================== MAIN =====================
 if "--todas" in sys.argv:
     os.makedirs("tarjetas", exist_ok=True)
+    # tarjeta especial del Mes (PIL puro) -> permanente en la galería, se regenera cada vez
+    generate_mes.make_horizontal().save("tarjetas/mes-recreativa.png","PNG")
+    generate_mes.make_square().save("tarjetas/mes-recreativa-sq.png","PNG")
+    print("tarjeta especial: Mes de la Matemática Recreativa")
     rows=[]
     for d,idx in enumerate(SEQ):
         nn=f"{d+1:02d}"
