@@ -149,34 +149,44 @@ export const game = {
     const cur = s.turn;
     const moves = this.legalMoves(s);
 
-    // Resaltar el bloque que se comería al pasar el ratón por una casilla.
-    // Pintamos, por cada jugada legal, un rectángulo-fantasma que cubre TODO el
-    // bloque (r..rows, c..cols restringido a las casillas presentes de ese bloque).
+    // Halo de pista: sobre TODO el bloque presente de la jugada sugerida.
+    if (ctx.hint){
+      for (let r = ctx.hint.r; r < s.rows; r++) for (let c = ctx.hint.c; c < s.cols; c++){
+        if (!s.cells[idx(s, r, c)]) continue;
+        el('rect', {
+          class: 'halo',
+          x: cellX(c) + INSET - 2, y: cellY(r) + INSET - 2,
+          width: CELL - 2 * INSET + 4, height: CELL - 2 * INSET + 4, rx: RAD + 2,
+        }, svg);
+      }
+    }
+
+    // Capa de resaltado (debajo de las zonas-clic): se llena al pasar el ratón con
+    // TODO el bloque que se comería esa jugada, y se vacía al salir.
+    const hoverLayer = el('g', {}, svg);
+    const clearHover = () => { while (hoverLayer.firstChild) hoverLayer.removeChild(hoverLayer.firstChild); };
+
+    // Una zona-clic transparente por casilla legal (sin solapamientos ambiguos): al
+    // entrar el ratón resalta su bloque; al hacer clic, juega.
     for (const m of moves){
-      // Halo en la jugada-pista (sobre su bloque completo presente).
-      if (ctx.hint && ctx.hint.r === m.r && ctx.hint.c === m.c){
+      const hit = el('rect', {
+        class: 'chomp-hit',
+        x: cellX(m.c) + INSET, y: cellY(m.r) + INSET,
+        width: CELL - 2 * INSET, height: CELL - 2 * INSET, rx: RAD,
+      }, svg);
+      hit.addEventListener('click', () => ctx.onMove({ r: m.r, c: m.c }));
+      hit.addEventListener('mouseenter', () => {
+        clearHover();
         for (let r = m.r; r < s.rows; r++) for (let c = m.c; c < s.cols; c++){
           if (!s.cells[idx(s, r, c)]) continue;
           el('rect', {
-            class: 'halo',
-            x: cellX(c) + INSET - 2, y: cellY(r) + INSET - 2,
-            width: CELL - 2 * INSET + 4, height: CELL - 2 * INSET + 4, rx: RAD + 2,
-          }, svg);
+            class: 'chomp-eat' + cur,
+            x: cellX(c) + INSET, y: cellY(r) + INSET,
+            width: CELL - 2 * INSET, height: CELL - 2 * INSET, rx: RAD,
+          }, hoverLayer);
         }
-      }
-
-      // Un grupo por jugada: al pasar el ratón, TODO el grupo se ilumina (CSS :hover
-      // sobre el <g>), de modo que se ve el bloque entero que se va a comer.
-      const g = el('g', { class: 'chomp-move' }, svg);
-      g.addEventListener('click', () => ctx.onMove({ r: m.r, c: m.c }));
-      for (let r = m.r; r < s.rows; r++) for (let c = m.c; c < s.cols; c++){
-        if (!s.cells[idx(s, r, c)]) continue;
-        el('rect', {
-          class: 'ghost g' + cur,
-          x: cellX(c) + INSET, y: cellY(r) + INSET,
-          width: CELL - 2 * INSET, height: CELL - 2 * INSET, rx: RAD,
-        }, g);
-      }
+      });
+      hit.addEventListener('mouseleave', clearHover);
     }
   },
 };

@@ -7,10 +7,10 @@
 <meta name="description" content="Juega a Chomp: muerde la tableta de chocolate y come el bloque hacia arriba y a la derecha, pero pierde quien se ve obligado a comer la esquina envenenada. El juego del robo de estrategia de David Gale, con IA y pista de la jugada ganadora.">
 <link rel="stylesheet" href="../_engine/style.css">
 <style>
-  /* Al pasar el ratón por una jugada, se ilumina TODO el bloque que se comería. */
-  #board .chomp-move .ghost{ opacity:.16 }
-  #board .chomp-move:hover .ghost{ opacity:.52 }
-  #board .chomp-move{ cursor:pointer }
+  /* Zona-clic transparente por casilla + resaltado JS del bloque que se comería. */
+  #board .chomp-hit{ fill:transparent; pointer-events:all; cursor:pointer }
+  #board .chomp-eat0{ fill:var(--azul); opacity:.42; pointer-events:none }
+  #board .chomp-eat1{ fill:var(--rojo); opacity:.42; pointer-events:none }
 </style>
 </head>
 <body>
