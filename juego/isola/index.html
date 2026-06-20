@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Isola · El problema del día</title>
+<meta name="description" content="Juega a Isola: mueve tu peón y destruye una casilla cada turno; pierde quien queda aislado sin sitio al que saltar. El clásico de aislamiento, con IA de territorio y pista.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  /* Casilla destruida: un hueco oscuro. */
+  #board .dead{ fill:color-mix(in srgb,var(--bg) 70%,#000); stroke:var(--line); stroke-width:1; opacity:.55; }
+  /* Peones con relieve. */
+  #board .piece0{ stroke:color-mix(in srgb,var(--azul) 60%,#000); stroke-width:1.5; }
+  #board .piece1{ stroke:color-mix(in srgb,var(--rojo) 60%,#000); stroke-width:1.5; }
+  /* Aro del peón mientras se elige qué casilla destruir. */
+  #board .selring{ fill:none; stroke:var(--accent); stroke-width:3; }
+  /* Casillas destruibles (fase 2): marco discontinuo en rojo, clicable. */
+  #board .remtarget{ fill:color-mix(in srgb,var(--rojo) 12%,var(--cell)); stroke:var(--rojo); stroke-width:2; stroke-dasharray:4 3; cursor:pointer; transition:fill .1s; }
+  #board .remtarget:hover{ fill:color-mix(in srgb,var(--rojo) 32%,var(--cell)); }
+  /* Zona-clic invisible sobre el propio peón para cancelar la fase 2. */
+  #board .cancelhit{ fill:transparent; cursor:pointer; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
