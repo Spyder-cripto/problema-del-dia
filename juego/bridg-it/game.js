@@ -271,20 +271,10 @@ export const game = {
         moves.push({ i });
       }
     }
-    // "Remata si puedes": si alguna jugada COMPLETA tu conexión, esas son las únicas
-    // continuaciones sensatas. Restringir a ellas es seguro (siguen siendo legales y la
-    // partida termina antes, nunca después) y resuelve la ceguera de profundidad del
-    // negamax genérico del motor: ante varias victorias FORZADAS dentro del horizonte
-    // de búsqueda, el motor las empata todas en ±WIN y elegía una lenta ("mareaba" sin
-    // rematar teniendo la conexión a un puente). Aquí la IA SIEMPRE cierra al instante;
-    // y en 2 jugadores resalta la jugada ganadora (se puede deshacer). No altera quién
-    // gana ni la terminalidad.
-    const wins = [];
-    for (const m of moves){
-      const ns = this.apply(s, m);
-      if (s.turn === 0 ? blueConnected(t, ns.blue) : redConnected(t, ns.red)) wins.push(m);
-    }
-    return wins.length ? wins : moves;
+    // legalMoves devuelve TODAS las jugadas legales (sin restringir a las ganadoras): el
+    // descuento por profundidad del motor ya hace que la IA remate la victoria más rápida,
+    // así que el humano conserva todas sus opciones en pantalla.
+    return moves;
   },
 
   apply(s, m){
