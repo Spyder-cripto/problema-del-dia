@@ -28,7 +28,7 @@ export function mount(root, game){
   const header = h('header');
   header.appendChild(h('h1', null, game.meta.nombre));
   if (game.meta.subtitulo) header.appendChild(h('p', 'sub', game.meta.subtitulo));
-  const back = game.meta.back || { href: '../../', label: '← El problema del día' };
+  const back = { href: '../', label: '← Volver a los juegos' };
   const aback = h('a', 'back', back.label); aback.href = back.href; header.appendChild(aback);
   wrap.appendChild(header);
 
