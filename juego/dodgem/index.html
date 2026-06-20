@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dodgem · El problema del día</title>
+<meta name="description" content="Juega a Dodgem: cruza tus cochecitos al otro lado del tablero sin chocar ni dejar pasar al rival. El juego de Colin Vout y Conway (Winning Ways), con IA y pista.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  #board .piece0{ stroke:color-mix(in srgb,var(--azul) 60%,#000); stroke-width:1.5; }
+  #board .piece1{ stroke:color-mix(in srgb,var(--rojo) 60%,#000); stroke-width:1.5; }
+  #board .selring{ fill:none; stroke:var(--accent); stroke-width:3; }
+  #board .cararrow{ fill:#fff; font-weight:bold; }
+  /* Flechas de salida en los márgenes (tenues). */
+  #board .exitmark{ opacity:.35; }
+  #board .exitmark.az{ fill:var(--azul); }
+  #board .exitmark.ro{ fill:var(--rojo); }
+  /* Ghost de salida (fuera del tablero): un poco más visible. */
+  #board .exitghost{ opacity:.4; }
+  #board .exitghost:hover{ opacity:.8; }
+  #board .pickable{ fill:transparent; cursor:pointer; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
