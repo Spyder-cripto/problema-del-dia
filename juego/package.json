@@ -1,0 +1,6 @@
+{
+  "name": "juegos-matematicos",
+  "private": true,
+  "type": "module",
+  "description": "Mes de la Matemática Recreativa — juegos estáticos (Vanilla JS + SVG, cero dependencias) sobre un motor compartido en _engine/."
+}
