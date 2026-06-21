@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sim · El problema del día</title>
+<meta name="description" content="Juega a Sim: colorea líneas entre seis puntos y evita formar un triángulo de tu color. El juego de Ramsey de Gustavus Simmons, resuelto, con IA perfecta.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  /* Líneas (aristas) de K6. */
+  #board .edge{ stroke-width:6; stroke-linecap:round; fill:none; }
+  #board .e0{ stroke:var(--azul); }
+  #board .e1{ stroke:var(--rojo); }
+  #board .e-empty{ stroke:var(--line); }
+  /* Línea libre y SEGURA: jugable (gris medio). */
+  #board .e-safe{ stroke:color-mix(in srgb, var(--ink) 22%, var(--cell)); }
+  /* Línea que cerraría TU triángulo: visible pero punteada y tenue (no jugable). */
+  #board .e-lose0{ stroke:var(--azul); opacity:.30; stroke-dasharray:3 7; }
+  #board .e-lose1{ stroke:var(--rojo); opacity:.30; stroke-dasharray:3 7; }
+  /* Pista: resalta en oro la línea sugerida. */
+  #board .e-hint{ stroke:var(--accent); stroke-width:9; opacity:.9; }
+  /* Zona de clic ancha y transparente sobre las líneas seguras. */
+  #board .e-hit{ stroke:transparent; stroke-width:20; fill:none; cursor:pointer; }
+  #board .e-hit:hover{ stroke:color-mix(in srgb, var(--accent) 26%, transparent); }
+  /* Los seis puntos. */
+  #board .vertex{ fill:var(--ink); stroke:var(--card); stroke-width:2; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
