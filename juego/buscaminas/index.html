@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buscaminas · El problema del día</title>
+<meta name="description" content="Buscaminas justo: cada tablero se resuelve con lógica pura, sin adivinar nunca. Tres niveles, primer clic seguro. El clásico, sin los 50/50 injustos del azar.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  :root{ --ms:26px; }
+  /* marcador: minas | cara | tiempo */
+  .ms-score{ display:flex; align-items:center; justify-content:center; gap:18px; margin:10px 0 14px; }
+  .ms-counter{ font-family:ui-monospace,'Cascadia Mono',Consolas,monospace; font-size:1.35rem; font-weight:700;
+    color:var(--rojo); background:color-mix(in srgb,var(--ink) 84%,#000); padding:4px 10px; border-radius:7px; letter-spacing:1px; min-width:3.6ch; text-align:center; }
+  .ms-face{ font-size:1.5rem; line-height:1; padding:4px 10px; border-radius:10px; }
+  /* cuadrícula */
+  .ms-gridwrap{ overflow-x:auto; padding:6px 0; }
+  .ms-grid{ display:grid; gap:2px; justify-content:center; width:max-content; margin:0 auto; }
+  .ms-cell{ width:var(--ms); height:var(--ms); padding:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--body); font-weight:800; font-size:calc(var(--ms)*.56); line-height:1; border:1px solid var(--line);
+    border-radius:4px; user-select:none; }
+  .ms-hidden{ background:color-mix(in srgb,var(--ink) 13%,var(--card)); cursor:pointer; }
+  .ms-hidden:hover{ background:color-mix(in srgb,var(--accent) 24%,var(--card)); }
+  .ms-open{ background:var(--card); cursor:default; }
+  .ms-flag, .ms-wrong{ font-size:calc(var(--ms)*.5); }
+  .ms-boom{ background:var(--rojo); }
+  .ms-wrong{ color:var(--rojo); }
+  /* colores clásicos por número */
+  .ms-n1{ color:var(--azul); } .ms-n2{ color:var(--verde); } .ms-n3{ color:var(--rojo); }
+  .ms-n4{ color:#1a3a6b; } .ms-n5{ color:#8a4b2e; } .ms-n6{ color:#2e8a8a; }
+  .ms-n7{ color:var(--ink); } .ms-n8{ color:var(--muted); }
+  @media(prefers-color-scheme:dark){ .ms-n4{ color:#7da0d8; } .ms-n5{ color:#ca9a6e; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
