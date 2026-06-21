@@ -244,7 +244,9 @@ export const game = {
       '<p style="font-size:.95rem;color:var(--muted)">El anillo es el más escurridizo: vigila los dos a la vez, porque ' +
       'tu rival puede colarte uno mientras defiendes un puente. El empate es teóricamente posible pero casi nunca ocurre. ' +
       'Como el tablero es grande, la máquina elige su jugada <b>simulando miles de partidas al azar</b> (búsqueda Monte ' +
-      'Carlo); «💡 Pista» y «⚖️ ¿Quién gana?» son estimaciones, no veredictos exactos.</p>',
+      'Carlo); «💡 Pista» y «⚖️ ¿Quién gana?» son estimaciones, no veredictos exactos. En el tamaño <b>normal (base 6)</b> ' +
+      'la máquina juega más fuerte; en el <b>grande (base 8)</b> va algo más floja, porque un tablero más ancho diluye su ' +
+      'búsqueda —si buscas reto, quédate en base 6.</p>',
     footer: 'Havannah, de Christian Freeling (1979) · <a href="../../">El problema del día</a>',
   },
 
