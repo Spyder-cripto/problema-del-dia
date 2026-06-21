@@ -123,8 +123,15 @@ export function mcts(game, state, opts, params){
   if (!rootMoves.length) return null;
   if (rootMoves.length === 1){ mcts.lastSims = 0; return rootMoves[0]; }
 
-  const seed = (opts.seed != null) ? (opts.seed >>> 0)
-             : mcHash(game.key ? game.key(state) : JSON.stringify(state));
+  // Semilla: en TESTS se fija con opts.seed → determinista (regresión reproducible). En
+  // PRODUCCIÓN (sin opts.seed) se mezcla el hash de la posición con el reloj y un contador de
+  // llamadas → la MISMA posición NO da siempre la misma jugada (mata la explotabilidad: que un
+  // humano repita una línea ganadora idéntica partida tras partida). El hot path sigue usando el
+  // PRNG sembrado, no Math.random (coherente con el resto del motor, que ya usa Date.now()).
+  mcts._n = (mcts._n || 0) + 1;
+  const seed = (opts.seed != null)
+    ? (opts.seed >>> 0)
+    : ((mcHash(game.key ? game.key(state) : JSON.stringify(state)) ^ (Date.now() >>> 0) ^ Math.imul(mcts._n, 0x9E3779B1)) >>> 0);
   const rng = mcRng(seed);
 
   // Ruido de dificultad (espejo del `randomness` del negamax): a veces juega al azar.
