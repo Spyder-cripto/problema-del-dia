@@ -8,13 +8,14 @@
 //   GANA quien saca TODOS sus coches, o quien deja al rival sin jugada (bloqueado pierde).
 //
 // Encaje con el motor: el movimiento lateral permite ciclos infinitos, así que el estado
-// lleva un CONTADOR y un TOPE de jugadas; al alcanzarlo la partida termina por DESEMPATE
-// determinista (más coches fuera; a igualdad, menos distancia restante; a igualdad, el
-// último que movió). Esto garantiza terminación y ganador 0/1 sin tocar el motor.
-//   LIMITACIÓN documentada: el motor da por hecho que en un terminal «pierde quien mueve»
-// (cierto para bloqueo y para sacar-todos). En el terminal-por-tope el ganador lo decide el
-// desempate y podría ser el jugador en turno; como el tope es un colchón de seguridad muy
-// lejano (n·n·12 jugadas), la búsqueda de la IA no lo alcanza en la práctica.
+// lleva un CONTADOR y un TOPE de jugadas para garantizar terminación. CLAVE (corregido tras
+// auditoría): el motor asume en TODO terminal que «pierde quien mueve» (negamax = -(WIN-ply),
+// es decir gana el último que movió), así que el terminal-por-tope DEBE resolverse igual →
+// winner = other(turn). Si en su lugar se desempatara por material/distancia, podría declarar
+// ganador al jugador en turno y la IA malvaloraría el final (llegaba a tirar partidas ganadas
+// al acercarse al tope, que en Dodgem se alcanza ~15% en IA-vs-IA por baraje lateral).
+// Un final por tope es de hecho unas tablas; resolverlo como «último que movió» lo hace
+// coherente con la negamax. (Tablas reales = futura tarea de motor.)
 import { el } from '../_engine/svg.js';
 
 const PAD = 24, CELL = 46;
@@ -124,13 +125,7 @@ export const game = {
     const goal = s.rows - 1;
     if (s.exited[0] >= goal) return 0;
     if (s.exited[1] >= goal) return 1;
-    if (s.moves >= s.cap){                                      // desempate determinista
-      const sc0 = s.exited[0] * 1000 - remaining(s, 0);
-      const sc1 = s.exited[1] * 1000 - remaining(s, 1);
-      if (sc0 > sc1) return 0;
-      if (sc1 > sc0) return 1;
-      return other(s.turn);                                     // empate exacto: el último que movió
-    }
+    if (s.moves >= s.cap) return other(s.turn);                // tope = tablas → último que movió (coherente con la negamax)
     if (movesFor(s, s.turn).length === 0) return other(s.turn); // bloqueado pierde
     return null;
   },

@@ -7,8 +7,11 @@
 //
 // Encaje con el motor: alternancia estricta y «gana quien llega» (= el último que movió)
 // → la negamax del motor es correcta. Como dos peones podrían pasearse sin fin, el estado
-// lleva contador + TOPE de jugadas con desempate por camino más corto (colchón de seguridad
-// que casi nunca salta: una partida real la gana quien llega a su meta). exactOK = false.
+// lleva contador + TOPE de jugadas. CLAVE (corregido tras auditoría): el terminal-por-tope se
+// resuelve como «último que movió» (winner = other(turn)), igual que todo terminal del motor;
+// desempatar por camino más corto podría declarar ganador al jugador en turno y la IA
+// malvaloraría ese final (incoherencia con la negamax). En partida real el tope casi nunca
+// salta (se gana llegando a la meta). exactOK = false.
 import { el } from '../_engine/svg.js';
 
 const PAD = 14, CELL = 46, GAP = 12;
@@ -159,13 +162,7 @@ export const game = {
   winner(s){
     if (s.pawns[0][0] === s.n - 1) return 0;
     if (s.pawns[1][0] === 0) return 1;
-    if (s.moves >= s.cap){
-      const W = wallSets(s);
-      const d0 = distToGoal(s, 0, W), d1 = distToGoal(s, 1, W);
-      if (d0 < d1) return 0;
-      if (d1 < d0) return 1;
-      return other(s.turn);
-    }
+    if (s.moves >= s.cap) return other(s.turn);   // tope = tablas → último que movió (coherente con la negamax)
     if (pawnMoves(s, s.turn, wallSets(s)).length === 0) return other(s.turn);
     return null;
   },

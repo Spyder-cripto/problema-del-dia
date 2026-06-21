@@ -11,7 +11,10 @@
 // Encaje con el motor: la captura es parte de la MISMA jugada → el turno siempre
 // alterna; «pierde quien no puede / queda en 2» = gana el último que movió → la
 // negamax del motor es correcta. La fase de mover puede ciclar, así que el estado
-// lleva contador + tope con desempate por nº de fichas (colchón raro). exactOK = false.
+// lleva contador + tope. CLAVE (corregido tras auditoría): el terminal-por-tope se resuelve
+// como «último que movió» (winner = other(turn)), igual que el resto de terminales; un
+// desempate por nº de fichas podría nombrar ganador al jugador en turno y la IA malvaloraría
+// el final (alucinaba mates forzados empujando al tope). exactOK = false.
 import { el } from '../_engine/svg.js';
 
 const PAD = 22, UNIT = 44;
@@ -124,7 +127,7 @@ export const game = {
     const p = s.turn;
     if (s.hands[p] === 0 && countMen(s.board, p) < 3) return other(p);
     if (movesFor(s, p).length === 0) return other(p);
-    if (s.moves >= s.cap){ const a = countMen(s.board, 0), b = countMen(s.board, 1); return a > b ? 0 : b > a ? 1 : other(p); }
+    if (s.moves >= s.cap) return other(p);   // tope = tablas → último que movió (coherente con la negamax)
     return null;
   },
 
