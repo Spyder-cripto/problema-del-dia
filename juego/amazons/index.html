@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amazonas · El problema del día</title>
+<meta name="description" content="Juega al Juego de las Amazonas: mueve una amazona como la dama y dispara una flecha que quema la casilla. Juego de territorio de Walter Zamkauskas, con IA Monte Carlo.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  /* Tablero ajedrezado de las Amazonas. */
+  #board .sq{ stroke:var(--line); stroke-width:1; }
+  #board .sqA{ fill:var(--cell); }
+  #board .sqB{ fill:color-mix(in srgb, var(--accent) 7%, var(--cell)); }
+  /* Casilla quemada por una flecha (bloqueada). */
+  #board .burn{ fill:color-mix(in srgb, var(--ink) 52%, var(--cell)); stroke:none; }
+  /* Amazonas: reutilizan .piece0/.piece1 del motor (azul/rojo); con borde sutil. */
+  #board .piece0, #board .piece1{ stroke:rgba(0,0,0,.22); stroke-width:1.2; }
+  /* Capa transparente para pulsar/(re)seleccionar una amazona propia. */
+  #board .pick{ fill:transparent; cursor:pointer; }
+  /* Fantasma de casilla de FLECHA (oscuro, lo distingue de los destinos de color). */
+  #board .ghost.garrow{ fill:var(--ink); }
+  #board .halo{ fill:none; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
