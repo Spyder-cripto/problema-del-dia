@@ -89,8 +89,8 @@ export const game = {
     slug: 'dots-and-boxes',
     subtitulo: 'Cierra más cajas que tu rival — y aprende a sacrificar para ganar',
     players: [
-      { nombre: 'Azul', corto: 'Azul', color: 'var(--accent-2)', desc: 'empieza' },
-      { nombre: 'Rojo', corto: 'Rojo', color: 'var(--hard)', desc: 'responde' },
+      { nombre: 'Azul', corto: 'Azul', color: 'var(--azul)', desc: 'empieza' },
+      { nombre: 'Rojo', corto: 'Rojo', color: 'var(--rojo)', desc: 'responde' },
     ],
     aiPlayer: 1,
     aiDriver: 'custom',          // ← el juego aporta su IA / análisis / pista (no la negamax)
