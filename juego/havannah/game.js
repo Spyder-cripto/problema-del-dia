@@ -39,7 +39,11 @@ function geom(n){
       edgeOf[i] = q === m ? 0 : q === -m ? 1 : r === m ? 2 : r === -m ? 3 : s === m ? 4 : 5;
     }
   });
-  return (GEOM[n] = { cells, index, neighbors, corners, cornerSet, edgeOf, boundary });
+  // cornerBit[i] = índice 0..5 de la esquina (para máscaras de bits en el rollout incremental);
+  // -1 si la celda no es esquina. (Aditivo: no afecta a winner/evaluate, solo lo usa fastBoard.)
+  const cornerBit = new Int8Array(cells.length).fill(-1);
+  corners.forEach((ci, j) => { cornerBit[ci] = j; });
+  return (GEOM[n] = { cells, index, neighbors, corners, cornerSet, edgeOf, boundary, cornerBit });
 }
 
 // ---------- disposición en píxeles (caché por base) ----------
@@ -143,6 +147,71 @@ function reach(s, p, cap){
   return { proxy: Math.min(bridgeProxy, forkProxy, ringProxy), cornTouch, edgeTouch: touched.size };
 }
 
+// ---------- detección de victoria INCREMENTAL para los playouts del MCTS ----------
+// El winner() canónico hace 4 flood-fills O(N) por jugada → demasiado lento para miles de
+// playouts. fastBoard mantiene la victoria de forma incremental:
+//   · PUENTE/HORQUILLA → union-find con máscara de esquinas/lados por componente (O(α)/piedra).
+//     Las máscaras espejan structuresWin EXACTAMENTE (popcount esquinas≥2 / lados≥3).
+//   · ANILLO → solo cuando una jugada CIERRA UN CICLO (un vecino del color ya conectado a otro)
+//     se ejecuta el predicado EXACTO ringWin() sobre el tablero actual. Cerrar ciclo es condición
+//     NECESARIA de anillo → nunca se escapa uno; el predicado exacto decide → nunca falso positivo.
+// Es la EXCEPCIÓN de rendimiento del brief, verificada == winner() en _mcts_rollout_verify.mjs.
+function popcount8(b){ b = b - ((b >> 1) & 0x55); b = (b & 0x33) + ((b >> 2) & 0x33); return (b + (b >> 4)) & 0x0f; }
+
+export function fastBoard(n){
+  const g = geom(n), N = g.cells.length;
+  const cells  = new Int8Array(N).fill(-1);
+  const parent = new Int32Array(N).fill(-1);
+  const rnk    = new Uint8Array(N);
+  const cMask  = new Uint8Array(N);   // máscara de esquinas tocadas por la componente (raíz)
+  const eMask  = new Uint8Array(N);   // máscara de lados tocados por la componente (raíz)
+
+  function find(x){ while (parent[x] !== x){ parent[x] = parent[parent[x]]; x = parent[x]; } return x; }
+  function unite(a, b){
+    let ra = find(a), rb = find(b);
+    if (ra === rb) return;
+    if (rnk[ra] < rnk[rb]){ const t = ra; ra = rb; rb = t; }
+    parent[rb] = ra;
+    if (rnk[ra] === rnk[rb]) rnk[ra]++;
+    cMask[ra] |= cMask[rb];
+    eMask[ra] |= eMask[rb];
+  }
+  function mkNode(i, color){
+    cells[i] = color; parent[i] = i; rnk[i] = 0;
+    cMask[i] = (g.cornerBit[i] >= 0) ? (1 << g.cornerBit[i]) : 0;
+    eMask[i] = (g.edgeOf[i]   >= 0) ? (1 << g.edgeOf[i])   : 0;
+  }
+
+  return {
+    cells,
+    // Reconstruye el union-find desde un tablero existente (posición de partida NO terminal,
+    // así que no hace falta comprobar victorias durante el init).
+    init(cells0){
+      for (let i = 0; i < N; i++){ const c = cells0[i]; if (c === 0 || c === 1) mkNode(i, c); }
+      for (let i = 0; i < N; i++){
+        if (cells[i] < 0) continue;
+        const ns = g.neighbors[i];
+        for (let k = 0; k < ns.length; k++){ const v = ns[k]; if (cells[v] === cells[i]) unite(i, v); }
+      }
+    },
+    // Coloca una piedra de `color` en i. Devuelve el color GANADOR si esta jugada gana, o null.
+    place(i, color){
+      mkNode(i, color);
+      const ns = g.neighbors[i];
+      // ¿se cierra un ciclo? cuenta vecinos del color (k) y componentes DISTINTAS entre ellos (d);
+      // ciclos creados al unir = k - d. k-d>=1 ⇒ se cerró un ciclo ⇒ puede haber anillo.
+      let k = 0; const roots = [];
+      for (let t = 0; t < ns.length; t++){ const v = ns[t]; if (cells[v] === color){ roots.push(find(v)); k++; } }
+      let distinct = 0; for (let a = 0; a < roots.length; a++){ let dup = false; for (let b = 0; b < a; b++) if (roots[b] === roots[a]){ dup = true; break; } if (!dup) distinct++; }
+      for (let t = 0; t < ns.length; t++){ const v = ns[t]; if (cells[v] === color) unite(i, v); }
+      const r = find(i);
+      if (popcount8(cMask[r]) >= 2 || popcount8(eMask[r]) >= 3) return color;   // puente / horquilla
+      if (k - distinct >= 1 && ringWin({ n, cells }, color)) return color;       // anillo (predicado exacto)
+      return null;
+    },
+  };
+}
+
 export const game = {
   meta: {
     nombre: 'Havannah',
@@ -153,6 +222,13 @@ export const game = {
       { nombre: 'Rojo', corto: 'Rojo', color: 'var(--rojo)', desc: '' },
     ],
     aiPlayer: 1,
+    // Driver de IA: MCTS (UCT) en lugar de negamax. En base-8 (~169 celdas) el alfa-beta solo
+    // alcanza profundidad 1 (heurística sin lookahead) y un humano lo bate trivialmente; el MCTS
+    // simula miles de partidas/jugada y juega mucho mejor (medido: 14/16 vs negamax-prof-1 en
+    // base-8 con solo 1200 sims, y ~13k sims/jugada en Difícil). Dificultad = presupuesto de
+    // tiempo (DIFFS.timeMs) + ruido (DIFFS.randomness), igual que el modelo del negamax.
+    aiDriver: 'mcts',
+    aiParams: { c: 1.414 },          // constante de exploración UCB1 (vanilla, sin TT/RAVE)
     back: { href: '../../', label: '← El problema del día' },
     legend:
       'Coloca una piedra por turno. Ganas de <b>tres</b> formas, todas con una cadena propia: ' +
@@ -167,8 +243,8 @@ export const game = {
       '· <b>Anillo:</b> un <b>lazo cerrado</b> de tus piedras que rodee al menos una celda, dé igual lo que haya dentro.</p>' +
       '<p style="font-size:.95rem;color:var(--muted)">El anillo es el más escurridizo: vigila los dos a la vez, porque ' +
       'tu rival puede colarte uno mientras defiendes un puente. El empate es teóricamente posible pero casi nunca ocurre. ' +
-      'Como el tablero es grande, la máquina juega buscando acercar sus piedras a esquinas y lados; «💡 Pista» y ' +
-      '«⚖️ ¿Quién gana?» son estimaciones, no veredictos exactos.</p>',
+      'Como el tablero es grande, la máquina elige su jugada <b>simulando miles de partidas al azar</b> (búsqueda Monte ' +
+      'Carlo); «💡 Pista» y «⚖️ ¿Quién gana?» son estimaciones, no veredictos exactos.</p>',
     footer: 'Havannah, de Christian Freeling (1979) · <a href="../../">El problema del día</a>',
   },
 
@@ -230,6 +306,27 @@ export const game = {
   key(s){ return s.cells.join(',') + s.turn; },
 
   exactOK(s){ return false; },
+
+  // Playout aleatorio RÁPIDO para el MCTS del motor (driver 'mcts'): juega celdas vacías al
+  // azar hasta terminal con detección de victoria incremental (fastBoard). Devuelve el ganador
+  // (0/1) o null si se llena el tablero (empate residual) — misma semántica que winner().
+  // Verificado == winner() en _mcts_rollout_verify.mjs. El motor lo usa vía el hook game.rollout.
+  rollout(s, rng){
+    const N = s.cells.length, fb = fastBoard(s.n);
+    fb.init(s.cells);
+    const empties = [];
+    for (let i = 0; i < N; i++) if (s.cells[i] === -1) empties.push(i);
+    let turn = s.turn;
+    while (empties.length){
+      const idx = (rng() * empties.length) | 0;
+      const i = empties[idx];
+      empties[idx] = empties[empties.length - 1]; empties.pop();
+      const w = fb.place(i, turn);
+      if (w !== null) return w;
+      turn ^= 1;
+    }
+    return null;
+  },
 
   viewBox(s){ const L = layout(s.n); return '0 0 ' + L.W + ' ' + L.H; },
 

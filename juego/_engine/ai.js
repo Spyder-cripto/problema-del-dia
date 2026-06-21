@@ -112,7 +112,11 @@ export function mcts(game, state, opts, params){
   opts = opts || {}; params = params || {};
   const timeMs = opts.timeMs != null ? opts.timeMs : 1500;
   const cParam = params.c != null ? params.c : 1.414;
-  const maxSims = params.maxSims != null ? params.maxSims : Infinity;
+  // maxSims: opts (por jugada) tiene prioridad sobre params (del juego). En producción no se
+  // fija → presupuesto de TIEMPO. Fijarlo da determinismo total (regresión reproducible: misma
+  // semilla + mismo nº de simulaciones → misma jugada; el tiempo SOLO no basta, varía por reloj).
+  const maxSims = opts.maxSims != null ? opts.maxSims
+                : (params.maxSims != null ? params.maxSims : Infinity);
   const randomness = opts.randomness || 0;
 
   const rootMoves = game.legalMoves(state);
