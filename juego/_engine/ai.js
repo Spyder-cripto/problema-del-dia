@@ -58,6 +58,18 @@ export function chooseMove(game, state, opts){
   return best[(Math.random() * best.length) | 0];
 }
 
+// Despachador de elección de jugada por DRIVER DECLARADO (game.meta.aiDriver).
+//   'negamax' (defecto) → camino histórico INTACTO: los 20 juegos eligen igual que siempre.
+//   'custom'            → el juego aporta su PROPIA IA en game.chooseMove(state, opts)
+//                         (p.ej. Dots and Boxes: scoring + turno extra, ajenos a la negamax).
+//   (reservado: 'mcts' lo añadirá la tarea de MCTS de motor, despachando aquí mismo.)
+// Despacho por capacidad, NO por nombre de juego.
+export function aiMove(game, state, opts){
+  const driver = (game.meta && game.meta.aiDriver) || 'negamax';
+  if (driver === 'custom' && typeof game.chooseMove === 'function') return game.chooseMove(state, opts);
+  return chooseMove(game, state, opts);
+}
+
 // Puntuación de la posición desde la óptica de quien mueve (para "¿quién gana?" aproximado).
 // Profundización iterativa acotada en tiempo: devuelve el valor de la profundidad más honda completada.
 export function deepScore(game, state, maxDepth, timeMs){

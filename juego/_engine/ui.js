@@ -1,7 +1,7 @@
 // _engine/ui.js — cromo de página compartido: monta cabecera, controles, tablero SVG,
 // leyenda, ayuda y pie a partir de un objeto `game`. Conecta controlador + IA + render.
 import { createController, other } from './core.js';
-import { chooseMove, solve, deepScore } from './ai.js';
+import { chooseMove, solve, deepScore, aiMove } from './ai.js';
 
 const DIFFS = {
   facil:   { label: 'Fácil',   depth: 2, randomness: 0.40, timeMs: 700 },
@@ -95,7 +95,7 @@ export function mount(root, game){
     if (mode !== 'ai' || ctrl.terminal() || ctrl.current() !== aiPlayer) return;
     thinking = true; render();
     setTimeout(() => {
-      const m = chooseMove(game, ctrl.state, DIFFS[diff]);
+      const m = aiMove(game, ctrl.state, DIFFS[diff]);   // despacho por driver (negamax / custom)
       thinking = false;
       if (m) ctrl.move(m);
       render(); maybeAI();
@@ -119,6 +119,11 @@ export function mount(root, game){
   function showHint(){
     const s = ctrl.state;
     if (ctrl.terminal()) return;
+    if (game.hintMove){                                 // el juego aporta su propia pista (driver custom)
+      hint = game.hintMove(s); render();
+      status.innerHTML = hint != null ? 'Pista: la jugada que la máquina sugiere.' : 'No hay pista disponible.';
+      return;
+    }
     if (game.exactOK && game.exactOK(s)){
       let mv = null;
       const moves = game.legalMoves(s);
@@ -132,6 +137,11 @@ export function mount(root, game){
   }
   function whoWins(){
     const s = ctrl.state;
+    if (game.analysis){                                 // el juego aporta su propio análisis (driver custom)
+      status.innerHTML = 'Calculando…';
+      setTimeout(() => { status.innerHTML = game.analysis(s, players); }, 30);  // deja pintar el aviso antes de un cálculo largo
+      return;
+    }
     if (game.exactOK && game.exactOK(s)){
       const r = solve(game, s);
       if (!r.capped){ const w = r.winnerIsCurrent ? ctrl.current() : other(ctrl.current()); status.innerHTML = 'Con juego perfecto gana <b style="color:' + players[w].color + '">' + players[w].nombre + '</b>.'; return; }
