@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cruce del río · El problema del día</title>
+<meta name="description" content="Misioneros y caníbales, dos variantes endurecidas: «Los únicos remeros» (solo dos saben remar) y «El islote de relevo». Pasa a todos sin que se los coman; cada puzzle trae su óptimo y una pista.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  /* pestañas de variante */
+  .cr-tabs{ display:flex; gap:8px; margin-bottom:4px; flex-wrap:wrap; }
+  .cr-tab.active{ background:var(--accent); color:#fff; border:none; }
+  .cr-blurb{ color:var(--muted); font-size:.92rem; margin:8px 0 12px; }
+
+  /* panel-río: agua de fondo con las orillas e islote como tierra flotando encima */
+  .cr-river{ background:linear-gradient(180deg,color-mix(in srgb,var(--azul) 11%,var(--card)),color-mix(in srgb,var(--azul) 24%,var(--card)));
+    border:1px solid var(--line); border-radius:14px; padding:12px; }
+  .cr-river.shake{ animation:crshake .42s ease; }
+  @keyframes crshake{ 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 60%{transform:translateX(6px)} 80%{transform:translateX(-3px)} }
+
+  .cr-scene{ display:flex; gap:10px; align-items:stretch; overflow-x:auto; }
+  .cr-place{ flex:1 1 0; min-width:118px; background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:8px; display:flex; flex-direction:column; gap:6px; }
+  .cr-place.dock{ border-color:var(--accent); box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 32%,transparent); }
+  .cr-place-head{ font-family:var(--display); font-size:.95rem; display:flex; align-items:center; justify-content:space-between; gap:6px; }
+  .cr-pop{ font-size:.72rem; color:var(--muted); font-family:var(--body); white-space:nowrap; }
+  .cr-grp{ display:flex; flex-wrap:wrap; gap:2px; min-height:6px; }
+
+  /* figuras */
+  .cr-fig{ display:inline-block; width:26px; height:34px; padding:0; border:none; background:none; line-height:0; }
+  button.cr-fig{ cursor:pointer; border-radius:6px; }
+  button.cr-fig:hover{ background:color-mix(in srgb,var(--accent) 18%,transparent); }
+  .cr-fig.cr-static{ cursor:default; }
+  .cr-svg{ width:26px; height:34px; display:block; }
+
+  /* barca */
+  .cr-boatbar{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:12px; padding-top:11px;
+    border-top:1px dashed color-mix(in srgb,var(--azul) 34%,var(--line)); }
+  .cr-boat{ position:relative; min-width:150px; min-height:48px; padding:4px 18px 14px; display:flex;
+    align-items:flex-end; gap:1px; flex-wrap:nowrap; }
+  .cr-hull{ position:absolute; inset:0; width:100%; height:100%; z-index:0; }
+  .cr-boat > .cr-fig, .cr-boat > .cr-boat-empty{ position:relative; z-index:1; }
+  .cr-boat-empty{ color:#5b4524; font-size:.82rem; font-style:italic; align-self:center; }
+  @media(prefers-color-scheme:dark){ .cr-boat-empty{ color:#e3cba0; } }
+  .cr-sailwrap{ display:flex; flex-direction:column; gap:6px; }
+  .cr-cap{ font-size:.82rem; color:var(--muted); font-family:var(--body); }
+  .cr-sail{ display:flex; gap:6px; flex-wrap:wrap; }
+  .cr-sail button.hintglow{ animation:crpulse 1.15s ease-in-out infinite; }
+  @keyframes crpulse{ 0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)} 50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 0%,transparent)} }
+
+  .cr-notice{ font-size:.92rem; color:var(--accent); margin:9px 2px 0; min-height:1.2em; }
+  .cr-meta{ display:flex; gap:18px; font-size:.92rem; color:var(--muted); margin:10px 2px 0; }
+  .cr-meta b{ color:var(--ink); }
+  .cr-banner{ border-radius:10px; padding:10px 13px; margin:11px 0 0; font-size:1rem; line-height:1.5; }
+  .cr-banner.win{ background:color-mix(in srgb,var(--verde) 15%,var(--card)); border:1px solid var(--verde); }
+  .cr-banner.loss{ background:color-mix(in srgb,var(--rojo) 12%,var(--card)); border:1px solid var(--rojo); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
