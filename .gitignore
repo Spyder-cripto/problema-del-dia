@@ -1,0 +1,3 @@
+# Artefactos de Python (caché de bytecode de generate_*.py)
+__pycache__/
+*.py[cod]
