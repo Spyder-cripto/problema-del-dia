@@ -25,7 +25,7 @@ t(G.RULES.length === 16, 'debe haber 16 reglas');
 t(G.RULES.filter(r => r.level === 1).length === 6 && G.RULES.filter(r => r.level === 2).length === 6 && G.RULES.filter(r => r.level === 3).length === 4, 'reparto de niveles 6/6/4');
 t(new Set(G.RULES.map(r => r.id)).size === 16, 'ids únicos');
 const huella = crypto.createHash('sha1').update(G.RULES.map(r => r.id + '|' + r.level + '|' + r.text + '|' + r.hint).join('\n')).digest('hex').slice(0, 12);
-t(huella === '46284e0b9386', 'los textos/pistas de las reglas han cambiado (huella ' + huella + ')');
+t(huella === '2457d9ca0fb8', 'los textos/pistas de las reglas han cambiado (huella ' + huella + ')');
 
 console.log('== 2. Invariante: tras CUALQUIER historial existe al menos una carta válida (y una no válida)');
 {

@@ -48,8 +48,8 @@ export const RULES=[
 
   {id:'cycle4',level:3,text:'Cíclico: roja, negra, impar, par, y repite.',hint:'Depende de cuántas cartas correctas van, no solo de la última.',
     fn:(h,c)=>{const k=(h.length-1)%4;return k===0?!isBlack(c):k===1?isBlack(c):k===2?c.v%2===1:c.v%2===0;}},
-  {id:'ge-two-back',level:3,text:'El valor debe ser igual o mayor que el de la carta correcta anterior a la última (dos atrás).',hint:'Depende de una carta anterior a la última.',
-    fn:(h,c)=>h.length<2?true:c.v>=h[h.length-2].v},
+  {id:'two-back',level:3,text:'Mira la carta correcta anterior a la última (dos atrás): si es negra, valor igual o mayor que el suyo; si es roja, igual o menor.',hint:'Depende de una carta anterior a la última, no de la última.',
+    fn:(h,c)=>{if(h.length<2)return true;const p=h[h.length-2];return isBlack(p)?c.v>=p.v:c.v<=p.v;}},
   {id:'color-two',level:3,text:'Si las dos últimas cartas correctas son del mismo color, juega el color contrario; si son de colores distintos, juega el color de la última.',hint:'Depende de las dos últimas cartas, y solo de sus colores.',
     fn:(h,c)=>{if(h.length<2)return true;const l=h[h.length-1],p=h[h.length-2];return col(c)===(col(l)===col(p)?opp(col(l)):col(l));}},
   {id:'fig-even-else-gt7',level:3,text:'Si la última carta correcta es figura, juega valor par; si no lo es, juega valor mayor que 7.',hint:'Hay dos condiciones distintas según la última carta, y ninguna mira el palo.',
