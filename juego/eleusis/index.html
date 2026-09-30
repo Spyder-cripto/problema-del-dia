@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eleusis · El problema del día</title>
+<meta name="description" content="Eleusis, el juego de Robert Abbott que Martin Gardner llamó una simulación del método científico: el repartidor esconde una regla y tú solo ves «Correcto» o «Incorrecto». Deduce la regla, juega cadenas de cartas y atrévete a ser Profeta.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  :root{
+    --el-felt:#1f5a3f; --el-felt2:#174631; --el-card:#fffdf8; --el-cardline:#b9b09c;
+    --el-red:#c81e1e; --el-blk:#1a1a1a; --el-start:#f5d67a; --el-tag:#e7e2d3;
+  }
+  @media(prefers-color-scheme:dark){:root{ --el-felt:#174631; --el-felt2:#0f3324; }}
+  .wrap{min-width:0}
+  .el-pad{padding:14px}
+  @media(min-width:560px){.el-pad{padding:18px 20px}}
+  .el-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .el-row button,.el-row select,.el-actions button{min-height:44px}
+  .el-chk{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:.92rem}
+  .el-chk input{width:20px;height:20px}
+  details.el-how{margin:10px 0 0;color:var(--muted);font-size:.93rem}
+  details.el-how summary{cursor:pointer;color:var(--ink);min-height:32px}
+  details.el-how p{margin:6px 0}
+  .el-stats{display:flex;flex-wrap:wrap;gap:6px 16px;color:var(--muted);font-size:.9rem;margin-top:10px;align-items:center}
+  .el-stats b{color:var(--ink)}
+  .el-stats button{font-size:.82rem;padding:4px 10px;min-height:32px}
+  .el-msg{min-height:3.2em;font-weight:700;margin:0 0 6px}
+  .el-msg.ok{color:var(--verde)} .el-msg.bad{color:var(--rojo)}
+  .el-hintbox{font-size:.92rem;background:color-mix(in srgb,var(--accent) 14%,transparent);border:1px solid var(--accent);border-radius:9px;padding:6px 10px;margin:4px 0 0}
+  .el-small{color:var(--muted);font-size:.85rem}
+  .el-table{background:radial-gradient(circle at 30% 20%,var(--el-felt),var(--el-felt2));border-radius:12px;padding:12px;overflow-x:auto;min-height:150px;border:1px solid var(--line);-webkit-overflow-scrolling:touch}
+  .el-line{display:flex;align-items:flex-start;gap:6px;min-width:min-content}
+  .el-colm{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+  .el-side{display:flex;flex-direction:column;gap:4px}
+  .el-grp{display:flex}
+  .el-grp .el-pc + .el-pc{margin-left:-30px}
+  .el-pc{position:relative;width:46px;height:64px;border-radius:7px;background:var(--el-card);border:1px solid var(--el-cardline);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:1.05rem;line-height:1.05;padding:0;flex:none;box-shadow:0 1px 2px rgba(0,0,0,.35);font-family:inherit}
+  .el-pc.red{color:var(--el-red)} .el-pc.blk{color:var(--el-blk)}
+  .el-pc .s{font-size:1.25rem}
+  .el-pc.start{outline:3px solid var(--el-start);outline-offset:1px}
+  .el-pc .pawn{position:absolute;top:-8px;right:-6px;width:18px;height:18px;border-radius:50%;background:#fff;color:#111;border:2px solid #111;font-size:.62rem;display:flex;align-items:center;justify-content:center;font-weight:800}
+  .el-pc .pawn.exp{background:var(--rojo);color:#fff;border-color:#fff}
+  .el-pc.wrong{opacity:.92;filter:saturate(.75)}
+  .el-hand{display:flex;flex-wrap:wrap;gap:8px 6px;margin-top:8px;padding-bottom:10px}
+  .el-hand .el-pc{cursor:pointer;width:52px;height:72px;min-width:44px}
+  .el-hand .el-pc.sel{transform:translateY(-8px);outline:3px solid var(--azul)}
+  .el-hand .el-pc:focus-visible{outline:3px solid var(--accent);outline-offset:2px;z-index:1}
+  .el-hand .el-pc.sel:focus-visible{outline-color:var(--azul);box-shadow:0 0 0 6px var(--card)}
+  .el-hand .el-pc .n{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);background:var(--azul);color:#fff;border-radius:99px;font-size:.7rem;padding:0 6px}
+  .el-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .el-actions button:focus-visible,.el-row button:focus-visible,.el-row select:focus-visible,.el-stats button:focus-visible,.el-chk input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .el-panel{border:2px solid var(--accent);border-radius:12px;padding:12px;margin-top:10px;text-align:center}
+  .el-panel .big{display:flex;justify-content:center;margin:10px 0}
+  .el-panel .big .el-pc{width:78px;height:108px;font-size:1.6rem}
+  .el-panel .big .el-pc .s{font-size:2rem}
+  .el-panel .el-actions{justify-content:center}
+  .el-prog{color:var(--muted);font-size:.9rem}
+  .el-final{border:2px solid var(--accent);border-radius:12px;padding:12px;margin-top:10px}
+  .el-final h3{margin:0 0 4px;font-family:var(--display)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
