@@ -5,6 +5,11 @@
 //  · si pierde, se quita la cuenta de la ÚLTIMA jugada que hizo,
 //  · una caja sin cuentas significa que el robot se rinde en esa posición.
 // Tablero 3×3, índices 0..8 por filas (0 = a3 arriba a la izquierda). Blancas (W) empiezan abajo y suben.
+//
+// Una sola diferencia con el original, pedida expresamente: BLANCAS es el bando que pierde con juego perfecto, y con la regla
+// de Gardner un robot con blancas acababa rindiéndose ya en la posición inicial. Ahora, con blancas, una caja vacía no significa
+// «me rindo»: el robot juega la jugada que gana si la hay o, si no, la que MÁS retrasa la derrota, y solo se rinde cuando
+// todas sus jugadas pierden en el turno siguiente (ya no puede evitarlo). Las negras siguen exactamente como en Gardner.
 
 export const W = 'W', B = 'B';
 export const files = 'abc';
@@ -54,6 +59,41 @@ export function canon(b) {
   return k2 < k1 ? { ck: k2, cb: m, mir: true } : { ck: k1, cb: b, mir: false };
 }
 
+// ---------- resolución exacta (solo para la caja vacía de las blancas) ----------
+// solve(b, t): resultado con juego perfecto cuando mueve t → {w: ganador, n: jugadas (plies) hasta que acaba la partida};
+// el ganador la acaba cuanto antes, el perdedor la alarga cuanto puede.
+const memo = new Map();
+function better(t, x, y) {            // ¿es x mejor que y para el bando t?  (x, y = {w, n})
+  if (!y) return true;
+  if (x.w === t && y.w !== t) return true;
+  if (x.w !== t && y.w === t) return false;
+  return x.w === t ? x.n < y.n : x.n > y.n;
+}
+export function solve(b, t) {
+  const k = key(b) + t; const hit = memo.get(k); if (hit) return hit;
+  let best = null;
+  for (const m of legal(b, t)) {
+    const nb = apply(b, m);
+    const cand = outcome(nb, t) === t ? { w: t, n: 1 } : (r => ({ w: r.w, n: r.n + 1 }))(solve(nb, opp(t)));
+    if (better(t, cand, best)) best = cand;
+  }
+  if (!best) best = { w: opp(t), n: 0 };
+  memo.set(k, best); return best;
+}
+// jugada que más retrasa la derrota (o que gana). resign = todas pierden en el turno siguiente.
+export function resist(b, side, rnd = Math.random) {
+  let best = null, pool = [];
+  for (const m of legal(b, side)) {
+    const nb = apply(b, m);
+    const cand = outcome(nb, side) === side ? { w: side, n: 1 } : (r => ({ w: r.w, n: r.n + 1 }))(solve(nb, opp(side)));
+    if (better(side, cand, best)) { best = cand; pool = [m]; }
+    else if (best && cand.w === best.w && cand.n === best.n) pool.push(m);
+  }
+  if (!best) return { resign: true };
+  if (best.w !== side && best.n <= 2) return { resign: true };
+  return { mv: pool[Math.floor(rnd() * pool.length)], n: best.n, win: best.w === side };
+}
+
 // ---------- el cerebro del robot ----------
 export function newBrains() { return { W: {}, B: {} }; }
 
@@ -74,7 +114,14 @@ export function robotChoose(brains, side, b, rnd = Math.random) {
   const { box, ck, mir } = getBox(brains, side, b);
   const keys = box.order.filter(k => box.beads[k] > 0);
   let total = 0; keys.forEach(k => { total += box.beads[k]; });
-  if (total === 0) return { resign: true, ck };
+  if (total === 0) {
+    if (side === W) {                       // blancas: caja vacía → resistir lo más posible (ver arriba)
+      const r = resist(b, side, rnd);
+      if (r.resign) return { resign: true, ck };
+      return { mv: r.mv, ck, k: null };
+    }
+    return { resign: true, ck };            // negras: como en el original
+  }
   let r = rnd() * total, pick = keys[0];
   for (const k of keys) { r -= box.beads[k]; if (r < 0) { pick = k; break; } }
   const [a, c] = pick.split('-').map(Number);
@@ -84,7 +131,9 @@ export function robotChoose(brains, side, b, rnd = Math.random) {
 
 // castigo: quita una cuenta de la última jugada del robot (`trail` = sus jugadas en esta partida)
 export function punish(brains, side, trail) {
-  const t = trail[trail.length - 1];
+  let i = trail.length - 1;
+  while (i >= 0 && trail[i].k === null) i--;     // las jugadas de «resistencia» (sin cuenta) no se castigan: se castiga la última con cuenta
+  const t = trail[i];
   if (!t) return;
   const box = brains[side][t.ck];
   if (box && box.beads[t.k] > 0) box.beads[t.k] -= 1;

@@ -3,9 +3,9 @@
 // 2) victoria por fondo, por captura total y por quedarse sin movimientos,
 // 3) canonización por espejo: la jugada elegida en la caja canónica se traduce bien a la posición real,
 // 4) mecanismo de aprendizaje (castigo de la última jugada, caja vacía = se rinde),
-// 5) aprendizaje: negras casi todo victorias, blancas aprenden a resistir (nunca ganan a un rival perfecto),
+// 5) aprendizaje: negras casi todo victorias, blancas resisten lo máximo posible (nunca ganan a un rival perfecto, pero no se rinden antes de tiempo),
 // 6) guardar/restaurar y almacenamiento manipulado.
-import { W, B, opp, start, legal, apply, outcome, key, canon, mirIdx, newBrains, getBox, robotChoose, punish, trainOnce, serialize, restore } from './game.js';
+import { W, B, opp, start, legal, apply, outcome, key, canon, mirIdx, newBrains, getBox, robotChoose, punish, trainOnce, serialize, restore, solve, resist } from './game.js';
 
 let ok = 0, bad = 0;
 const check = (nombre, cond, extra) => { if (cond) { ok++; console.log('  ✓ ' + nombre); } else { bad++; console.log('  ✗ ' + nombre + (extra ? '  → ' + extra : '')); } };
@@ -108,7 +108,20 @@ console.log('\n[3] MECANISMO DE APRENDIZAJE (sin tocar)');
   check('el castigo nunca deja una cuenta negativa', box.beads[ch.k] === 0);
   box.order.forEach(k => { box.beads[k] = 0; });
   const r = robotChoose(brains, W, b, Math.random);
-  check('caja vacía = el robot se rinde', r.resign === true);
+  check('BLANCAS con la caja inicial vacía: NO se rinde, juega una jugada de resistencia (k = null)', !r.resign && r.k === null && legal(b, W).some(m => m[0] === r.mv[0] && m[1] === r.mv[1]));
+  // negras: caja vacía = se rinde, como en Gardner
+  const bn = newBrains(), posN = apply(start(), [7, 4]);            // blancas avanzan; mueven negras
+  const cn = robotChoose(bn, B, posN, () => 0); bn.B[cn.ck].order.forEach(k => { bn.B[cn.ck].beads[k] = 0; });
+  check('NEGRAS con la caja vacía: se rinde (regla original)', robotChoose(bn, B, posN, Math.random).resign === true);
+  // blancas: solo se rinde cuando TODAS sus jugadas pierden en el turno siguiente
+  let hallada = null;
+  for (const { b: bb, t } of positions) { if (t !== W) continue; const ms2 = legal(bb, W); if (ms2.length && ms2.every(m => { const nb = apply(bb, m); return outcome(nb, W) === null && solve(nb, B).w === B && solve(nb, B).n === 1; })) { hallada = bb; break; } }
+  check('existe una posición de blancas donde todas las jugadas pierden al instante', hallada !== null);
+  if (hallada) { const bw = newBrains(); const c = robotChoose(bw, W, hallada, () => 0); Object.keys(bw.W[c.ck].beads).forEach(k => { bw.W[c.ck].beads[k] = 0; });
+    check('BLANCAS sin cuentas y sin poder evitar perder en el turno siguiente: entonces sí se rinde', robotChoose(bw, W, hallada, Math.random).resign === true); }
+  // y en una posición perdida pero con margen, elige la jugada que MÁS retrasa la derrota
+  const rs = resist(start(), W, () => 0); const todas = legal(start(), W).map(m => 1 + solve(apply(start(), m), B).n);
+  check('resistencia: la jugada elegida alarga la partida al máximo (' + (1 + solve(apply(start(), rs.mv), B).n) + ' = ' + Math.max(...todas) + ')', 1 + solve(apply(start(), rs.mv), B).n === Math.max(...todas));
   punish(brains, W, []);                                             // sin jugadas previas: no falla
   check('castigo sin jugadas previas no hace nada', true);
 }
@@ -120,44 +133,39 @@ console.log('\n[4] APRENDIZAJE');
   const N = 300, ventana = 100;
   for (let i = 0; i < N; i++) { const w = trainOnce(brains, B, rnd); if (i >= N - ventana && w === B) vic++; }
   check('robot NEGRAS: gana ' + vic + '/' + ventana + ' en las últimas ' + ventana + ' de ' + N + ' contra el azar (≥ 90)', vic >= 90);
-  // blancas: contra el azar mejora; contra un rival PERFECTO nunca gana y acaba rindiéndose
-  const rnd2 = mulberry(7); const bw = newBrains(); let v1 = 0, v2 = 0, rindeAzar = -1;
-  for (let i = 0; i < 300; i++) {
-    const w = trainOnce(bw, W, rnd2); if (i < 50 && w === W) v1++; if (i >= 250 && w === W) v2++;
-    const ini = bw.W[key(start())]; if (rindeAzar < 0 && ini && ini.order.every(k => ini.beads[k] === 0)) rindeAzar = i + 1;
-  }
-  check('robot BLANCAS contra el azar: es el bando perdedor y sus cuentas iniciales se agotan (se rinde ya en la partida ' + rindeAzar + '; victorias ' + v1 + '/50 al principio, ' + v2 + '/50 al final)', rindeAzar > 0 && v2 === 0);
+  // blancas: bando perdedor. Con la regla de Gardner acababan rindiéndose sin mover; ahora juegan hasta el final
+  const rnd2 = mulberry(7); const bw = newBrains(); let v1 = 0, v2 = 0;
+  for (let i = 0; i < 300; i++) { const w = trainOnce(bw, W, rnd2); if (i < 50 && w === W) v1++; if (i >= 250 && w === W) v2++; }
+  { const ini = bw.W[key(start())]; const vacia = ini.order.every(k => ini.beads[k] === 0);
+    check('robot BLANCAS: la caja inicial se vacía (' + vacia + ') y aun así JUEGA: nunca se rinde sin mover', vacia && !robotChoose(bw, W, start(), Math.random).resign); }
+  check('robot BLANCAS contra el azar: ya no se hunde (victorias ' + v1 + '/50 al principio → ' + v2 + '/50 al final)', v2 > v1 && v2 >= 30);
 
-  // rival perfecto para NEGRAS (minimax): sabemos que negras ganan con juego perfecto en 3×3
-  const memo = new Map();
-  const solve = (b, t) => {                                      // true si gana quien mueve (t)
-    const k = key(b) + t; if (memo.has(k)) return memo.get(k);
-    let res = false;
-    for (const m of legal(b, t)) { const nb = apply(b, m); if (outcome(nb, t) === t || (!outcome(nb, t) && !solve(nb, opp(t)))) { res = true; break; } }
-    memo.set(k, res); return res;
-  };
-  check('el solucionador confirma: con juego perfecto pierden las BLANCAS (empiezan)', solve(start(), W) === false);
-  const rnd3 = mulberry(99); const bp = newBrains(); let blancasGanan = 0, rindeEn = -1;
-  for (let i = 0; i < 400; i++) {
-    // partida: robot blancas vs negras perfectas (gana si puede; si no, al azar)
-    let b = start(), t = W; const tr = []; let w = null, res = false;
+  // rival PERFECTO para negras: con juego perfecto pierden las BLANCAS (empiezan)
+  check('el solucionador confirma: con juego perfecto pierden las BLANCAS', solve(start(), W).w === B);
+  const rnd3 = mulberry(99); const bp = newBrains(); let blancasGanan = 0; const largos = [];
+  const maxLen = solve(start(), W).n;                              // partida más larga posible con negras perfectas
+  for (let i = 0; i < 600; i++) {
+    let b = start(), t = W; const tr = []; let w = null, res = false, plies = 0;
     while (!w) {
       if (t === W) {
         const ch = robotChoose(bp, W, b, rnd3);
         if (ch.resign) { w = B; res = true; break; }
-        tr.push({ ck: ch.ck, k: ch.k }); b = apply(b, ch.mv); w = outcome(b, W);
-      } else {
-        const all = legal(b, B); const good = all.filter(m => { const nb = apply(b, m); return outcome(nb, B) === B || (!outcome(nb, B) && !solve(nb, W)); });
-        const pool = good.length ? good : all; b = apply(b, pool[Math.floor(rnd3() * pool.length)]); w = outcome(b, B);
+        tr.push({ ck: ch.ck, k: ch.k }); b = apply(b, ch.mv); w = outcome(b, W); plies++;
+      } else {                                                     // negras perfectas: entre las jugadas ganadoras, la más rápida
+        const all = legal(b, B); let pool = [], bestN = Infinity;
+        for (const m of all) { const nb = apply(b, m); const n = outcome(nb, B) === B ? 1 : (solve(nb, W).w === B ? solve(nb, W).n + 1 : Infinity); if (n < bestN) { bestN = n; pool = [m]; } else if (n === bestN) pool.push(m); }
+        if (!pool.length) pool = all; b = apply(b, pool[Math.floor(rnd3() * pool.length)]); w = outcome(b, B); plies++;
       }
       t = opp(t);
     }
-    if (w === W) blancasGanan++;
-    else punish(bp, W, tr);
-    if (res && rindeEn < 0) rindeEn = i + 1;
+    if (w === W) blancasGanan++; else punish(bp, W, tr);
+    largos.push(plies + (res ? 2 : 0));                             // si se rinde, equivale a jugar su última jugada y perder en la respuesta (+2)
   }
-  check('robot BLANCAS vs negras perfectas: no gana NUNCA (' + blancasGanan + '/400)', blancasGanan === 0);
-  check('…y aprende a resistir: acaba rindiéndose (primera rendición en la partida ' + rindeEn + ')', rindeEn > 0 && rindeEn < 400);
+  check('robot BLANCAS vs negras perfectas: no gana NUNCA (' + blancasGanan + '/600)', blancasGanan === 0);
+  const ultimas = largos.slice(-50), enMax = ultimas.filter(x => x === maxLen).length;
+  check('…y resiste lo máximo posible: las últimas 50 partidas duran ' + maxLen + ' jugadas (el máximo teórico): ' + enMax + '/50', enMax === 50, 'duraciones ' + [...new Set(ultimas)].join(','));
+  const ini10 = largos.slice(0, 10).reduce((a, x) => a + x, 0) / 10;
+  check('…y al principio resistía menos (media de las 10 primeras ' + ini10.toFixed(1) + ' < ' + maxLen + ')', ini10 < maxLen);
 }
 
 console.log('\n[5] GUARDAR / RESTAURAR');

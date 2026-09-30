@@ -63,7 +63,7 @@ const sideSel = h('select'); sideSel.setAttribute('aria-label', 'Tu bando');
 const bUndo = h('button', null, '↶ Deshacer'); bUndo.type = 'button';
 ctrl.appendChild(bNew); ctrl.appendChild(sideSel); ctrl.appendChild(bUndo);
 card.appendChild(ctrl);
-const whiteNote = h('p', 'hx-note', 'Ojo: si eliges negras, el robot juega con blancas, que es el bando que pierde con juego perfecto. Con este mecanismo irá perdiendo cuentas hasta quedarse sin jugadas en la posición inicial y rendirse ya en el primer movimiento (contra un rival que mueve al azar, hacia la partida 45 de entrenamiento). Es lo que ocurre en la máquina original de Gardner: las blancas no pueden aprender a ganar.');
+const whiteNote = h('p', 'hx-note', 'Ojo: si eliges negras, el robot juega con blancas, que es el bando que pierde con juego perfecto. Con la regla original de Gardner acabaría rindiéndose ya en el primer movimiento. Aquí está cambiado a propósito: con blancas, cuando una caja se vacía el robot no se rinde; juega la jugada que más retrasa la derrota (o la que gana, si la hay) y solo se rinde cuando ya no puede evitar perder en el turno siguiente.');
 whiteNote.hidden = true;
 card.appendChild(whiteNote);
 const rules = h('p', 'hx-intro');
@@ -94,7 +94,7 @@ const card3 = h('div', 'card');
 const h2b = h('h2'); h2b.appendChild(document.createTextNode('Cerebro del robot: ')); const nBoxes = h('span', null, '0'); h2b.appendChild(nBoxes); h2b.appendChild(document.createTextNode(' cajas usadas'));
 card3.appendChild(h2b);
 const bp = h('p', 'hx-intro'); bp.style.marginTop = '0';
-bp.innerHTML = 'Cada caja es una posición. Dentro hay una cuenta por cada jugada legal (el círculo de color marca la casilla de destino). El robot saca una cuenta al azar y hace esa jugada. Si pierde, tira la cuenta de la <b>última</b> jugada que hizo; si una caja se queda vacía, el robot se rinde en esa posición. Peones del mini-tablero: claro = blancas, oscuro = negras. Se resalta en naranja lo consultado en la partida actual.';
+bp.innerHTML = 'Cada caja es una posición. Dentro hay una cuenta por cada jugada legal (el círculo de color marca la casilla de destino). El robot saca una cuenta al azar y hace esa jugada. Si pierde, tira la cuenta de la <b>última</b> jugada que hizo; si una caja se queda vacía, el robot se rinde en esa posición (con blancas no: ahí juega la jugada que más retrasa la derrota). Peones del mini-tablero: claro = blancas, oscuro = negras. Se resalta en naranja lo consultado en la partida actual.';
 card3.appendChild(bp);
 const brainsEl = h('div', 'hx-brains'); card3.appendChild(brainsEl);
 wrap.appendChild(card3);
@@ -124,7 +124,7 @@ function robotTurn() {
   if (over || turn !== robot) return;
   const ch = robotChoose(brains, robot, board);
   currentKey = ch.ck;
-  if (ch.resign) { finish(human, true, trail.length === 0); return; }
+  if (ch.resign) { finish(human, true); return; }
   trail.push({ ck: ch.ck, k: ch.k });
   board = apply(board, ch.mv); lastMove = ch.mv;
   const w = outcome(board, robot);
@@ -139,12 +139,12 @@ function record(w) {
   if (w === robot) { stats.robot++; stats.seq.push('r'); } else { stats.you++; stats.seq.push('h'); }
   if (stats.seq.length > 200) stats.seq = stats.seq.slice(-200);
 }
-function finish(w, resigned, atStart) {
+function finish(w, resigned) {
   over = true; turn = null; selected = null;
   if (w !== robot) punish(brains, robot, trail);
   record(w);
   if (w === robot) setStatus('Gana el robot. Esta vez no pierde ninguna cuenta.', 'lose');
-  else setStatus(atStart ? '¡El robot se rinde sin mover! Como blancas está en el bando que pierde con juego perfecto y ya ha agotado todas las cuentas de la posición inicial. Ganas tú.' : resigned ? '¡El robot se rinde! Esa posición ya no tiene jugadas seguras. Ganas tú.' : '¡Ganas tú! El robot pierde una cuenta de la última caja.', 'win');
+  else setStatus(resigned ? (robot === W ? '¡El robot se rinde! Con blancas ha retrasado la derrota todo lo que ha podido, pero ya no puede evitarla. Ganas tú.' : '¡El robot se rinde! Esa posición ya no tiene jugadas seguras. Ganas tú.') : '¡Ganas tú! El robot pierde una cuenta de la última caja.', 'win');
   save(); draw(); drawBrains(); updateStats();
 }
 
@@ -223,7 +223,7 @@ function drawBrains() {
       beads += '<span class="hx-chip' + (n === 0 ? ' z' : '') + '" style="background:' + COLORS[idx % COLORS.length] + '">' + name(a) + '→' + name(c) + ' ×' + n + '</span>';
     });
     beads += '</div>';
-    el.innerHTML = mini + beads + '<div class="hx-empty">' + (total === 0 ? 'caja vacía: se rinde' : '') + '</div>';
+    el.innerHTML = mini + beads + '<div class="hx-empty">' + (total === 0 ? (side === W ? 'caja vacía: retrasa la derrota' : 'caja vacía: se rinde') : '') + '</div>';
     brainsEl.appendChild(el);
   }
 }
