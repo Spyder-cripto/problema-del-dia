@@ -63,6 +63,9 @@ const sideSel = h('select'); sideSel.setAttribute('aria-label', 'Tu bando');
 const bUndo = h('button', null, '↶ Deshacer'); bUndo.type = 'button';
 ctrl.appendChild(bNew); ctrl.appendChild(sideSel); ctrl.appendChild(bUndo);
 card.appendChild(ctrl);
+const whiteNote = h('p', 'hx-note', 'Ojo: si eliges negras, el robot juega con blancas, que es el bando que pierde con juego perfecto. Con este mecanismo irá perdiendo cuentas hasta quedarse sin jugadas en la posición inicial y rendirse ya en el primer movimiento (contra un rival que mueve al azar, hacia la partida 45 de entrenamiento). Es lo que ocurre en la máquina original de Gardner: las blancas no pueden aprender a ganar.');
+whiteNote.hidden = true;
+card.appendChild(whiteNote);
 const rules = h('p', 'hx-intro');
 rules.innerHTML = '<b>Reglas.</b> Un peón avanza una casilla hacia delante si está libre, o captura en diagonal hacia delante. Gana quien llegue a la fila del fondo, capture todos los peones rivales o deje al rival sin movimientos. No hay tablas. Toca un peón y luego la casilla de destino.';
 card.appendChild(rules);
@@ -108,6 +111,7 @@ function later(fn, ms) { clearTimer(); timer = setTimeout(() => { timer = null; 
 function newGame() {
   clearTimer();
   human = sideSel.value; robot = opp(human);
+  whiteNote.hidden = human !== B;
   board = start(); turn = W; over = false; selected = null; trail = []; lastMove = null; currentKey = null; snaps = [];
   if (turn === human) {
     setStatus('Empiezas tú (blancas). Elige un peón.', ''); snaps.push({ board: board.slice(), lastMove: null, trailLen: 0 });
@@ -120,7 +124,7 @@ function robotTurn() {
   if (over || turn !== robot) return;
   const ch = robotChoose(brains, robot, board);
   currentKey = ch.ck;
-  if (ch.resign) { finish(human, true); return; }
+  if (ch.resign) { finish(human, true, trail.length === 0); return; }
   trail.push({ ck: ch.ck, k: ch.k });
   board = apply(board, ch.mv); lastMove = ch.mv;
   const w = outcome(board, robot);
@@ -135,12 +139,12 @@ function record(w) {
   if (w === robot) { stats.robot++; stats.seq.push('r'); } else { stats.you++; stats.seq.push('h'); }
   if (stats.seq.length > 200) stats.seq = stats.seq.slice(-200);
 }
-function finish(w, resigned) {
+function finish(w, resigned, atStart) {
   over = true; turn = null; selected = null;
   if (w !== robot) punish(brains, robot, trail);
   record(w);
   if (w === robot) setStatus('Gana el robot. Esta vez no pierde ninguna cuenta.', 'lose');
-  else setStatus(resigned ? '¡El robot se rinde! Esa posición ya no tiene jugadas seguras. Ganas tú.' : '¡Ganas tú! El robot pierde una cuenta de la última caja.', 'win');
+  else setStatus(atStart ? '¡El robot se rinde sin mover! Como blancas está en el bando que pierde con juego perfecto y ya ha agotado todas las cuentas de la posición inicial. Ganas tú.' : resigned ? '¡El robot se rinde! Esa posición ya no tiene jugadas seguras. Ganas tú.' : '¡Ganas tú! El robot pierde una cuenta de la última caja.', 'win');
   save(); draw(); drawBrains(); updateStats();
 }
 
