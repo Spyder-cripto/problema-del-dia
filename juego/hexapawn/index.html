@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hexapawn · El problema del día</title>
+<meta name="description" content="Hexapawn, la máquina de cajas de cerillas de Martin Gardner: juegas contra un robot que empieza sin saber nada y aprende de cada derrota. Ábrele las cajas y mira cómo cambia su cerebro.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  :root{
+    --hx-l:#ecd9b0; --hx-d:#b58863; --hx-hi:#1f5fa6; --hx-last:rgba(216,150,40,.85);
+    --hx-w:#fffdf7; --hx-wline:#3a2f24; --hx-b:#2b2622; --hx-bline:#0e0c0a; --hx-bfg:#e9e2d4;
+    --hx-c0:#e11d48; --hx-c1:#2563eb; --hx-c2:#16a34a; --hx-c3:#d97706; --hx-c4:#7c3aed; --hx-c5:#0891b2;
+  }
+  @media(prefers-color-scheme:dark){:root{
+    --hx-l:#c9b58a; --hx-d:#7d5c40; --hx-hi:#83b3ec; --hx-w:#f5efe0; --hx-wline:#120f0b; --hx-b:#3b332c; --hx-bline:#0a0806;
+  }}
+  .hx-status{min-height:3.1em;font-size:1.08rem;margin:0 0 12px}
+  .hx-status.win{color:var(--verde)} .hx-status.lose{color:var(--rojo)}
+  .hx-boardwrap{display:grid;grid-template-columns:22px 1fr;grid-template-rows:1fr 22px;gap:2px;max-width:340px;margin:0 auto}
+  .hx-ranks{display:grid;grid-template-rows:repeat(3,1fr);color:var(--muted);font-size:.82rem}
+  .hx-ranks span,.hx-files span{display:flex;align-items:center;justify-content:center}
+  .hx-files{grid-column:2;display:grid;grid-template-columns:repeat(3,1fr);color:var(--muted);font-size:.82rem}
+  .hx-board{align-self:start;width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));aspect-ratio:1;border:2px solid var(--line);border-radius:10px;overflow:hidden;touch-action:manipulation;user-select:none}
+  .hx-cell{position:relative;display:flex;align-items:center;justify-content:center;border:0;border-radius:0;padding:0;margin:0;cursor:default;min-width:0;min-height:0;height:100%;width:100%}
+  .hx-cell.l{background:var(--hx-l)} .hx-cell.d{background:var(--hx-d)}
+  .hx-cell.can{cursor:pointer}
+  .hx-cell.sel{outline:4px solid var(--hx-hi);outline-offset:-4px}
+  .hx-cell.last{box-shadow:inset 0 0 0 4px var(--hx-last)}
+  .hx-cell.tgt::after{content:"";position:absolute;width:26%;height:26%;border-radius:50%;background:var(--hx-hi);opacity:.75}
+  .hx-cell.tgt.cap::after{width:78%;height:78%;background:none;border:4px solid var(--rojo)}
+  .hx-cell:focus-visible{outline:3px solid var(--accent);outline-offset:-3px;z-index:1}
+  .hx-cell.sel:focus-visible{outline-color:var(--hx-hi);box-shadow:inset 0 0 0 7px var(--card)}
+  .hx-pawn{width:64%;height:64%;border-radius:50%;display:flex;align-items:center;justify-content:center;pointer-events:none}
+  .hx-pawn svg{width:64%;height:64%;display:block}
+  .hx-pawn.W{background:var(--hx-w);border:3px solid var(--hx-wline);color:var(--hx-wline)}
+  .hx-pawn.B{background:var(--hx-b);border:3px solid var(--hx-bline);color:var(--hx-bfg)}
+  .hx-ctrl{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+  .hx-ctrl button,.hx-ctrl select{min-height:44px}
+  .hx-ctrl select{max-width:100%}
+  .hx-ctrl button:focus-visible,.hx-ctrl select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .hx-intro{font-size:.93rem;color:var(--muted);margin:12px 0 0}
+  .hx-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 12px;text-align:center}
+  .hx-stat{border:1px solid var(--line);border-radius:10px;padding:8px 4px}
+  .hx-stat b{display:block;font-family:var(--display);font-size:1.5rem;font-weight:600}
+  .hx-stat span{font-size:.78rem;color:var(--muted)}
+  .hx-hist{display:flex;flex-wrap:wrap;gap:3px;margin:8px 0 4px;min-height:10px}
+  .hx-hist i{width:10px;height:10px;border-radius:50%;display:block}
+  .hx-hist i.r{background:var(--accent)} .hx-hist i.h{background:var(--azul)}
+  .hx-legend{font-size:.84rem;color:var(--muted)}
+  .hx-legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px 0 10px}
+  .hx-legend i:first-child{margin-left:0}
+  .hx-note{font-size:.86rem;color:var(--muted);margin:10px 0 0}
+  .hx-brains{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;margin-top:12px}
+  .hx-box{border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--bg)}
+  .hx-box.open{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+  .hx-box.dead{opacity:.62}
+  .hx-mini{display:grid;grid-template-columns:repeat(3,1fr);width:84px;margin:0 auto 6px;border:1px solid var(--line)}
+  .hx-mini div{aspect-ratio:1;position:relative;display:flex;align-items:center;justify-content:center}
+  .hx-mini div.l{background:var(--hx-l)} .hx-mini div.d{background:var(--hx-d)}
+  .hx-mini .p{width:66%;height:66%;border-radius:50%}
+  .hx-mini .p.W{background:var(--hx-w);border:2px solid var(--hx-wline)}
+  .hx-mini .p.B{background:var(--hx-b);border:2px solid var(--hx-bline)}
+  .hx-mini .mv{position:absolute;width:44%;height:44%;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #0006}
+  .hx-beads{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;min-height:20px}
+  .hx-chip{display:inline-flex;align-items:center;font-size:.72rem;padding:1px 6px;border-radius:99px;color:#fff;font-weight:700}
+  .hx-chip.z{background:transparent!important;color:var(--muted);text-decoration:line-through;border:1px dashed var(--line);font-weight:400}
+  .hx-empty{text-align:center;font-size:.75rem;color:var(--rojo);font-weight:700;min-height:20px}
+  .hx-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  @media(max-width:420px){ .hx-ctrl button,.hx-ctrl select{flex:1 1 auto} }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
