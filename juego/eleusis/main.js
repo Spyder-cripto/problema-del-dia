@@ -8,7 +8,7 @@ const root = document.getElementById('app');
 const h = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
 
 // ---------- estado ----------
-let S = null, lastRuleId = null, focusCardId = null, focusProphet = false, prefijo = '';
+let S = null, lastRuleId = null, focusCardId = null, focusProphet = false, prefijo = '', placedAntes = 0;
 let T = newTotals();   // acumulado de todas las visitas (se guarda)
 let V = newTotals();   // solo esta visita (empieza en 0 al abrir la página)
 
@@ -46,7 +46,7 @@ how.appendChild(h('summary', null, 'Cómo se juega'));
   '<b>Resultado.</b> Si es correcta, la carta va a la línea principal. Si es incorrecta, cuelga debajo de la última carta correcta (línea lateral) y robas 2 cartas.',
   '<b>Sin jugada.</b> Si crees que ninguna de tus cartas vale, pulsa «No tengo jugada». Si aciertas te dan una mano con 4 cartas menos (si tenías 4 o menos, termina la ronda). Si te equivocas, el repartidor juega por ti una carta buena y robas 5.',
   '<b>Profeta.</b> Cuando creas conocer la regla, declárate Profeta: te irán mostrando 10 cartas y debes decir si valen o no. Si aciertas las 10, ganas 10 puntos y termina la ronda. Si fallas, eres un Falso Profeta y robas 5 cartas.',
-  '<b>Expulsión.</b> Cuando ya hay 30 cartas sobre la mesa, un fallo te expulsa y la ronda termina. Las chinchetas numeradas marcan cada décima carta; la roja marca que ya se puede expulsar.',
+  '<b>Expulsión.</b> Solo cuentan las cartas de la mesa, no las de tu mano. Cuando ya hay 30 cartas sobre la mesa, un fallo te expulsa y la ronda termina; acertar nunca te expulsa. Las chinchetas numeradas marcan cada décima carta; la roja marca que ya se puede expulsar.',
   '<b>Puntos.</b> 14 menos las cartas que te quedan (mínimo 0), +4 si te quedas sin cartas, +10 si eres Profeta, −3 si pediste pista. La regla solo depende de la secuencia de cartas correctas.',
   '<b>Cambiar de ronda.</b> «Rendirme y ver la regla» termina la ronda, te enseña la regla secreta y cuenta con 0 puntos. El botón de arriba, cuando ya has jugado alguna carta, se llama «Abandonar y nueva ronda»: también cuenta con 0 puntos, pero no te enseña la regla. Cuando la ronda ha terminado, «Otra ronda» empieza la siguiente sin perder nada.',
   '<b>Marcador.</b> Ronda, Puntos y Reglas descubiertas cuentan desde que abres la página y se actualizan cuando termina cada ronda. «Puntos ahora» son los que ganarías si la ronda terminara ahora sin rendirte. Debajo verás el acumulado de todas tus visitas, que se guarda en este navegador, con el detalle en «Mis rondas». Rendirte o abandonar una ronda empezada cuenta como ronda jugada con 0 puntos.',
@@ -65,6 +65,7 @@ const acum = h('p', 'el-leyenda'); acum.style.margin = '-2px 0 10px'; card2.appe
 const msg = h('p', 'el-msg'); msg.setAttribute('role', 'status'); msg.setAttribute('aria-live', 'polite'); card2.appendChild(msg);
 const hintBox = h('div'); card2.appendChild(hintBox);
 const counts = h('div', 'el-small'); counts.style.margin = '6px 0'; card2.appendChild(counts);
+const aviso = h('div', 'el-aviso'); aviso.hidden = true; card2.appendChild(aviso);
 const table = h('div', 'el-table'); table.setAttribute('role', 'group'); table.setAttribute('aria-label', 'Mesa: línea principal y líneas laterales'); table.tabIndex = 0;
 card2.appendChild(table);
 const leyenda = h('p', 'el-leyenda'); leyenda.appendChild(h('i')); leyenda.appendChild(document.createTextNode('Arriba, la línea de cartas correctas (la del borde amarillo es la inicial). Debajo de una carta, en rosa, lo que se rechazó después de ella.'));
@@ -145,7 +146,10 @@ function roundOver() {
 }
 // tras cualquier acción: si la ronda ha terminado, cierra; si no, muestra el mensaje
 function after(res, text, cls) {
-  if (S.over) roundOver(); else if (text) setMsg(text, cls);
+  // al cruzar las 30 cartas en la mesa, el mensaje avisa de que el próximo error expulsa
+  const cruza = !S.over && placedAntes < EXPEL_AT && S.placed >= EXPEL_AT;
+  if (S.over) roundOver(); else if (text) setMsg(text + (cruza ? ' ¡Cuidado! Ya hay ' + EXPEL_AT + ' cartas en la mesa: el próximo error te expulsa.' : ''), cruza ? 'bad' : cls);
+  else if (cruza) setMsg('¡Cuidado! Ya hay ' + EXPEL_AT + ' cartas en la mesa: el próximo error te expulsa.', 'bad');
   renderAll();
   return res;
 }
@@ -247,7 +251,9 @@ function renderPanel() {
 function renderCounts() {
   const exp = S.placed >= EXPEL_AT;
   counts.textContent = 'Cartas en la mesa: ' + S.placed + ' · En tu mano: ' + S.hand.length + ' · Mazo: ' + S.deck.length +
-    (exp ? ' · ¡Ya hay expulsión: un fallo termina la ronda!' : ' · Expulsión a partir de ' + EXPEL_AT + ' cartas en la mesa');
+    (exp ? '' : ' · Expulsión a partir de ' + EXPEL_AT + ' cartas en la mesa');
+  aviso.hidden = !(exp && !S.over);
+  aviso.textContent = 'Cuidado: ya hay ' + S.placed + ' cartas en la mesa. El próximo error (una carta o cadena incorrecta, o un «No tengo jugada» equivocado) te expulsa y termina la ronda. Acertar no te expulsa.';
 }
 function renderScore() {
   // «Ronda» es la que se está jugando (o la que acaba de terminar)
@@ -284,7 +290,7 @@ function renderNewBtn() {
   ayuda.hidden = S.over;   // la ayuda solo tiene sentido con la ronda en curso
   bNew.title = empezada ? 'Termina esta ronda sin verla: cuenta como jugada con 0 puntos y no te enseña la regla. Para verla, usa «Rendirme y ver la regla».' : 'Empieza una ronda nueva.';
 }
-function renderAll() { renderTable(); renderHand(); renderPanel(); renderCounts(); renderScore(); renderLog(); renderNewBtn(); }
+function renderAll() { renderTable(); renderHand(); renderPanel(); renderCounts(); renderScore(); renderLog(); renderNewBtn(); placedAntes = S.placed; }
 
 // ---------- eventos ----------
 bPlay.addEventListener('click', onPlay);
