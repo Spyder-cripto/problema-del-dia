@@ -258,7 +258,8 @@ function renderScore() {
   scN.textContent = S.over ? S.result.score : pointsNow(S);
 }
 function renderLog() {
-  histSum.textContent = 'Mis rondas (' + T.rounds + ') y reglas descubiertas (' + T.found.length + ' de ' + RULES.length + '), acumulado';
+  const rr = n => n + (n === 1 ? ' ronda' : ' rondas');
+  histSum.textContent = 'Historial de todas mis visitas: ' + rr(T.rounds) + ' · ' + T.found.length + ' de ' + RULES.length + ' reglas descubiertas (esta visita: ' + rr(V.rounds) + ')';
   logEl.innerHTML = '';
   if (!T.log.length) { const li = h('li', 'el-small', 'Aún no has terminado ninguna ronda.'); logEl.appendChild(li); }
   const primera = T.rounds - T.log.length + 1;
