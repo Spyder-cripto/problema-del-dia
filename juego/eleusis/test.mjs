@@ -238,6 +238,37 @@ console.log('== 10. Totales y guardado');
   t(G.restore('{"v":1,"rounds":2,"wins":1,"points":9}').found.length === 0, 'sin «found»: lista vacía');
 }
 
+console.log('== 11. Marcador, rondas abandonadas y registro');
+{
+  let S = G.newRound(rule('only-odd'), mulberry(31));
+  t(G.pointsNow(S) === 0, 'puntos ahora con 14 cartas: 0');
+  S = mk('only-odd', [[3, 0], [5, 0], [7, 0]], [[1, 0]]);
+  t(G.pointsNow(S) === 11, 'puntos ahora con 3 cartas: 14 − 3 = 11');
+  S = mk('only-odd', [[3, 0], [5, 0], [7, 0]], [[1, 0]], { hint: true });
+  t(G.pointsNow(S) === 8, 'con pista: 11 − 3 = 8');
+  // abandonar: una ronda sin tocar no cuenta; una empezada cuenta con 0 puntos
+  const T = G.newTotals(); S = G.newRound(rule('only-odd'), mulberry(32));
+  t(G.abandonRound(S) === null && !S.over, 'ronda sin tocar: no se puede abandonar (no cuenta)');
+  S = mk('only-odd', [[3, 0], [5, 0], [7, 0]], [[1, 0]]); selC(S, [[3, 0]]); G.playSelection(S);
+  const r = G.abandonRound(S); G.applyTotals(T, S);
+  t(r && r.type === 'abandoned' && S.over && S.result.why === 'abandoned' && S.result.score === 0 && !S.result.won, 'abandonar una ronda empezada: 0 puntos');
+  t(T.rounds === 1 && T.points === 0 && T.log.length === 1 && T.log[0].why === 'abandoned', 'cuenta como ronda jugada y queda en el registro');
+  t(G.abandonRound(S) === null, 'no se abandona dos veces');
+  // el registro guarda las últimas ${G.LOG_MAX}
+  const T2 = G.newTotals();
+  for (let i = 0; i < G.LOG_MAX + 5; i++) { const s = G.newRound(rule('only-odd'), mulberry(100 + i)); G.giveUp(s); G.applyTotals(T2, s); }
+  t(T2.rounds === G.LOG_MAX + 5 && T2.log.length === G.LOG_MAX, 'registro limitado a los últimos ' + G.LOG_MAX + ' con el contador total intacto');
+  const back = G.restore(G.serialize(T2)); t(back && JSON.stringify(back) === JSON.stringify(T2), 'ida y vuelta del registro');
+  const malo = JSON.parse(G.serialize(T)); malo.log = [{ id: 'nope', why: 'gaveup', score: 0 }, { id: 'only-odd', why: 'xx', score: 0 }, { id: 'only-odd', why: 'gaveup', score: -5 }, { id: 'only-odd', why: 'gaveup', score: 99 }, { id: 'only-odd', why: 'empty', score: 18 }, null, 5];
+  const rr = G.restore(JSON.stringify(malo)); t(rr && rr.log.length === 1 && rr.log[0].score === 18, 'entradas del registro inválidas se descartan');
+  const viejo = G.restore('{"v":1,"rounds":2,"wins":1,"points":9,"found":["only-odd"]}'); t(viejo && Array.isArray(viejo.log) && viejo.log.length === 0, 'datos guardados antes del registro se leen bien');
+  // contadores tras varias rondas de distintos finales
+  const T3 = G.newTotals();
+  const fin = (ruleId, how) => { const s = G.newRound(rule(ruleId), mulberry(200)); if (how === 'prophet') { G.startProphet(s); for (let i = 0; i < 10; i++) G.prophetAnswer(s, !!s.rule.fn(s.prophet.line, s.prophet.card)); } else if (how === 'gaveup') G.giveUp(s); G.applyTotals(T3, s); return s; };
+  fin('only-odd', 'prophet'); fin('alt-color', 'gaveup'); fin('only-odd', 'prophet'); fin('close-value', 'prophet');
+  t(T3.rounds === 4 && T3.wins === 3 && T3.found.join() === 'only-odd,close-value' && T3.points === 3 * 10 && T3.log.length === 4, 'tres Profetas (dos con la misma regla) y una rendición: 4 rondas, 3 victorias, 2 reglas distintas, 30 puntos');
+}
+
 if (avisos.length) console.log('\nAvisos:', avisos.join(' | '));
 console.log(`\nRESULTADO: ${ok} ok, ${ko} fallos`);
 process.exit(ko ? 1 : 0);

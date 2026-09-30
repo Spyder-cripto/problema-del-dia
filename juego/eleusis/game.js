@@ -165,6 +165,14 @@ export function prophetAnswer(S, sayValid) {
 
 export function giveUp(S) { if (S.over) return null; S.prophet = null; endRound(S, 'gaveup'); return { type: 'gaveup' }; }
 
+// abandonar una ronda empezada (pulsar «Nueva ronda» sin acabarla): cuenta como ronda jugada con 0 puntos. Una ronda sin tocar no cuenta.
+export function abandonRound(S) {
+  if (!S || S.over || S.placed === 0) return null;
+  S.prophet = null; endRound(S, 'abandoned'); return { type: 'abandoned' };
+}
+// puntos de la ronda en curso si terminara ahora sin rendirse (14 menos las cartas de la mano; el +4 y el +10 llegan al final)
+export function pointsNow(S) { return scoreOf(S.hand.length, { noBonus: S.noBonus, prophetOK: S.prophetOK, hintUsed: S.hintUsed, gaveup: false }); }
+
 // puntos: 14 menos las cartas de la mano (mínimo 0), +4 si te quedas sin cartas (no si acabó por «sin jugada»), +10 Profeta, −3 pista, 0 si te rindes
 export function scoreOf(n, { noBonus, prophetOK, hintUsed, gaveup }) {
   let score = Math.max(0, 14 - n);
@@ -177,24 +185,28 @@ export function scoreOf(n, { noBonus, prophetOK, hintUsed, gaveup }) {
 export function endRound(S, why, detail) {
   S.over = true; S.prophet = null;
   const n = S.hand.length;
-  const score = scoreOf(n, { noBonus: S.noBonus, prophetOK: S.prophetOK, hintUsed: S.hintUsed, gaveup: why === 'gaveup' });
+  const score = scoreOf(n, { noBonus: S.noBonus, prophetOK: S.prophetOK, hintUsed: S.hintUsed, gaveup: why === 'gaveup' || why === 'abandoned' });
   S.result = { why, detail, score, n, won: why === 'empty' || why === 'prophet' || why === 'noplay' };
   return S.result;
 }
 
 // ---------- totales y persistencia (validada: un almacenamiento manipulado nunca rompe el juego) ----------
-export const newTotals = () => ({ rounds: 0, wins: 0, points: 0, found: [] });
+export const LOG_MAX = 30;
+export const WHY = ['empty', 'prophet', 'noplay', 'expelled', 'gaveup', 'abandoned'];
+export const newTotals = () => ({ rounds: 0, wins: 0, points: 0, found: [], log: [] });
 export function applyTotals(T, S) {
   const r = S.result; if (!r) return;
   T.rounds++; T.points += r.score;
+  T.log.push({ id: S.rule.id, why: r.why, score: r.score }); if (T.log.length > LOG_MAX) T.log.splice(0, T.log.length - LOG_MAX);
   if (r.why === 'prophet') { T.wins++; if (!T.found.includes(S.rule.id)) T.found.push(S.rule.id); }
 }
-export function serialize(T) { return JSON.stringify({ v: 1, rounds: T.rounds, wins: T.wins, points: T.points, found: T.found }); }
+export function serialize(T) { return JSON.stringify({ v: 1, rounds: T.rounds, wins: T.wins, points: T.points, found: T.found, log: T.log }); }
 const isCount = n => Number.isInteger(n) && n >= 0 && n <= 1000000000;
 export function restore(text) {
   let d; try { d = JSON.parse(text); } catch (e) { return null; }
   if (!d || d.v !== 1 || ![d.rounds, d.wins, d.points].every(isCount)) return null;
   const ids = new Set(RULES.map(r => r.id));
   const found = Array.isArray(d.found) ? [...new Set(d.found.filter(x => typeof x === 'string' && ids.has(x)))] : [];
-  return { rounds: d.rounds, wins: d.wins, points: d.points, found };
+  const log = Array.isArray(d.log) ? d.log.filter(e => e && ids.has(e.id) && WHY.includes(e.why) && Number.isInteger(e.score) && e.score >= 0 && e.score <= 40).map(e => ({ id: e.id, why: e.why, score: e.score })).slice(-LOG_MAX) : [];
+  return { rounds: d.rounds, wins: d.wins, points: d.points, found, log };
 }

@@ -1,14 +1,14 @@
 // eleusis/main.js — interfaz de Eleusis (El Nuevo Eleusis de Robert Abbott, según Martin Gardner).
 // Autocontenido: solo usa la hoja de estilo del hub (_engine/style.css). La lógica vive en game.js (probada en test.mjs).
-import { RULES, SUITS, SUIT_NAMES, VALS, EXPEL_AT, pickRule, newRound, toggleSel, playSelection, noPlay, startProphet, prophetAnswer,
-  giveUp, cardName, cardShort, newTotals, applyTotals, serialize, restore } from './game.js';
+import { RULES, SUITS, VALS, EXPEL_AT, pickRule, newRound, toggleSel, playSelection, noPlay, startProphet, prophetAnswer,
+  giveUp, abandonRound, pointsNow, cardName, cardShort, newTotals, applyTotals, serialize, restore } from './game.js';
 
 const STORE_KEY = 'problema-del-dia.eleusis.v1';
 const root = document.getElementById('app');
 const h = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
 
 // ---------- estado ----------
-let S = null, lastRuleId = null, focusCardId = null, focusProphet = false;
+let S = null, lastRuleId = null, focusCardId = null, focusProphet = false, prefijo = '';
 let T = newTotals();
 
 // ---------- persistencia (siempre dentro de try/catch: modo privado, cuota, almacenamiento bloqueado) ----------
@@ -30,7 +30,7 @@ wrap.appendChild(header);
 // controles
 const card1 = h('div', 'card el-pad');
 const row = h('div', 'el-row');
-const levelSel = h('select'); levelSel.setAttribute('aria-label', 'Dificultad');
+const levelSel = h('select'); levelSel.setAttribute('aria-label', 'Dificultad (se aplica a la próxima ronda)');
 [['1', 'Nivel 1 · fácil'], ['2', 'Nivel 2 · medio'], ['3', 'Nivel 3 · difícil'], ['0', 'Al azar']].forEach(([v, t]) => { const o = h('option', null, t); o.value = v; levelSel.appendChild(o); });
 const hintLab = h('label', 'el-chk'); const hintChk = h('input'); hintChk.type = 'checkbox';
 hintLab.appendChild(hintChk); hintLab.appendChild(document.createTextNode('Pista del repartidor (−3 puntos)'));
@@ -47,23 +47,25 @@ how.appendChild(h('summary', null, 'Cómo se juega'));
   '<b>Profeta.</b> Cuando creas conocer la regla, declárate Profeta: te irán mostrando 10 cartas y debes decir si valen o no. Si aciertas las 10, ganas 10 puntos y termina la ronda. Si fallas, eres un Falso Profeta y robas 5 cartas.',
   '<b>Expulsión.</b> Cuando ya hay 30 cartas sobre la mesa, un fallo te expulsa y la ronda termina. Las chinchetas numeradas marcan cada décima carta; la roja marca que ya se puede expulsar.',
   '<b>Puntos.</b> 14 menos las cartas que te quedan (mínimo 0), +4 si te quedas sin cartas, +10 si eres Profeta, −3 si pediste pista. La regla solo depende de la secuencia de cartas correctas.',
+  '<b>Marcador.</b> «Puntos ahora» son los que ganarías si la ronda terminara ahora sin rendirte. Los puntos totales, las rondas y las reglas descubiertas se actualizan cuando termina la ronda y se guardan en este navegador. Rendirte o abandonar una ronda empezada cuenta como ronda jugada con 0 puntos.',
   '<b>Valores.</b> A=1, J=11, Q=12, K=13. Negras: ♠ ♣. Rojas: ♥ ♦.'
 ].forEach(t => { const p = h('p'); p.innerHTML = t; how.appendChild(p); });
 card1.appendChild(how);
-const stats = h('div', 'el-stats');
-const mk = label => { const s = h('span', null, label + ': '); const b = h('b', null, '0'); s.appendChild(b); stats.appendChild(s); return b; };
-const stR = mk('Rondas'), stW = mk('Reglas descubiertas'), stF = mk('Reglas distintas'), stP = mk('Puntos totales');
-const bWipe = h('button', null, 'Borrar mis puntos'); bWipe.type = 'button'; stats.appendChild(bWipe);
-card1.appendChild(stats);
 wrap.appendChild(card1);
 
 // mesa
 const card2 = h('div', 'card el-pad');
+const score = h('div', 'el-score'); score.setAttribute('role', 'group'); score.setAttribute('aria-label', 'Marcador');
+const chip = (label, cls) => { const d = h('div', 'el-chip' + (cls ? ' ' + cls : '')); d.appendChild(h('small', null, label)); const b = h('b', null, '0'); d.appendChild(b); score.appendChild(d); return b; };
+const scR = chip('Ronda'), scP = chip('Puntos totales'), scF = chip('Reglas descubiertas'), scN = chip('Puntos ahora', 'now');
+card2.appendChild(score);
 const msg = h('p', 'el-msg'); msg.setAttribute('role', 'status'); msg.setAttribute('aria-live', 'polite'); card2.appendChild(msg);
 const hintBox = h('div'); card2.appendChild(hintBox);
 const counts = h('div', 'el-small'); counts.style.margin = '6px 0'; card2.appendChild(counts);
 const table = h('div', 'el-table'); table.setAttribute('role', 'group'); table.setAttribute('aria-label', 'Mesa: línea principal y líneas laterales'); table.tabIndex = 0;
 card2.appendChild(table);
+const leyenda = h('p', 'el-leyenda'); leyenda.appendChild(h('i')); leyenda.appendChild(document.createTextNode('Arriba, la línea de cartas correctas (la del borde amarillo es la inicial). Debajo de una carta, en rosa, lo que se rechazó después de ella.'));
+card2.appendChild(leyenda);
 const handArea = h('div');
 const handLab = h('div', 'el-small', 'Tu mano'); handLab.style.marginTop = '12px'; handArea.appendChild(handLab);
 const handEl = h('div', 'el-hand'); handEl.setAttribute('role', 'group'); handEl.setAttribute('aria-label', 'Tu mano'); handArea.appendChild(handEl);
@@ -80,6 +82,18 @@ const panelEl = h('div'); card2.appendChild(panelEl);
 const finalEl = h('div'); card2.appendChild(finalEl);
 wrap.appendChild(card2);
 
+// mis rondas y reglas descubiertas
+const card3 = h('div', 'card el-pad');
+const hist = h('details', 'el-hist');
+const histSum = h('summary'); hist.appendChild(histSum);
+hist.appendChild(h('h3', null, 'Mis últimas rondas'));
+const logEl = h('ol', 'el-log'); hist.appendChild(logEl);
+hist.appendChild(h('h3', null, 'Reglas descubiertas'));
+const rulesEl = h('ul', 'el-rules'); hist.appendChild(rulesEl);
+const bWipe = h('button', null, 'Borrar mis puntos y mi historial'); bWipe.type = 'button'; hist.appendChild(bWipe);
+card3.appendChild(hist);
+wrap.appendChild(card3);
+
 const foot = h('footer'); foot.innerHTML = 'Martin Gardner, «El Gran Libro de las Matemáticas», cap. 38 (El Nuevo Eleusis, de Robert Abbott) · <a href="../">Juegos</a> · <a href="../../">El problema del día</a>';
 wrap.appendChild(foot);
 root.appendChild(wrap);
@@ -88,6 +102,9 @@ root.appendChild(wrap);
 function setMsg(t, cls) { msg.textContent = t; msg.className = 'el-msg ' + (cls || ''); }
 
 function startRound() {
+  // una ronda empezada que se deja a medias cuenta como jugada con 0 puntos
+  prefijo = '';
+  if (S && !S.over && abandonRound(S)) { applyTotals(T, S); save(); prefijo = 'Ronda anterior abandonada: cuenta como jugada, con 0 puntos. '; }
   const rule = pickRule(+levelSel.value, lastRuleId);
   lastRuleId = rule.id;
   S = newRound(rule, Math.random, hintChk.checked);
@@ -95,7 +112,7 @@ function startRound() {
   hintBox.innerHTML = '';
   if (S.hintUsed) { const d = h('div', 'el-hintbox'); const b = h('b', null, 'Pista del repartidor: '); d.appendChild(b); d.appendChild(document.createTextNode(rule.hint)); hintBox.appendChild(d); }
   focusCardId = null; focusProphet = false;
-  setMsg('Ronda nueva. Hay una regla secreta. Elige una carta de tu mano y pulsa Jugar.', '');
+  setMsg(prefijo + 'Ronda nueva. Hay una regla secreta. Elige una carta de tu mano y pulsa Jugar.', '');
   renderAll();
 }
 
@@ -103,6 +120,7 @@ const TITLES = {
   empty: '¡Te has quedado sin cartas!', prophet: '¡Profeta verdadero! Has descubierto la regla.', noplay: 'Ronda terminada: no tenías jugada.',
   gaveup: 'Te has rendido.'
 };
+const ETIQ = { empty: 'Sin cartas', prophet: 'Profeta verdadero', noplay: 'Sin jugada', expelled: 'Expulsado', gaveup: 'Rendido', abandoned: 'Abandonada' };
 function roundOver() {
   const r = S.result;
   applyTotals(T, S); save();
@@ -112,7 +130,9 @@ function roundOver() {
   box.appendChild(h('h3', null, title));
   const d1 = h('div'); d1.appendChild(h('b', null, 'Regla secreta: ')); d1.appendChild(document.createTextNode(S.rule.text)); box.appendChild(d1);
   const d2 = h('div', 'el-small'); d2.appendChild(document.createTextNode('Nivel ' + S.rule.level + ' · cartas en mano: ' + r.n + ' · puntos de la ronda: '));
-  d2.appendChild(h('b', null, String(r.score))); box.appendChild(d2);
+  d2.appendChild(h('b', null, String(r.score)));
+  d2.appendChild(document.createTextNode(' · total: ' + T.points + ' puntos en ' + T.rounds + (T.rounds === 1 ? ' ronda' : ' rondas'))); box.appendChild(d2);
+  if (r.why === 'prophet') box.appendChild(h('div', 'el-small', 'Reglas descubiertas: ' + T.found.length + ' de ' + RULES.length + '.'));
   const act = h('div', 'el-actions'); const again = h('button', 'primary', 'Otra ronda'); again.type = 'button'; again.addEventListener('click', startRound);
   act.appendChild(again); box.appendChild(act); finalEl.appendChild(box);
   setMsg(title, r.won ? 'ok' : 'bad');
@@ -127,9 +147,10 @@ function after(res, text, cls) {
 function onToggle(id) { if (S.over || S.prophet) return; toggleSel(S, id); focusCardId = id; renderAll(); }
 function onPlay() {
   focusCardId = null;
+  const nombres = S.sel.map(id => { const c = S.hand.find(x => x.id === id); return c ? cardShort(c) : ''; }).join(' ');
   const res = playSelection(S); if (!res) return;
-  if (res.type === 'ok') after(res, res.n > 1 ? '¡Cadena correcta! Las ' + res.n + ' cartas van a la línea principal.' : 'Correcto.', 'ok');
-  else if (res.type === 'bad') after(res, (res.n > 1 ? 'Cadena incorrecta. ' : 'Incorrecto. ') + 'Robas ' + res.pen + ' cartas.', 'bad');
+  if (res.type === 'ok') after(res, res.n > 1 ? '¡Cadena correcta! Las ' + res.n + ' cartas (' + nombres + ') van a la línea principal.' : 'Correcto: ' + nombres + ' va a la línea principal.', 'ok');
+  else if (res.type === 'bad') after(res, (res.n > 1 ? 'Cadena incorrecta (' + nombres + '): alguna no valía y falla toda. ' : 'Incorrecto: el ' + nombres + ' no valía. ') + 'Robas ' + res.pen + ' cartas.', 'bad');
   else after(res);
 }
 function onNoPlay() {
@@ -168,7 +189,7 @@ function cardEl(c, tag, extra) {
 function tableCard(c, wrong) {
   const d = cardEl(c, 'div', wrong ? 'wrong' : '');
   d.setAttribute('role', 'img');
-  d.setAttribute('aria-label', cardName(c) + (c.start ? ', carta inicial' : '') + (wrong ? ', incorrecta' : ', correcta'));
+  d.setAttribute('aria-label', cardName(c) + (c.start ? ', carta inicial' : '') + (wrong ? ', rechazada' : ', correcta'));
   return d;
 }
 function renderTable() {
@@ -222,8 +243,34 @@ function renderCounts() {
   counts.textContent = 'Cartas en la mesa: ' + S.placed + ' · En tu mano: ' + S.hand.length + ' · Mazo: ' + S.deck.length +
     (exp ? ' · ¡Ya hay expulsión: un fallo termina la ronda!' : ' · Expulsión a partir de ' + EXPEL_AT + ' cartas en la mesa');
 }
-function renderStats() { stR.textContent = T.rounds; stW.textContent = T.wins; stF.textContent = T.found.length + ' de ' + RULES.length; stP.textContent = T.points; }
-function renderAll() { renderTable(); renderHand(); renderPanel(); renderCounts(); renderStats(); }
+function renderScore() {
+  // «Ronda» es la que se está jugando (o la que acaba de terminar)
+  scR.textContent = S.over ? T.rounds : T.rounds + 1;
+  scP.textContent = T.points;
+  scF.textContent = T.found.length + ' de ' + RULES.length;
+  scN.textContent = S.over ? S.result.score : pointsNow(S);
+}
+function renderLog() {
+  histSum.textContent = 'Mis rondas (' + T.rounds + ') y reglas descubiertas (' + T.found.length + ' de ' + RULES.length + ')';
+  logEl.innerHTML = '';
+  if (!T.log.length) { const li = h('li', 'el-small', 'Aún no has terminado ninguna ronda.'); logEl.appendChild(li); }
+  const primera = T.rounds - T.log.length + 1;
+  T.log.slice().reverse().forEach((e, i) => {
+    const r = RULES.find(x => x.id === e.id); const li = h('li');
+    const pts = h('span', 'pts' + (e.score === 0 ? ' cero' : ''), (e.score > 0 ? '+' : '') + e.score + ' pts'); li.appendChild(pts);
+    const n = T.log.length - 1 - i; li.appendChild(h('b', null, 'Ronda ' + (primera + n) + ' · ' + ETIQ[e.why]));
+    li.appendChild(document.createElement('br')); li.appendChild(document.createTextNode('Nivel ' + r.level + ' · ' + r.text));
+    logEl.appendChild(li);
+  });
+  rulesEl.innerHTML = '';
+  RULES.forEach(r => {
+    const ok = T.found.includes(r.id);
+    const li = h('li', ok ? 'ok' : 'no'); li.appendChild(h('span', 'niv', 'Nivel ' + r.level));
+    li.appendChild(document.createTextNode(ok ? '✓ ' + r.text : 'Sin descubrir'));
+    rulesEl.appendChild(li);
+  });
+}
+function renderAll() { renderTable(); renderHand(); renderPanel(); renderCounts(); renderScore(); renderLog(); }
 
 // ---------- eventos ----------
 bPlay.addEventListener('click', onPlay);
@@ -232,7 +279,7 @@ bNoPlay.addEventListener('click', onNoPlay);
 bProphet.addEventListener('click', onProphet);
 bGiveUp.addEventListener('click', onGiveUp);
 bNew.addEventListener('click', startRound);
-bWipe.addEventListener('click', () => { T = newTotals(); wipe(); renderStats(); });
+bWipe.addEventListener('click', () => { T = newTotals(); wipe(); renderAll(); });
 
 load();
 startRound();
