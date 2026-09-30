@@ -9,7 +9,8 @@ const h = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e
 
 // ---------- estado ----------
 let S = null, lastRuleId = null, focusCardId = null, focusProphet = false, prefijo = '';
-let T = newTotals();
+let T = newTotals();   // acumulado de todas las visitas (se guarda)
+let V = newTotals();   // solo esta visita (empieza en 0 al abrir la página)
 
 // ---------- persistencia (siempre dentro de try/catch: modo privado, cuota, almacenamiento bloqueado) ----------
 function save() { try { localStorage.setItem(STORE_KEY, serialize(T)); } catch (e) { /* se juega igual */ } }
@@ -47,7 +48,7 @@ how.appendChild(h('summary', null, 'Cómo se juega'));
   '<b>Profeta.</b> Cuando creas conocer la regla, declárate Profeta: te irán mostrando 10 cartas y debes decir si valen o no. Si aciertas las 10, ganas 10 puntos y termina la ronda. Si fallas, eres un Falso Profeta y robas 5 cartas.',
   '<b>Expulsión.</b> Cuando ya hay 30 cartas sobre la mesa, un fallo te expulsa y la ronda termina. Las chinchetas numeradas marcan cada décima carta; la roja marca que ya se puede expulsar.',
   '<b>Puntos.</b> 14 menos las cartas que te quedan (mínimo 0), +4 si te quedas sin cartas, +10 si eres Profeta, −3 si pediste pista. La regla solo depende de la secuencia de cartas correctas.',
-  '<b>Marcador.</b> «Puntos ahora» son los que ganarías si la ronda terminara ahora sin rendirte. Los puntos totales, las rondas y las reglas descubiertas se actualizan cuando termina la ronda y se guardan en este navegador. Rendirte o abandonar una ronda empezada cuenta como ronda jugada con 0 puntos.',
+  '<b>Marcador.</b> Ronda, Puntos y Reglas descubiertas cuentan desde que abres la página y se actualizan cuando termina cada ronda. «Puntos ahora» son los que ganarías si la ronda terminara ahora sin rendirte. Debajo verás el acumulado de todas tus visitas, que se guarda en este navegador, con el detalle en «Mis rondas». Rendirte o abandonar una ronda empezada cuenta como ronda jugada con 0 puntos.',
   '<b>Valores.</b> A=1, J=11, Q=12, K=13. Negras: ♠ ♣. Rojas: ♥ ♦.'
 ].forEach(t => { const p = h('p'); p.innerHTML = t; how.appendChild(p); });
 card1.appendChild(how);
@@ -57,8 +58,9 @@ wrap.appendChild(card1);
 const card2 = h('div', 'card el-pad');
 const score = h('div', 'el-score'); score.setAttribute('role', 'group'); score.setAttribute('aria-label', 'Marcador');
 const chip = (label, cls) => { const d = h('div', 'el-chip' + (cls ? ' ' + cls : '')); d.appendChild(h('small', null, label)); const b = h('b', null, '0'); d.appendChild(b); score.appendChild(d); return b; };
-const scR = chip('Ronda'), scP = chip('Puntos totales'), scF = chip('Reglas descubiertas'), scN = chip('Puntos ahora', 'now');
+const scR = chip('Ronda'), scP = chip('Puntos'), scF = chip('Reglas descubiertas'), scN = chip('Puntos ahora', 'now');
 card2.appendChild(score);
+const acum = h('p', 'el-leyenda'); acum.style.margin = '-2px 0 10px'; card2.appendChild(acum);
 const msg = h('p', 'el-msg'); msg.setAttribute('role', 'status'); msg.setAttribute('aria-live', 'polite'); card2.appendChild(msg);
 const hintBox = h('div'); card2.appendChild(hintBox);
 const counts = h('div', 'el-small'); counts.style.margin = '6px 0'; card2.appendChild(counts);
@@ -86,7 +88,7 @@ wrap.appendChild(card2);
 const card3 = h('div', 'card el-pad');
 const hist = h('details', 'el-hist');
 const histSum = h('summary'); hist.appendChild(histSum);
-hist.appendChild(h('h3', null, 'Mis últimas rondas'));
+hist.appendChild(h('h3', null, 'Mis últimas rondas (numeradas en el acumulado de todas tus visitas)'));
 const logEl = h('ol', 'el-log'); hist.appendChild(logEl);
 hist.appendChild(h('h3', null, 'Reglas descubiertas'));
 const rulesEl = h('ul', 'el-rules'); hist.appendChild(rulesEl);
@@ -104,7 +106,7 @@ function setMsg(t, cls) { msg.textContent = t; msg.className = 'el-msg ' + (cls 
 function startRound() {
   // una ronda empezada que se deja a medias cuenta como jugada con 0 puntos
   prefijo = '';
-  if (S && !S.over && abandonRound(S)) { applyTotals(T, S); save(); prefijo = 'Ronda anterior abandonada: cuenta como jugada, con 0 puntos. '; }
+  if (S && !S.over && abandonRound(S)) { applyTotals(T, S); applyTotals(V, S); save(); prefijo = 'Ronda anterior abandonada: cuenta como jugada, con 0 puntos. '; }
   const rule = pickRule(+levelSel.value, lastRuleId);
   lastRuleId = rule.id;
   S = newRound(rule, Math.random, hintChk.checked);
@@ -123,7 +125,7 @@ const TITLES = {
 const ETIQ = { empty: 'Sin cartas', prophet: 'Profeta verdadero', noplay: 'Sin jugada', expelled: 'Expulsado', gaveup: 'Rendido', abandoned: 'Abandonada' };
 function roundOver() {
   const r = S.result;
-  applyTotals(T, S); save();
+  applyTotals(T, S); applyTotals(V, S); save();
   const title = r.why === 'expelled' ? 'Expulsado. ' + (r.detail || '') : TITLES[r.why];
   finalEl.innerHTML = '';
   const box = h('div', 'el-final');
@@ -131,8 +133,8 @@ function roundOver() {
   const d1 = h('div'); d1.appendChild(h('b', null, 'Regla secreta: ')); d1.appendChild(document.createTextNode(S.rule.text)); box.appendChild(d1);
   const d2 = h('div', 'el-small'); d2.appendChild(document.createTextNode('Nivel ' + S.rule.level + ' · cartas en mano: ' + r.n + ' · puntos de la ronda: '));
   d2.appendChild(h('b', null, String(r.score)));
-  d2.appendChild(document.createTextNode(' · total: ' + T.points + ' puntos en ' + T.rounds + (T.rounds === 1 ? ' ronda' : ' rondas'))); box.appendChild(d2);
-  if (r.why === 'prophet') box.appendChild(h('div', 'el-small', 'Reglas descubiertas: ' + T.found.length + ' de ' + RULES.length + '.'));
+  d2.appendChild(document.createTextNode(' · esta visita: ' + V.points + ' puntos en ' + V.rounds + (V.rounds === 1 ? ' ronda' : ' rondas'))); box.appendChild(d2);
+  if (r.why === 'prophet') box.appendChild(h('div', 'el-small', 'Reglas descubiertas en total: ' + T.found.length + ' de ' + RULES.length + '.'));
   const act = h('div', 'el-actions'); const again = h('button', 'primary', 'Otra ronda'); again.type = 'button'; again.addEventListener('click', startRound);
   act.appendChild(again); box.appendChild(act); finalEl.appendChild(box);
   setMsg(title, r.won ? 'ok' : 'bad');
@@ -245,13 +247,14 @@ function renderCounts() {
 }
 function renderScore() {
   // «Ronda» es la que se está jugando (o la que acaba de terminar)
-  scR.textContent = S.over ? T.rounds : T.rounds + 1;
-  scP.textContent = T.points;
-  scF.textContent = T.found.length + ' de ' + RULES.length;
+  scR.textContent = S.over ? V.rounds : V.rounds + 1;
+  scP.textContent = V.points;
+  scF.textContent = V.found.length;
+  acum.textContent = 'Este marcador cuenta desde que abriste la página. Acumulado de todas tus visitas: ' + T.rounds + (T.rounds === 1 ? ' ronda' : ' rondas') + ' · ' + T.points + ' puntos · ' + T.found.length + ' de ' + RULES.length + ' reglas descubiertas.';
   scN.textContent = S.over ? S.result.score : pointsNow(S);
 }
 function renderLog() {
-  histSum.textContent = 'Mis rondas (' + T.rounds + ') y reglas descubiertas (' + T.found.length + ' de ' + RULES.length + ')';
+  histSum.textContent = 'Mis rondas (' + T.rounds + ') y reglas descubiertas (' + T.found.length + ' de ' + RULES.length + '), acumulado';
   logEl.innerHTML = '';
   if (!T.log.length) { const li = h('li', 'el-small', 'Aún no has terminado ninguna ronda.'); logEl.appendChild(li); }
   const primera = T.rounds - T.log.length + 1;
@@ -279,7 +282,7 @@ bNoPlay.addEventListener('click', onNoPlay);
 bProphet.addEventListener('click', onProphet);
 bGiveUp.addEventListener('click', onGiveUp);
 bNew.addEventListener('click', startRound);
-bWipe.addEventListener('click', () => { T = newTotals(); wipe(); renderAll(); });
+bWipe.addEventListener('click', () => { T = newTotals(); V = newTotals(); wipe(); renderAll(); });
 
 load();
 startRound();
