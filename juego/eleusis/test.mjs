@@ -20,12 +20,16 @@ const sel = (S, idx) => { S.sel = idx.map(i => S.hand[i].id); };
 // selecciona por (valor, palo): la mano se ordena por valor, así que no se puede elegir por posición
 const selC = (S, specs) => { S.sel = specs.map(([v, s]) => { const c = S.hand.find(x => x.v === v && x.s === s && !S.sel.includes(x.id)); if (!c) throw new Error('carta no está en la mano: ' + v + '-' + s); return c.id; }); };
 
-console.log('== 1. Las 16 reglas: cuántas, niveles, textos intactos');
-t(G.RULES.length === 16, 'debe haber 16 reglas');
-t(G.RULES.filter(r => r.level === 1).length === 6 && G.RULES.filter(r => r.level === 2).length === 6 && G.RULES.filter(r => r.level === 3).length === 4, 'reparto de niveles 6/6/4');
-t(new Set(G.RULES.map(r => r.id)).size === 16, 'ids únicos');
-const huella = crypto.createHash('sha1').update(G.RULES.map(r => r.id + '|' + r.level + '|' + r.text + '|' + r.hint).join('\n')).digest('hex').slice(0, 12);
-t(huella === '2457d9ca0fb8', 'los textos/pistas de las reglas han cambiado (huella ' + huella + ')');
+console.log('== 1. Las reglas: 16 originales de Cowork (niveles 1-3) + 9 del hub (experto y maestro), textos intactos');
+t(G.ORIGINAL_RULES === 16 && G.RULES.length === 25, 'debe haber 16 originales + 9 nuevas');
+t([1, 2, 3, 4, 5].map(n => G.RULES.filter(r => r.level === n).length).join() === '6,6,4,4,5', 'reparto de niveles 6/6/4/4/5');
+t(G.RULES.slice(0, 16).every(r => r.level <= 3) && G.RULES.slice(16).every(r => r.level >= 4), 'las 16 originales van primero y las nuevas después');
+t(new Set(G.RULES.map(r => r.id)).size === 25, 'ids únicos');
+const firmaTexto = rs => crypto.createHash('sha1').update(rs.map(r => r.id + '|' + r.level + '|' + r.text + '|' + r.hint).join('\n')).digest('hex').slice(0, 12);
+const huella = firmaTexto(G.RULES.slice(0, 16));
+t(huella === '2457d9ca0fb8', 'los textos/pistas de las 16 reglas originales han cambiado (huella ' + huella + ')');
+const huellaNuevas = firmaTexto(G.RULES.slice(16));
+t(huellaNuevas === '78c04d9e9f18', 'los textos/pistas de las reglas nuevas han cambiado (huella ' + huellaNuevas + ')');
 
 console.log('== 2. Invariante: tras CUALQUIER historial existe al menos una carta válida (y una no válida)');
 {
@@ -56,7 +60,8 @@ console.log('== 3. Ronda nueva y mazo');
   t(todas.length === 104 && new Set(todas.map(c => c.id)).size === 104, '104 cartas distintas');
   const cnt = {}; todas.forEach(c => { const k = c.v + '-' + c.s; cnt[k] = (cnt[k] || 0) + 1; });
   t(Object.keys(cnt).length === 52 && Object.values(cnt).every(x => x === 2), 'doble baraja: cada carta dos veces');
-  for (const lvl of [0, 1, 2, 3]) for (let i = 0; i < 40; i++) { const r = G.pickRule(lvl, 'only-odd', mulberry(i)); t(r.id !== 'only-odd' && (lvl === 0 || r.level === lvl), 'pickRule nivel ' + lvl); }
+  for (const lvl of [0, 1, 2, 3, 4, 5]) for (let i = 0; i < 60; i++) { const r = G.pickRule(lvl, 'only-odd', mulberry(i)); t(r.id !== 'only-odd' && (lvl === 0 ? r.level <= 3 : r.level === lvl), 'pickRule nivel ' + lvl + ' (el «Al azar» solo reparte niveles 1 a 3)'); }
+  { const vistos = new Set(); for (let i = 0; i < 400; i++) vistos.add(G.pickRule(0, null, mulberry(i * 3 + 1)).level); t([...vistos].sort().join() === '1,2,3', '«Al azar» reparte los niveles 1, 2 y 3'); }
   t(G.pickRule(1, null, () => 0.99).level === 1, 'pickRule sin anterior');
 }
 
@@ -167,7 +172,8 @@ console.log('== 7. Profeta');
       t(res.type === (i < 9 ? 'right' : 'done'), 'respuesta correcta ' + (i + 1));
     }
     casos++;
-    if (verdaderas !== 5) desequilibradas++;
+    if (r.level >= 4) t(verdaderas === 5, r.id + ': el Profeta debe enseñar siempre 5 válidas y 5 no válidas (salen ' + verdaderas + ')');
+    else if (verdaderas !== 5) desequilibradas++;
     t(S.over && S.prophetOK && S.result.why === 'prophet' && S.result.won, 'Profeta verdadero termina la ronda');
     t(S.placed === mesa0 + 10, 'las 10 cartas probadas quedan en la mesa');
     t(S.result.score === G.scoreOf(mano0, { noBonus: false, prophetOK: true, hintUsed: false, gaveup: false }) && S.result.score >= 10, 'puntos con Profeta: incluye +10');
@@ -267,6 +273,39 @@ console.log('== 11. Marcador, rondas abandonadas y registro');
   const fin = (ruleId, how) => { const s = G.newRound(rule(ruleId), mulberry(200)); if (how === 'prophet') { G.startProphet(s); for (let i = 0; i < 10; i++) G.prophetAnswer(s, !!s.rule.fn(s.prophet.line, s.prophet.card)); } else if (how === 'gaveup') G.giveUp(s); G.applyTotals(T3, s); return s; };
   fin('only-odd', 'prophet'); fin('alt-color', 'gaveup'); fin('only-odd', 'prophet'); fin('close-value', 'prophet');
   t(T3.rounds === 4 && T3.wins === 3 && T3.found.join() === 'only-odd,close-value' && T3.points === 3 * 10 && T3.log.length === 4, 'tres Profetas (dos con la misma regla) y una rendición: 4 rondas, 3 victorias, 2 reglas distintas, 30 puntos');
+}
+
+console.log('== 12. Niveles 4 y 5: barrido de todas las situaciones, sin atascos y sin reglas repetidas');
+{
+  const baraja = []; for (let s = 0; s < 4; s++) for (let v = 1; v <= 13; v++) baraja.push({ v, s });
+  const rel = { v: 1, s: 0 }, pad = n => Array.from({ length: n }, () => rel);
+  function* hist(dep) {
+    if (dep.agg) { for (const a of baraja) yield [a]; for (const a of baraja) for (const b of baraja) yield [a, b]; const r = mulberry(99); for (let i = 0; i < 20000; i++) yield Array.from({ length: 3 + Math.floor(r() * 4) }, () => baraja[Math.floor(r() * 52)]); return; }
+    if (dep.mod || dep.k === 1) { for (let n = 1; n <= 4; n++) for (const l of baraja) yield [...pad(n - 1), l]; return; }
+    if (dep.k === 2) { for (const l of baraja) yield [l]; for (let n = 2; n <= 4; n++) for (const p of baraja) for (const l of baraja) yield [...pad(n - 2), p, l]; return; }
+    if (dep.k === 3) { for (const l of baraja) yield [l]; for (const p of baraja) for (const l of baraja) yield [p, l]; for (const a of baraja) for (const p of baraja) for (const l of baraja) yield [a, p, l]; }
+  }
+  let situaciones = 0;
+  for (const r of G.RULES.slice(16)) {
+    let mn = 99, mx = -1, n = 0;
+    for (const h of hist(r.dep)) { n++; let v = 0; for (const c of baraja) if (r.fn(h, c)) v++; if (v < mn) mn = v; if (v > mx) mx = v; }
+    situaciones += n;
+    t(mn >= 8 && 52 - mx >= 8, r.id + ': en alguna situación hay menos de 8 cartas válidas o inválidas (mín válidas ' + mn + ', máx ' + mx + ')');
+  }
+  console.log('  situaciones barridas:', situaciones);
+  // líneas largas al azar: siempre hay cartas válidas y no válidas de sobra
+  const rr = mulberry(2026);
+  for (const r of G.RULES.slice(16)) for (let i = 0; i < 4000; i++) {
+    const h = Array.from({ length: 1 + Math.floor(rr() * 30) }, () => baraja[Math.floor(rr() * 52)]);
+    let v = 0; for (const c of baraja) if (r.fn(h, c)) v++;
+    t(v >= 8 && v <= 44, r.id + ': línea larga sin cartas válidas o sin inválidas');
+  }
+  // ninguna regla es igual a otra (misma tabla de verdad en 3000 líneas al azar)
+  const hs = Array.from({ length: 3000 }, () => Array.from({ length: 1 + Math.floor(rr() * 7) }, () => baraja[Math.floor(rr() * 52)]));
+  const fm = G.RULES.map(r => hs.map(h => baraja.map(c => r.fn(h, c) ? 1 : 0).join('')).join('|'));
+  let iguales = 0; for (let i = 0; i < fm.length; i++) for (let j = i + 1; j < fm.length; j++) if (fm[i] === fm[j]) { iguales++; console.log('  IGUALES:', G.RULES[i].id, G.RULES[j].id); }
+  t(iguales === 0, 'hay reglas idénticas: ' + iguales);
+  t(G.RULES.slice(16).every(r => r.dep && typeof r.text === 'string' && r.text.length > 20 && typeof r.hint === 'string' && r.hint.length > 10), 'cada regla nueva tiene texto, pista y dep');
 }
 
 if (avisos.length) console.log('\nAvisos:', avisos.join(' | '));

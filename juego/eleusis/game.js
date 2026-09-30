@@ -56,14 +56,61 @@ export const RULES=[
     fn:(h,c)=>isFig(h[h.length-1])?c.v%2===0:c.v>7}
 ];
 
+// ---------- Niveles 4 (experto) y 5 (maestro): reglas nuevas del hub, añadidas DESPUÉS de las 16 originales ----------
+// `dep` dice de qué depende cada regla, para que test.mjs barra todas las situaciones posibles:
+//   k = cuántas cartas finales de la línea mira (valor y palo), mod = módulo de la longitud de la línea, agg = depende de toda la línea.
+// Todas dejan siempre al menos 8 cartas válidas y 8 no válidas (de las 52), para que nunca se atasque la ronda y el Profeta pueda probar las dos cosas.
+const EXTRA_RULES = [
+  { id: 'suma-par-color', level: 4, dep: { k: 1 },
+    text: 'La suma del valor de la nueva carta y el de la última carta correcta debe ser par si la última es negra, e impar si es roja.',
+    hint: 'Cuenta el color de la última carta y una operación con los valores de las dos cartas.',
+    fn: (h, c) => { const l = h[h.length - 1]; return isBlack(l) ? (l.v + c.v) % 2 === 0 : (l.v + c.v) % 2 === 1; } },
+  { id: 'tres-palos', level: 4, dep: { k: 2 },
+    text: 'El palo de la nueva carta debe ser distinto del palo de las dos últimas cartas correctas (o de la última, si solo hay una).',
+    hint: 'Mira los palos de las dos cartas anteriores; ni los valores ni los colores importan.',
+    fn: (h, c) => h.length < 2 ? c.s !== h[0].s : (c.s !== h[h.length - 1].s && c.s !== h[h.length - 2].s) },
+  { id: 'posicion-par', level: 4, dep: { mod: 2 },
+    text: 'Cuenta la posición de la carta en la línea (la inicial es la 1.ª): las posiciones pares piden valor par y las impares valor impar (A=1, J=11, Q=12, K=13).',
+    hint: 'Depende de cuántas cartas correctas van, no de las últimas cartas.',
+    fn: (h, c) => (h.length + 1) % 2 === 0 ? c.v % 2 === 0 : c.v % 2 === 1 },
+  { id: 'circulo-color', level: 4, dep: { k: 1 },
+    text: 'Coloca los valores en un círculo A-2-3-…-Q-K-A. Tras una carta roja, la nueva debe estar entre 1 y 6 pasos hacia delante; tras una negra, entre 1 y 6 pasos hacia atrás.',
+    hint: 'El color de la última carta decide si se avanza o se retrocede, y el círculo no tiene principio ni fin.',
+    fn: (h, c) => { const l = h[h.length - 1]; const d = isBlack(l) ? (l.v - c.v + 13) % 13 : (c.v - l.v + 13) % 13; return d >= 1 && d <= 6; } },
+
+  { id: 'mayoria-color', level: 5, dep: { k: 3 },
+    text: 'Mira las tres últimas cartas correctas (o las que haya): si la mayoría son negras, la nueva debe ser roja; si la mayoría son rojas, negra; si hay empate, del color de la última.',
+    hint: 'Hay que contar colores en un grupo de cartas recientes, no solo en la última.',
+    fn: (h, c) => { const u = h.slice(-3); const n = u.filter(isBlack).length, r = u.length - n; return n > r ? !isBlack(c) : r > n ? isBlack(c) : isBlack(c) === isBlack(u[u.length - 1]); } },
+  { id: 'suma-tres', level: 5, dep: { k: 2 },
+    text: 'La suma de los valores de la nueva carta y de las dos últimas de la línea (o de la única, si solo hay una) debe ser múltiplo de 3.',
+    hint: 'Es una cuenta con los valores de varias cartas seguidas; los palos y los colores no importan.',
+    fn: (h, c) => (h.slice(-2).reduce((a, x) => a + x.v, 0) + c.v) % 3 === 0 },
+  { id: 'circulo-anterior', level: 5, dep: { k: 2 },
+    text: 'Mide en el círculo A-2-…-K-A, hacia delante, los pasos desde la carta anterior a la última hasta la nueva: si la última es roja, de 0 a 6 pasos; si es negra, de 7 a 12.',
+    hint: 'Mira la carta de dos atrás y el color de la última; los valores forman un círculo.',
+    fn: (h, c) => { const p = h.length >= 2 ? h[h.length - 2] : h[0], l = h[h.length - 1]; const d = (c.v - p.v + 13) % 13; return isBlack(l) ? d >= 7 : d <= 6; } },
+  { id: 'palo-por-figura', level: 5, dep: { k: 1 },
+    text: 'Los palos recorren el ciclo ♠ → ♥ → ♣ → ♦ → ♠…: la nueva carta avanza un paso en el ciclo si la última es figura (J, Q, K) y dos pasos si no lo es.',
+    hint: 'Importan el palo de la última carta y si es figura; el valor de la nueva no importa.',
+    fn: (h, c) => { const l = h[h.length - 1]; let s = SUIT_NEXT[l.s]; if (!isFig(l)) s = SUIT_NEXT[s]; return c.s === s; } },
+  { id: 'suma-acumulada', level: 5, dep: { agg: true },
+    text: 'Suma los valores de TODAS las cartas de la línea principal: si el total es par, la nueva debe ser negra; si es impar, roja.',
+    hint: 'Depende de toda la línea, no solo de las últimas cartas.',
+    fn: (h, c) => { const t = h.reduce((a, x) => a + x.v, 0); return t % 2 === 0 ? isBlack(c) : !isBlack(c); } },
+];
+export const ORIGINAL_RULES = RULES.length;   // las 16 primeras son las de Cowork, literales
+RULES.push(...EXTRA_RULES);
+
 export function shuffle(a, rnd = Math.random) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 export function makeDeck(rnd = Math.random) { const d = []; let id = 0; for (let k = 0; k < 2; k++) for (let s = 0; s < 4; s++) for (let v = 1; v <= 13; v++) d.push({ id: id++, v, s }); return shuffle(d, rnd); }
 export const cardName = c => VALS[c.v - 1] + ' de ' + SUIT_NAMES[c.s];
 export const cardShort = c => VALS[c.v - 1] + SUITS[c.s];
 
 // elige la regla de la ronda: del nivel pedido (0 = cualquiera), distinta de la anterior si se puede
+export const RANDOM_MAX_LEVEL = 3;   // «Al azar» solo reparte reglas de los niveles 1 a 3; el experto y el maestro se eligen a propósito
 export function pickRule(level, lastRuleId, rnd = Math.random) {
-  const pool = RULES.filter(r => level === 0 || r.level === level);
+  const pool = RULES.filter(r => level === 0 ? r.level <= RANDOM_MAX_LEVEL : r.level === level);
   const cand = pool.filter(r => r.id !== lastRuleId);
   const arr = cand.length ? cand : pool;
   return arr[Math.floor(rnd() * arr.length)];

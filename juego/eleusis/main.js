@@ -32,7 +32,7 @@ wrap.appendChild(header);
 const card1 = h('div', 'card el-pad');
 const row = h('div', 'el-row');
 const levelSel = h('select'); levelSel.setAttribute('aria-label', 'Dificultad (se aplica a la próxima ronda)');
-[['1', 'Nivel 1 · fácil'], ['2', 'Nivel 2 · medio'], ['3', 'Nivel 3 · difícil'], ['0', 'Al azar']].forEach(([v, t]) => { const o = h('option', null, t); o.value = v; levelSel.appendChild(o); });
+[['1', 'Nivel 1 · fácil'], ['2', 'Nivel 2 · medio'], ['3', 'Nivel 3 · difícil'], ['4', 'Nivel 4 · experto'], ['5', 'Nivel 5 · maestro'], ['0', 'Al azar (niveles 1 a 3)']].forEach(([v, t]) => { const o = h('option', null, t); o.value = v; levelSel.appendChild(o); });
 const hintLab = h('label', 'el-chk'); const hintChk = h('input'); hintChk.type = 'checkbox';
 hintLab.appendChild(hintChk); hintLab.appendChild(document.createTextNode('Pista del repartidor (−3 puntos)'));
 const bNew = h('button', 'primary', 'Nueva ronda'); bNew.type = 'button';
@@ -48,6 +48,7 @@ how.appendChild(h('summary', null, 'Cómo se juega'));
   '<b>Profeta.</b> Cuando creas conocer la regla, declárate Profeta: te irán mostrando 10 cartas y debes decir si valen o no. Si aciertas las 10, ganas 10 puntos y termina la ronda. Si fallas, eres un Falso Profeta y robas 5 cartas.',
   '<b>Expulsión.</b> Solo cuentan las cartas de la mesa, no las de tu mano. Cuando ya hay 30 cartas sobre la mesa, un fallo te expulsa y la ronda termina; acertar nunca te expulsa. Las chinchetas numeradas marcan cada décima carta; la roja marca que ya se puede expulsar.',
   '<b>Puntos.</b> 14 menos las cartas que te quedan (mínimo 0), +4 si te quedas sin cartas, +10 si eres Profeta, −3 si pediste pista. La regla solo depende de la secuencia de cartas correctas.',
+  '<b>Niveles.</b> Del 1 al 3, la regla mira la última carta, las dos últimas o la posición en la línea. El <b>nivel 4 (experto)</b> mezcla colores, palos y cuentas con los valores. El <b>nivel 5 (maestro)</b> es el más difícil: sus reglas miran tres cartas seguidas, hacen cuentas con varias o dependen de toda la línea. «Al azar» reparte reglas de los niveles 1 a 3; el experto y el maestro se eligen a propósito. La puntuación es la misma en todos los niveles.',
   '<b>Cambiar de ronda.</b> «Rendirme y ver la regla» termina la ronda, te enseña la regla secreta y cuenta con 0 puntos. El botón de arriba, cuando ya has jugado alguna carta, se llama «Abandonar y nueva ronda»: también cuenta con 0 puntos, pero no te enseña la regla. Cuando la ronda ha terminado, «Otra ronda» empieza la siguiente sin perder nada.',
   '<b>Marcador.</b> Ronda, Puntos y Reglas descubiertas cuentan desde que abres la página y se actualizan cuando termina cada ronda. «Puntos ahora» son los que ganarías si la ronda terminara ahora sin rendirte. Debajo verás el acumulado de todas tus visitas, que se guarda en este navegador, con el detalle en «Mis rondas». Rendirte o abandonar una ronda empezada cuenta como ronda jugada con 0 puntos.',
   '<b>Valores.</b> A=1, J=11, Q=12, K=13. Negras: ♠ ♣. Rojas: ♥ ♦.'
