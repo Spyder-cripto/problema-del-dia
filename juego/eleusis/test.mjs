@@ -153,7 +153,7 @@ console.log('== 6. Expulsión y chinchetas');
 
 console.log('== 7. Profeta');
 {
-  let falloMarca = 0, casos = 0, desequilibradas = 0;
+  let falloMarca = 0, casos = 0, forzadosTot = 0, etiquetaFalsa = 0;
   const baraja = []; for (let s = 0; s < 4; s++) for (let v = 1; v <= 13; v++) baraja.push({ v, s });
   for (const r of G.RULES) for (let seed = 1; seed <= 20; seed++) {
     const S = G.newRound(r, mulberry(seed * 131 + r.level));
@@ -163,23 +163,27 @@ console.log('== 7. Profeta');
     t(G.startProphet(S) === true && !!S.prophet, 'startProphet');
     t(G.startProphet(S) === false, 'no se puede ser Profeta dos veces a la vez');
     t(G.playSelection(S) === null && G.noPlay(S) === null, 'con Profeta en curso no se puede jugar ni pedir «sin jugada»');
-    let verdaderas = 0, res;
+    let verdaderas = 0, res, forzados = 0;
     for (let i = 0; i < 10; i++) {
       const actual = !!r.fn(S.prophet.line, S.prophet.card); if (actual) verdaderas++;
+      if (S.prophet.card.forced) forzados++;
       const etiqueta = S.prophet.labels[i];
+      if (actual !== etiqueta) etiquetaFalsa++;                                                        // la etiqueta del paso es siempre la verdad de la regla
       if (actual !== etiqueta && baraja.some(c => !!r.fn(S.prophet.line, c) === etiqueta)) falloMarca++;   // había carta posible y no salió
       res = G.prophetAnswer(S, actual);
       t(res.type === (i < 9 ? 'right' : 'done'), 'respuesta correcta ' + (i + 1));
     }
     casos++;
-    if (r.level >= 4) t(verdaderas === 5, r.id + ': el Profeta debe enseñar siempre 5 válidas y 5 no válidas (salen ' + verdaderas + ')');
-    else if (verdaderas !== 5) desequilibradas++;
+    forzadosTot += forzados;
+    t(verdaderas === 5 + forzados, r.id + ': 5 válidas + 5 no válidas, salvo los pasos en que la regla aceptaba toda la baraja (salen ' + verdaderas + ' válidas y ' + forzados + ' pasos forzados)');
+    if (r.level >= 4) t(forzados === 0, r.id + ': las reglas experto/maestro nunca aceptan toda la baraja');
     t(S.over && S.prophetOK && S.result.why === 'prophet' && S.result.won, 'Profeta verdadero termina la ronda');
     t(S.placed === mesa0 + 10, 'las 10 cartas probadas quedan en la mesa');
     t(S.result.score === G.scoreOf(mano0, { noBonus: false, prophetOK: true, hintUsed: false, gaveup: false, level: r.level }) && S.result.score >= G.prophetBonus(r.level), 'puntos con Profeta: incluye el bonus de su nivel');
   }
   t(falloMarca === 0, 'cartas del Profeta que no corresponden a su etiqueta pudiendo hacerlo: ' + falloMarca);
-  if (desequilibradas) avisos.push('pruebas de Profeta sin 5 válidas + 5 no válidas (la línea dejaba a toda la baraja como válida): ' + desequilibradas + ' de ' + casos);
+  t(etiquetaFalsa === 0, 'pasos del Profeta cuya etiqueta no coincide con la verdad de la regla: ' + etiquetaFalsa);
+  console.log('  pruebas de Profeta:', casos, '· pasos en que la regla aceptaba toda la baraja (sin carta rechazada que enseñar):', forzadosTot);
   // fallo: Falso Profeta
   for (const r of [rule('only-odd'), rule('cycle4'), rule('color-two')]) for (const paso of [0, 4, 9]) {
     const S = G.newRound(r, mulberry(77 + paso)); const mano0 = S.hand.length;
@@ -190,6 +194,40 @@ console.log('== 7. Profeta');
     const enMesa = S.main.some(c => c.id === res.card.id) || S.side.some(col => col.some(g => g.some(c => c.id === res.card.id)));
     t(enMesa, 'la carta fallada queda en la mesa');
   }
+}
+
+console.log('== 7b. Profeta con la baraja entera válida: nunca se inventa una carta «no válida»');
+{
+  const baraja = []; for (let s = 0; s < 4; s++) for (let v = 1; v <= 13; v++) baraja.push({ v, s });
+  let hist = 0, pasos = 0, forzados = 0, incoherentes = 0, notas = 0, cincoMasCinco = 0, sinForzar = 0;
+  for (const r of G.RULES) {
+    const hs = [];
+    for (const a of baraja) hs.push([a]);
+    for (const L of [2, 3, 4, 5]) for (const p of baraja) for (const l of baraja) hs.push([...Array.from({ length: L - 2 }, () => ({ v: 1, s: 0 })), p, l]);
+    for (const h of hs) {
+      const nInv = baraja.filter(c => !r.fn(h, c)).length;
+      if (nInv !== 0 && h.length !== 3) continue;                 // todos los historiales «toda la baraja válida» + una muestra de los demás
+      hist++;
+      const S = G.newRound(r, mulberry(hist * 7 + 3));
+      S.main = h.map((c, i) => ({ id: 70000 + i, v: c.v, s: c.s })); S.main[0].start = true; S.side = S.main.map(() => []); S.sel = [];
+      G.startProphet(S);
+      let verdaderas = 0, forz = 0;
+      for (let i = 0; i < 10; i++) {
+        const P = S.prophet, c = P.card, actual = !!r.fn(P.line, c); pasos++;
+        if (actual) verdaderas++;
+        const hayRechazada = baraja.some(x => !r.fn(P.line, x));
+        if (P.labels[i] !== actual) incoherentes++;                                 // etiqueta = verdad
+        if (c.forced) { forz++; forzados++; if (hayRechazada || !actual) incoherentes++; }   // forzado solo si NO existe carta rechazada, y la enseñada es válida
+        else if (!P.labels[i] && (actual || !hayRechazada)) incoherentes++;          // carta «no válida» enseñada: debe serlo de verdad
+        G.prophetAnswer(S, actual);
+      }
+      if (forz === 0) { sinForzar++; if (verdaderas === 5) cincoMasCinco++; }
+    }
+  }
+  t(incoherentes === 0, 'pasos con etiqueta incoherente (enseñada como «no válida» siendo válida, o forzada habiendo carta rechazada): ' + incoherentes);
+  t(forzados > 0, 'el caso «toda la baraja válida» se ejercita de verdad (' + forzados + ' pasos forzados)');
+  t(cincoMasCinco === sinForzar, 'sin pasos forzados, siempre 5 válidas + 5 no válidas (' + cincoMasCinco + ' de ' + sinForzar + ')');
+  console.log('  historiales probados:', hist, '· pasos:', pasos, '· forzados:', forzados, '· incoherentes:', incoherentes);
 }
 
 console.log('== 8. Puntuación');

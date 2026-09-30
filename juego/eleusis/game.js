@@ -194,14 +194,22 @@ export function protoCard(S, line, want) {
     const c = { id: 'p' + r(), v: 1 + Math.floor(r() * 13), s: Math.floor(r() * 4) };
     if (!!S.rule.fn(line, c) === want) return c;
   }
-  return { id: 'p' + r(), v: 1 + Math.floor(r() * 13), s: Math.floor(r() * 4) };
+  // el azar no dio con una carta de ese tipo: se mira la baraja entera (52 cartas)
+  const todas = []; for (let s = 0; s < 4; s++) for (let v = 1; v <= 13; v++) todas.push({ v, s });
+  const hay = todas.filter(c => !!S.rule.fn(line, c) === want);
+  if (hay.length) { const p = hay[Math.floor(r() * hay.length)]; return { id: 'p' + r(), v: p.v, s: p.s }; }
+  // no existe ninguna carta de ese tipo (p. ej. la regla acepta TODA la baraja): no se inventa una «no válida»;
+  // se enseña una carta cualquiera, que es válida, y se marca para avisar en pantalla
+  return { id: 'p' + r(), v: 1 + Math.floor(r() * 13), s: Math.floor(r() * 4), forced: true };
 }
+// la etiqueta del paso es siempre la verdad de la regla (si no había carta del tipo pedido, se corrige)
+function fixLabel(S) { const P = S.prophet; if (P.card.forced) P.labels[P.step] = !!S.rule.fn(P.line, P.card); }
 export function startProphet(S) {
   if (S.over || S.prophet) return false;
   S.sel = [];
   const labels = shuffle([true, true, true, true, true, false, false, false, false, false], S.rnd);
   S.prophet = { step: 0, labels, line: S.main.slice() };
-  S.prophet.card = protoCard(S, S.prophet.line, labels[0]);
+  S.prophet.card = protoCard(S, S.prophet.line, labels[0]); fixLabel(S);
   return true;
 }
 export function prophetAnswer(S, sayValid) {
@@ -211,7 +219,7 @@ export function prophetAnswer(S, sayValid) {
   if (sayValid !== actual) { S.prophet = null; draw(S, 5); return { type: 'wrong', card: c, actual }; }
   P.step++;
   if (P.step >= 10) { S.prophet = null; S.prophetOK = true; endRound(S, 'prophet'); return { type: 'done' }; }
-  P.card = protoCard(S, P.line, P.labels[P.step]);
+  P.card = protoCard(S, P.line, P.labels[P.step]); fixLabel(S);
   return { type: 'right', actual, step: P.step };
 }
 
