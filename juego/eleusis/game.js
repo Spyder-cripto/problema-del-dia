@@ -57,47 +57,52 @@ export const RULES=[
 ];
 
 // ---------- Niveles 4 (experto) y 5 (maestro): reglas nuevas del hub, añadidas DESPUÉS de las 16 originales ----------
+// Dificultad medida (coste de la explicación más sencilla con un catálogo de ideas, hasta 4): nivel 3 = media 3,3 (máx. 4); experto = 5 en las cuatro;
+// maestro = entre 6 y 9 (media 7,0). Todas combinan varias condiciones: nada que se resuelva mirando solo la última carta.
 // `dep` dice de qué depende cada regla, para que test.mjs barra todas las situaciones posibles:
-//   k = cuántas cartas finales de la línea mira (valor y palo), mod = módulo de la longitud de la línea, agg = depende de toda la línea.
-// Todas dejan siempre al menos 8 cartas válidas y 8 no válidas (de las 52), para que nunca se atasque la ronda y el Profeta pueda probar las dos cosas.
+//   k = cuántas cartas finales de la línea mira (valor y palo), mod = depende también de la longitud de la línea, agg = depende de toda la línea.
+// Todas dejan siempre entre 12 y 28 cartas válidas de las 52 y al menos 8 no válidas: nunca se atasca la ronda y el Profeta puede probar las dos cosas.
+const prev2 = h => h.length >= 2 ? h[h.length - 2] : h[0];
+const advance = (s, n) => { for (let i = 0; i < n; i++) s = SUIT_NEXT[s]; return s; };
+const majorityColor = (u, c) => { const n = u.filter(isBlack).length, r = u.length - n; return n > r ? !isBlack(c) : r > n ? isBlack(c) : isBlack(c) === isBlack(u[u.length - 1]); };
 const EXTRA_RULES = [
-  { id: 'suma-par-color', level: 4, dep: { k: 1 },
-    text: 'La suma del valor de la nueva carta y el de la última carta correcta debe ser par si la última es negra, e impar si es roja.',
-    hint: 'Cuenta el color de la última carta y una operación con los valores de las dos cartas.',
-    fn: (h, c) => { const l = h[h.length - 1]; return isBlack(l) ? (l.v + c.v) % 2 === 0 : (l.v + c.v) % 2 === 1; } },
-  { id: 'tres-palos', level: 4, dep: { k: 2 },
-    text: 'El palo de la nueva carta debe ser distinto del palo de las dos últimas cartas correctas (o de la última, si solo hay una).',
-    hint: 'Mira los palos de las dos cartas anteriores; ni los valores ni los colores importan.',
-    fn: (h, c) => h.length < 2 ? c.s !== h[0].s : (c.s !== h[h.length - 1].s && c.s !== h[h.length - 2].s) },
-  { id: 'posicion-par', level: 4, dep: { mod: 2 },
-    text: 'Cuenta la posición de la carta en la línea (la inicial es la 1.ª): las posiciones pares piden valor par y las impares valor impar (A=1, J=11, Q=12, K=13).',
-    hint: 'Depende de cuántas cartas correctas van, no de las últimas cartas.',
-    fn: (h, c) => (h.length + 1) % 2 === 0 ? c.v % 2 === 0 : c.v % 2 === 1 },
-  { id: 'circulo-color', level: 4, dep: { k: 1 },
-    text: 'Coloca los valores en un círculo A-2-3-…-Q-K-A. Tras una carta roja, la nueva debe estar entre 1 y 6 pasos hacia delante; tras una negra, entre 1 y 6 pasos hacia atrás.',
-    hint: 'El color de la última carta decide si se avanza o se retrocede, y el círculo no tiene principio ni fin.',
-    fn: (h, c) => { const l = h[h.length - 1]; const d = isBlack(l) ? (l.v - c.v + 13) % 13 : (c.v - l.v + 13) % 13; return d >= 1 && d <= 6; } },
+  { id: 'figura-bifurca', level: 4, dep: { k: 2 },
+    text: 'Si la última carta correcta es figura (J, Q, K), la nueva debe ser del mismo palo que la carta anterior a la última; si no lo es, la nueva debe ser de valor par y de color distinto al de la última.',
+    hint: 'Hay dos casos distintos según la última carta, y en cada uno se mira algo diferente.',
+    fn: (h, c) => { const l = h[h.length - 1]; return isFig(l) ? c.s === prev2(h).s : (c.v % 2 === 0 && isBlack(c) !== isBlack(l)); } },
+  { id: 'ciclo-de-tres', level: 4, dep: { k: 1, mod: 3 },
+    text: 'Cuenta la posición de la nueva carta en la línea (la inicial es la 1.ª): en las posiciones múltiplo de 3 debe ser figura; en las que dejan resto 1 al dividir entre 3, del mismo color que la última; en las que dejan resto 2, de valor mayor que 7.',
+    hint: 'Las exigencias se repiten en grupos de tres posiciones.',
+    fn: (h, c) => { const r = (h.length + 1) % 3; return r === 0 ? isFig(c) : r === 1 ? isBlack(c) === isBlack(h[h.length - 1]) : c.v > 7; } },
+  { id: 'circulo-doble', level: 4, dep: { k: 2 },
+    text: 'Coloca los valores en un círculo A-2-…-K-A y mide hacia delante, desde la carta anterior a la última hasta la nueva: si la última es roja, de 0 a 6 pasos; si es negra, de 7 a 12. Además, la nueva debe tener un palo distinto al de la última.',
+    hint: 'Hay dos condiciones a la vez: una con un círculo de valores y otra con los palos.',
+    fn: (h, c) => { const l = h[h.length - 1]; const d = (c.v - prev2(h).v + 13) % 13; return (isBlack(l) ? d >= 7 : d <= 6) && c.s !== l.s; } },
+  { id: 'paridad-doble', level: 4, dep: { k: 2 },
+    text: 'Si la nueva carta es negra, su valor y el de la carta anterior a la última deben tener distinta paridad; si es roja, su valor y el de la última deben tener la misma paridad. Si la última carta es figura, se cumple lo contrario.',
+    hint: 'El color de la nueva carta decide con qué carta se compara, y una figura cambia el sentido de la regla.',
+    fn: (h, c) => { const l = h[h.length - 1]; const base = isBlack(c) ? (prev2(h).v + c.v) % 2 === 1 : (l.v + c.v) % 2 === 0; return isFig(l) ? !base : base; } },
 
-  { id: 'mayoria-color', level: 5, dep: { k: 3 },
-    text: 'Mira las tres últimas cartas correctas (o las que haya): si la mayoría son negras, la nueva debe ser roja; si la mayoría son rojas, negra; si hay empate, del color de la última.',
-    hint: 'Hay que contar colores en un grupo de cartas recientes, no solo en la última.',
-    fn: (h, c) => { const u = h.slice(-3); const n = u.filter(isBlack).length, r = u.length - n; return n > r ? !isBlack(c) : r > n ? isBlack(c) : isBlack(c) === isBlack(u[u.length - 1]); } },
-  { id: 'suma-tres', level: 5, dep: { k: 2 },
-    text: 'La suma de los valores de la nueva carta y de las dos últimas de la línea (o de la única, si solo hay una) debe ser múltiplo de 3.',
-    hint: 'Es una cuenta con los valores de varias cartas seguidas; los palos y los colores no importan.',
-    fn: (h, c) => (h.slice(-2).reduce((a, x) => a + x.v, 0) + c.v) % 3 === 0 },
-  { id: 'circulo-anterior', level: 5, dep: { k: 2 },
-    text: 'Mide en el círculo A-2-…-K-A, hacia delante, los pasos desde la carta anterior a la última hasta la nueva: si la última es roja, de 0 a 6 pasos; si es negra, de 7 a 12.',
-    hint: 'Mira la carta de dos atrás y el color de la última; los valores forman un círculo.',
-    fn: (h, c) => { const p = h.length >= 2 ? h[h.length - 2] : h[0], l = h[h.length - 1]; const d = (c.v - p.v + 13) % 13; return isBlack(l) ? d >= 7 : d <= 6; } },
-  { id: 'palo-por-figura', level: 5, dep: { k: 1 },
-    text: 'Los palos recorren el ciclo ♠ → ♥ → ♣ → ♦ → ♠…: la nueva carta avanza un paso en el ciclo si la última es figura (J, Q, K) y dos pasos si no lo es.',
-    hint: 'Importan el palo de la última carta y si es figura; el valor de la nueva no importa.',
-    fn: (h, c) => { const l = h[h.length - 1]; let s = SUIT_NEXT[l.s]; if (!isFig(l)) s = SUIT_NEXT[s]; return c.s === s; } },
-  { id: 'suma-acumulada', level: 5, dep: { agg: true },
-    text: 'Suma los valores de TODAS las cartas de la línea principal: si el total es par, la nueva debe ser negra; si es impar, roja.',
-    hint: 'Depende de toda la línea, no solo de las últimas cartas.',
-    fn: (h, c) => { const t = h.reduce((a, x) => a + x.v, 0); return t % 2 === 0 ? isBlack(c) : !isBlack(c); } },
+  { id: 'mayoria-y-posicion', level: 5, dep: { k: 3, mod: 2 },
+    text: 'Dos condiciones a la vez: (1) el color de la nueva es el contrario al de la mayoría de las tres últimas cartas (si hay empate, el de la última); (2) su valor es par si ocupa una posición par en la línea (la inicial es la 1.ª) e impar si ocupa una impar.',
+    hint: 'Hay que vigilar a la vez una cuenta de colores y la posición de la carta.',
+    fn: (h, c) => majorityColor(h.slice(-3), c) && ((h.length + 1) % 2 === 0 ? c.v % 2 === 0 : c.v % 2 === 1) },
+  { id: 'memoria-de-tres', level: 5, dep: { k: 3 },
+    text: 'Mira la antepenúltima carta correcta (la tercera empezando por el final; si hay menos de tres, la inicial): si es figura, la nueva debe ser del mismo palo que la última; si no lo es, del color contrario al de la carta anterior a la última.',
+    hint: 'La regla depende de tres cartas distintas de la línea, y la más antigua decide qué hay que mirar.',
+    fn: (h, c) => { const t = h.length >= 3 ? h[h.length - 3] : h[0]; return isFig(t) ? c.s === h[h.length - 1].s : isBlack(c) !== isBlack(prev2(h)); } },
+  { id: 'suma-total-mod4', level: 5, dep: { agg: true },
+    text: 'Suma los valores de TODAS las cartas de la línea principal: al dividir entre 4, el valor de la nueva carta debe dejar el mismo resto que esa suma (A=1, J=11, Q=12, K=13).',
+    hint: 'Depende de toda la línea; hay que llevar una cuenta que se actualiza con cada carta correcta.',
+    fn: (h, c) => c.v % 4 === h.reduce((a, x) => a + x.v, 0) % 4 },
+  { id: 'palo-por-suma', level: 5, dep: { k: 2 },
+    text: 'La nueva carta avanza en el ciclo de palos ♠ → ♥ → ♣ → ♦ → ♠… tantos pasos como resto deje, al dividir entre 4, la suma de los valores de las dos últimas cartas (0 pasos = el mismo palo que la última; si solo hay una carta, se cuenta dos veces).',
+    hint: 'Importan los palos de la nueva y de la última, pero cuántos pasos se avanza depende de dos valores.',
+    fn: (h, c) => { const l = h[h.length - 1]; return c.s === advance(l.s, (l.v + prev2(h).v) % 4); } },
+  { id: 'dos-ramas', level: 5, dep: { k: 3, mod: 2 },
+    text: 'Según la posición de la nueva carta en la línea (la inicial es la 1.ª): en las posiciones pares, su color es el contrario al de la mayoría de las tres últimas cartas (si hay empate, el de la última); en las impares, la suma de su valor y los de las dos últimas (o la única, si solo hay una) debe ser múltiplo de 3.',
+    hint: 'Cada tipo de posición tiene su propia exigencia: una con colores y otra con una suma.',
+    fn: (h, c) => (h.length + 1) % 2 === 0 ? majorityColor(h.slice(-3), c) : (h.slice(-2).reduce((a, x) => a + x.v, 0) + c.v) % 3 === 0 },
 ];
 export const ORIGINAL_RULES = RULES.length;   // las 16 primeras son las de Cowork, literales
 RULES.push(...EXTRA_RULES);

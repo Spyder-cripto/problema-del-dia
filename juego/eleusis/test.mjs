@@ -29,7 +29,7 @@ const firmaTexto = rs => crypto.createHash('sha1').update(rs.map(r => r.id + '|'
 const huella = firmaTexto(G.RULES.slice(0, 16));
 t(huella === '2457d9ca0fb8', 'los textos/pistas de las 16 reglas originales han cambiado (huella ' + huella + ')');
 const huellaNuevas = firmaTexto(G.RULES.slice(16));
-t(huellaNuevas === '78c04d9e9f18', 'los textos/pistas de las reglas nuevas han cambiado (huella ' + huellaNuevas + ')');
+t(huellaNuevas === '4315fa1bc784', 'los textos/pistas de las reglas nuevas han cambiado (huella ' + huellaNuevas + ')');
 
 console.log('== 2. Invariante: tras CUALQUIER historial existe al menos una carta válida (y una no válida)');
 {
@@ -281,9 +281,14 @@ console.log('== 12. Niveles 4 y 5: barrido de todas las situaciones, sin atascos
   const rel = { v: 1, s: 0 }, pad = n => Array.from({ length: n }, () => rel);
   function* hist(dep) {
     if (dep.agg) { for (const a of baraja) yield [a]; for (const a of baraja) for (const b of baraja) yield [a, b]; const r = mulberry(99); for (let i = 0; i < 20000; i++) yield Array.from({ length: 3 + Math.floor(r() * 4) }, () => baraja[Math.floor(r() * 52)]); return; }
-    if (dep.mod || dep.k === 1) { for (let n = 1; n <= 4; n++) for (const l of baraja) yield [...pad(n - 1), l]; return; }
-    if (dep.k === 2) { for (const l of baraja) yield [l]; for (let n = 2; n <= 4; n++) for (const p of baraja) for (const l of baraja) yield [...pad(n - 2), p, l]; return; }
-    if (dep.k === 3) { for (const l of baraja) yield [l]; for (const p of baraja) for (const l of baraja) yield [p, l]; for (const a of baraja) for (const p of baraja) for (const l of baraja) yield [a, p, l]; }
+    // líneas de 1 hasta k+extra cartas (extra=4 si la regla mira la longitud, para cubrir todos los restos módulo 2, 3 y 4); se barren TODAS las k últimas cartas
+    const k = dep.k || 1, extra = dep.mod ? 4 : 2;
+    for (let L = 1; L <= k + extra; L++) {
+      const m = Math.min(L, k);
+      if (m === 1) { for (const l of baraja) yield [...pad(L - 1), l]; }
+      else if (m === 2) { for (const p of baraja) for (const l of baraja) yield [...pad(L - 2), p, l]; }
+      else { for (const a of baraja) for (const p of baraja) for (const l of baraja) yield [...pad(L - 3), a, p, l]; }
+    }
   }
   let situaciones = 0;
   for (const r of G.RULES.slice(16)) {
