@@ -48,6 +48,7 @@ how.appendChild(h('summary', null, 'Cómo se juega'));
   '<b>Profeta.</b> Cuando creas conocer la regla, declárate Profeta: te irán mostrando 10 cartas y debes decir si valen o no. Si aciertas las 10, ganas 10 puntos y termina la ronda. Si fallas, eres un Falso Profeta y robas 5 cartas.',
   '<b>Expulsión.</b> Cuando ya hay 30 cartas sobre la mesa, un fallo te expulsa y la ronda termina. Las chinchetas numeradas marcan cada décima carta; la roja marca que ya se puede expulsar.',
   '<b>Puntos.</b> 14 menos las cartas que te quedan (mínimo 0), +4 si te quedas sin cartas, +10 si eres Profeta, −3 si pediste pista. La regla solo depende de la secuencia de cartas correctas.',
+  '<b>Cambiar de ronda.</b> «Rendirme y ver la regla» termina la ronda, te enseña la regla secreta y cuenta con 0 puntos. El botón de arriba, cuando ya has jugado alguna carta, se llama «Abandonar y nueva ronda»: también cuenta con 0 puntos, pero no te enseña la regla. Cuando la ronda ha terminado, «Otra ronda» empieza la siguiente sin perder nada.',
   '<b>Marcador.</b> Ronda, Puntos y Reglas descubiertas cuentan desde que abres la página y se actualizan cuando termina cada ronda. «Puntos ahora» son los que ganarías si la ronda terminara ahora sin rendirte. Debajo verás el acumulado de todas tus visitas, que se guarda en este navegador, con el detalle en «Mis rondas». Rendirte o abandonar una ronda empezada cuenta como ronda jugada con 0 puntos.',
   '<b>Valores.</b> A=1, J=11, Q=12, K=13. Negras: ♠ ♣. Rojas: ♥ ♦.'
 ].forEach(t => { const p = h('p'); p.innerHTML = t; how.appendChild(p); });
@@ -79,6 +80,9 @@ const bProphet = h('button', null, 'Declararme Profeta'); bProphet.type = 'butto
 const bGiveUp = h('button', null, 'Rendirme y ver la regla'); bGiveUp.type = 'button';
 [bPlay, bClear, bNoPlay, bProphet, bGiveUp].forEach(b => actions.appendChild(b));
 handArea.appendChild(actions);
+const ayuda = h('p', 'el-leyenda', '¿Atascado? «No tengo jugada» si ninguna carta vale, «Declararme Profeta» si crees saber la regla, o «Rendirme y ver la regla» para terminar la ronda y verla.');
+ayuda.style.marginTop = '10px';
+handArea.appendChild(ayuda);
 card2.appendChild(handArea);
 const panelEl = h('div'); card2.appendChild(panelEl);
 const finalEl = h('div'); card2.appendChild(finalEl);
@@ -273,7 +277,13 @@ function renderLog() {
     rulesEl.appendChild(li);
   });
 }
-function renderAll() { renderTable(); renderHand(); renderPanel(); renderCounts(); renderScore(); renderLog(); }
+function renderNewBtn() {
+  const empezada = !S.over && S.placed > 0;   // hay una ronda a medias: pulsarlo la abandona
+  bNew.textContent = empezada ? 'Abandonar y nueva ronda' : 'Nueva ronda';
+  ayuda.hidden = S.over;   // la ayuda solo tiene sentido con la ronda en curso
+  bNew.title = empezada ? 'Termina esta ronda sin verla: cuenta como jugada con 0 puntos y no te enseña la regla. Para verla, usa «Rendirme y ver la regla».' : 'Empieza una ronda nueva.';
+}
+function renderAll() { renderTable(); renderHand(); renderPanel(); renderCounts(); renderScore(); renderLog(); renderNewBtn(); }
 
 // ---------- eventos ----------
 bPlay.addEventListener('click', onPlay);
