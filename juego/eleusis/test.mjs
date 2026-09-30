@@ -176,7 +176,7 @@ console.log('== 7. Profeta');
     else if (verdaderas !== 5) desequilibradas++;
     t(S.over && S.prophetOK && S.result.why === 'prophet' && S.result.won, 'Profeta verdadero termina la ronda');
     t(S.placed === mesa0 + 10, 'las 10 cartas probadas quedan en la mesa');
-    t(S.result.score === G.scoreOf(mano0, { noBonus: false, prophetOK: true, hintUsed: false, gaveup: false }) && S.result.score >= 10, 'puntos con Profeta: incluye +10');
+    t(S.result.score === G.scoreOf(mano0, { noBonus: false, prophetOK: true, hintUsed: false, gaveup: false, level: r.level }) && S.result.score >= G.prophetBonus(r.level), 'puntos con Profeta: incluye el bonus de su nivel');
   }
   t(falloMarca === 0, 'cartas del Profeta que no corresponden a su etiqueta pudiendo hacerlo: ' + falloMarca);
   if (desequilibradas) avisos.push('pruebas de Profeta sin 5 válidas + 5 no válidas (la línea dejaba a toda la baraja como válida): ' + desequilibradas + ' de ' + casos);
@@ -195,11 +195,13 @@ console.log('== 7. Profeta');
 console.log('== 8. Puntuación');
 {
   const F = (n, o = {}) => G.scoreOf(n, { noBonus: false, prophetOK: false, hintUsed: false, gaveup: false, ...o });
-  const ref = (n, o) => { if (o.gaveup) return 0; let s = Math.max(0, 14 - n); if (n === 0 && !o.noBonus) s += 4; if (o.prophetOK) s += 10; if (o.hintUsed) s -= 3; return Math.max(0, s); };
-  for (let n = 0; n <= 24; n++) for (const noBonus of [false, true]) for (const prophetOK of [false, true]) for (const hintUsed of [false, true]) for (const gaveup of [false, true]) {
-    const o = { noBonus, prophetOK, hintUsed, gaveup };
+  const ref = (n, o) => { if (o.gaveup) return 0; let s = Math.max(0, 14 - n); if (n === 0 && !o.noBonus) s += 4; if (o.prophetOK) s += [0,10,10,10,15,20][o.level ?? 1]; if (o.hintUsed) s -= 3; return Math.max(0, s); };
+  for (let n = 0; n <= 24; n++) for (const noBonus of [false, true]) for (const prophetOK of [false, true]) for (const hintUsed of [false, true]) for (const gaveup of [false, true]) for (const level of [1, 2, 3, 4, 5]) {
+    const o = { noBonus, prophetOK, hintUsed, gaveup, level };
     t(F(n, o) === ref(n, o), `scoreOf(${n}, ${JSON.stringify(o)})`);
   }
+  t([1, 2, 3, 4, 5].map(l => G.prophetBonus(l)).join() === '10,10,10,15,20', 'bonus del Profeta por nivel: 10,10,10,15,20');
+  t(F(3, { prophetOK: true, level: 4 }) === 11 + 15 && F(3, { prophetOK: true, level: 5 }) === 11 + 20 && F(3, { prophetOK: true, level: 2 }) === 11 + 10 && F(3, { prophetOK: true }) === 21, 'Profeta: 3 cartas → 21/21/26/31 según el nivel');
   t(F(0) === 18 && F(14) === 0 && F(20) === 0 && F(3, { hintUsed: true }) === 8 && F(0, { noBonus: true }) === 14, 'valores clave');
   const S = G.newRound(rule('only-odd'), mulberry(9)); G.giveUp(S);
   t(S.over && S.result.why === 'gaveup' && S.result.score === 0 && G.giveUp(S) === null, 'rendirse: 0 puntos, y no se puede repetir');

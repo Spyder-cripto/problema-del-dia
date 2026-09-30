@@ -4,7 +4,7 @@
 //  · Mano de 14 cartas, doble baraja (104), regla secreta que solo depende de la línea de cartas correctas.
 //  · Carta incorrecta: cuelga bajo la última correcta y robas 2; en cadena (2 a 4 cartas) falla toda y robas el doble.
 //  · «No tengo jugada»: acierto = mano con 4 cartas menos (o fin si tenías 4 o menos); error = juega una buena y robas 5.
-//  · Profeta: 10 cartas (5 válidas, 5 no) a decir si valen; acertar todas = +10 y fin; fallar = +5 cartas.
+//  · Profeta: 10 cartas (5 válidas, 5 no) a decir si valen; acertar todas = +10 (+15 experto, +20 maestro) y fin; fallar = +5 cartas.
 //  · Expulsión: con 30 o más cartas en la mesa, un fallo termina la ronda.
 
 export const SUITS = ['♠', '♣', '♥', '♦'];
@@ -223,13 +223,15 @@ export function abandonRound(S) {
   S.prophet = null; endRound(S, 'abandoned'); return { type: 'abandoned' };
 }
 // puntos de la ronda en curso si terminara ahora sin rendirse (14 menos las cartas de la mano; el +4 y el +10 llegan al final)
-export function pointsNow(S) { return scoreOf(S.hand.length, { noBonus: S.noBonus, prophetOK: S.prophetOK, hintUsed: S.hintUsed, gaveup: false }); }
+export function pointsNow(S) { return scoreOf(S.hand.length, { noBonus: S.noBonus, prophetOK: S.prophetOK, hintUsed: S.hintUsed, gaveup: false, level: S.rule.level }); }
 
-// puntos: 14 menos las cartas de la mano (mínimo 0), +4 si te quedas sin cartas (no si acabó por «sin jugada»), +10 Profeta, −3 pista, 0 si te rindes
-export function scoreOf(n, { noBonus, prophetOK, hintUsed, gaveup }) {
+// Profeta verdadero: +10 en los niveles 1 a 3, +15 en el experto (4) y +20 en el maestro (5)
+export const prophetBonus = level => level === 5 ? 20 : level === 4 ? 15 : 10;
+// puntos: 14 menos las cartas de la mano (mínimo 0), +4 si te quedas sin cartas (no si acabó por «sin jugada»), bonus de Profeta según el nivel, −3 pista, 0 si te rindes
+export function scoreOf(n, { noBonus, prophetOK, hintUsed, gaveup, level = 1 }) {
   let score = Math.max(0, 14 - n);
   if (n === 0 && !noBonus) score += 4;
-  if (prophetOK) score += 10;
+  if (prophetOK) score += prophetBonus(level);
   if (hintUsed) score -= 3;
   if (gaveup) score = 0;
   return Math.max(0, score);
@@ -237,7 +239,7 @@ export function scoreOf(n, { noBonus, prophetOK, hintUsed, gaveup }) {
 export function endRound(S, why, detail) {
   S.over = true; S.prophet = null;
   const n = S.hand.length;
-  const score = scoreOf(n, { noBonus: S.noBonus, prophetOK: S.prophetOK, hintUsed: S.hintUsed, gaveup: why === 'gaveup' || why === 'abandoned' });
+  const score = scoreOf(n, { noBonus: S.noBonus, prophetOK: S.prophetOK, hintUsed: S.hintUsed, gaveup: why === 'gaveup' || why === 'abandoned', level: S.rule.level });
   S.result = { why, detail, score, n, won: why === 'empty' || why === 'prophet' || why === 'noplay' };
   return S.result;
 }
