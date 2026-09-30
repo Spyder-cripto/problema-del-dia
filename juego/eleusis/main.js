@@ -156,7 +156,7 @@ function onPlay() {
   const nombres = S.sel.map(id => { const c = S.hand.find(x => x.id === id); return c ? cardShort(c) : ''; }).join(' ');
   const res = playSelection(S); if (!res) return;
   if (res.type === 'ok') after(res, res.n > 1 ? '¡Cadena correcta! Las ' + res.n + ' cartas (' + nombres + ') van a la línea principal.' : 'Correcto: ' + nombres + ' va a la línea principal.', 'ok');
-  else if (res.type === 'bad') after(res, (res.n > 1 ? 'Cadena incorrecta (' + nombres + '): alguna no valía y falla toda. ' : 'Incorrecto: el ' + nombres + ' no valía. ') + 'Robas ' + res.pen + ' cartas.', 'bad');
+  else if (res.type === 'bad') after(res, (res.n > 1 ? 'Cadena incorrecta: ' + nombres + '. Si una carta de la cadena falla, fallan todas, y no se te dice cuál. ' : 'Incorrecto: el ' + nombres + ' no valía. ') + 'Robas ' + res.pen + ' cartas.', 'bad');
   else after(res);
 }
 function onNoPlay() {
