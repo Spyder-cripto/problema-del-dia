@@ -62,6 +62,8 @@
   .el-hand .el-pc{cursor:pointer;width:52px;height:72px;min-width:44px}
   .el-hand .el-pc.sel{transform:translateY(-8px);outline:3px solid var(--azul)}
   .el-hand .el-pc:focus-visible{outline:3px solid var(--accent);outline-offset:2px;z-index:1}
+  .el-hand .el-pc:disabled{opacity:.45;cursor:default;filter:grayscale(.4)}
+  .el-expulsado{margin:0 0 8px;padding:8px 12px;border:2px solid var(--rojo);border-radius:10px;background:color-mix(in srgb,var(--rojo) 14%,transparent);font-weight:700}
   .el-hand .el-pc.sel:focus-visible{outline-color:var(--azul);box-shadow:0 0 0 6px var(--card)}
   .el-hand .el-pc .n{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);background:var(--azul);color:#fff;border-radius:99px;font-size:.7rem;padding:0 6px}
   .el-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}

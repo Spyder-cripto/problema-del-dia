@@ -63,6 +63,7 @@ const scR = chip('Ronda'), scP = chip('Puntos'), scF = chip('Reglas descubiertas
 card2.appendChild(score);
 const acum = h('p', 'el-leyenda'); acum.style.margin = '-2px 0 10px'; card2.appendChild(acum);
 const msg = h('p', 'el-msg'); msg.setAttribute('role', 'status'); msg.setAttribute('aria-live', 'polite'); card2.appendChild(msg);
+const finalEl = h('div'); card2.appendChild(finalEl);   // fin de ronda: justo bajo el mensaje, para que sea lo primero que se ve
 const hintBox = h('div'); card2.appendChild(hintBox);
 const counts = h('div', 'el-small'); counts.style.margin = '6px 0'; card2.appendChild(counts);
 const aviso = h('div', 'el-aviso'); aviso.hidden = true; card2.appendChild(aviso);
@@ -86,7 +87,6 @@ ayuda.style.marginTop = '10px';
 handArea.appendChild(ayuda);
 card2.appendChild(handArea);
 const panelEl = h('div'); card2.appendChild(panelEl);
-const finalEl = h('div'); card2.appendChild(finalEl);
 wrap.appendChild(card2);
 
 // mis rondas y reglas descubiertas
@@ -135,6 +135,7 @@ function roundOver() {
   finalEl.innerHTML = '';
   const box = h('div', 'el-final');
   box.appendChild(h('h3', null, title));
+  if (r.why === 'expelled') box.appendChild(h('p', 'el-expulsado', 'Has sido expulsado: esta ronda ha terminado y ya no puedes jugar en ella. Pulsa «Otra ronda» para empezar la siguiente.'));
   const d1 = h('div'); d1.appendChild(h('b', null, 'Regla secreta: ')); d1.appendChild(document.createTextNode(S.rule.text)); box.appendChild(d1);
   const d2 = h('div', 'el-small'); d2.appendChild(document.createTextNode('Nivel ' + S.rule.level + ' · cartas en mano: ' + r.n + ' · puntos de la ronda: '));
   d2.appendChild(h('b', null, String(r.score)));
@@ -143,6 +144,7 @@ function roundOver() {
   const act = h('div', 'el-actions'); const again = h('button', 'primary', 'Otra ronda'); again.type = 'button'; again.addEventListener('click', startRound);
   act.appendChild(again); box.appendChild(act); finalEl.appendChild(box);
   setMsg(title, r.won ? 'ok' : 'bad');
+  finalEl.scrollIntoView({ block: 'center' });
 }
 // tras cualquier acción: si la ronda ha terminado, cierra; si no, muestra el mensaje
 function after(res, text, cls) {
@@ -224,6 +226,7 @@ function renderHand() {
     b.setAttribute('aria-pressed', sel ? 'true' : 'false');
     if (sel) { const n = h('span', 'n', String(S.sel.indexOf(c.id) + 1)); n.setAttribute('aria-hidden', 'true'); b.appendChild(n); }
     b.addEventListener('click', () => onToggle(c.id));
+    b.disabled = S.over;   // ronda terminada (también por expulsión): la mano ya no se puede usar
     b.dataset.id = c.id;
     handEl.appendChild(b);
   });
@@ -250,7 +253,7 @@ function renderPanel() {
 }
 function renderCounts() {
   const exp = S.placed >= EXPEL_AT;
-  counts.textContent = 'Cartas en la mesa: ' + S.placed + ' · En tu mano: ' + S.hand.length + ' · Mazo: ' + S.deck.length +
+  counts.textContent = 'Cartas en la mesa (sin contar la inicial): ' + S.placed + ' · En tu mano: ' + S.hand.length + ' · Mazo: ' + S.deck.length +
     (exp ? '' : ' · Expulsión a partir de ' + EXPEL_AT + ' cartas en la mesa');
   aviso.hidden = !(exp && !S.over);
   aviso.textContent = 'Cuidado: ya hay ' + S.placed + ' cartas en la mesa. El próximo error (una carta o cadena incorrecta, o un «No tengo jugada» equivocado) te expulsa y termina la ronda. Acertar no te expulsa.';
