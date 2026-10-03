@@ -6,7 +6,7 @@
 //
 // Una colocación es un array `a` de longitud 2n: a[i] = valor de la carta del hueco i (1..n) o 0 si está vacío.
 
-export const NS_JUGABLES = [3, 4, 7, 8];       // con solución, de fácil a difícil
+export const NS_JUGABLES = [3, 4, 7, 8];       // con solución: 3 fácil, 4 medio, 7 difícil, 8 muy difícil
 export const NS_SIN_SOLUCION = [5, 6];          // avanzado: se explica que no se puede
 export const COUNTS_ESPERADOS = { 1: 0, 2: 0, 3: 2, 4: 2, 5: 0, 6: 0, 7: 52, 8: 300, 9: 0 };   // criterio de aceptación
 

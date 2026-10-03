@@ -26,7 +26,7 @@ const card = h('div', 'card');
 const ctrl = h('div', 'lg-ctrl');
 const nSel = h('select'); nSel.setAttribute('aria-label', 'Número de parejas');
 const g1 = document.createElement('optgroup'); g1.label = 'Con solución';
-[[3, '3 parejas · fácil'], [4, '4 parejas · fácil'], [7, '7 parejas · difícil'], [8, '8 parejas · muy difícil']].forEach(([v, t]) => { const o = h('option', null, t); o.value = String(v); g1.appendChild(o); });
+[[3, '3 parejas · fácil'], [4, '4 parejas · medio'], [7, '7 parejas · difícil'], [8, '8 parejas · muy difícil']].forEach(([v, t]) => { const o = h('option', null, t); o.value = String(v); g1.appendChild(o); });
 const g2 = document.createElement('optgroup'); g2.label = 'Avanzado: sin solución';
 [[5, '5 parejas (no se puede)'], [6, '6 parejas (no se puede)']].forEach(([v, t]) => { const o = h('option', null, t); o.value = String(v); g2.appendChild(o); });
 nSel.append(g1, g2);
