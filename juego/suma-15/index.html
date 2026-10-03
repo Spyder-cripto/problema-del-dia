@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sumar 15 · El problema del día</title>
+<meta name="description" content="Nueve cartas, dos jugadores y tres cartas que sumen 15. Parece aritmética, pero esconde un juego que ya conoces: pulsa «Revelar el truco» y míralo cambiar.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  .s15-ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px}
+  .s15-ctrl button,.s15-ctrl select{min-height:44px}
+  .s15-ctrl select{max-width:100%}
+  .s15-ctrl button:focus-visible,.s15-ctrl select:focus-visible,.s15-opt input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .s15-opt{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:.92rem;color:var(--muted);cursor:pointer}
+  .s15-opt input{width:20px;height:20px;margin:0}
+  .s15-status{min-height:3.1em;font-size:1.08rem;margin:0 0 6px}
+  .s15-status.win{color:var(--verde)} .s15-status.lose{color:var(--rojo)}
+  .s15-aviso{font-size:.93rem;min-height:2.7em;margin:0 0 10px;color:var(--muted)}
+  .s15-aviso .a{color:var(--azul);font-weight:700} .s15-aviso .r{color:var(--rojo);font-weight:700}
+  .s15-lab{display:flex;align-items:center;gap:8px;font-size:.92rem;color:var(--muted);max-width:420px;margin:0 auto}
+  .s15-lab i{width:11px;height:11px;border-radius:50%;display:inline-block}
+  .s15-lab .c0{background:var(--azul)} .s15-lab .c1{background:var(--rojo)}
+  .s15-mesa{position:relative;width:100%;max-width:420px;margin:4px auto;aspect-ratio:100/144}
+  .s15-zone{position:absolute;left:0;right:0;height:18.056%;border:1.5px dashed var(--line);border-radius:14px}
+  .s15-grid{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity .5s}
+  .s15-grid line{stroke:var(--accent);stroke-width:1.1;stroke-linecap:round}
+  .truco .s15-grid{opacity:.9}
+  .s15-card{position:absolute;width:19%;height:18.056%;padding:0;margin:0;display:flex;align-items:center;justify-content:center;
+    border:2.5px solid var(--line);border-radius:11px;background:#fffdf7;color:#2b2620;cursor:pointer;
+    font-family:var(--display);font-weight:700;font-size:clamp(1.5rem,8vw,2.3rem);line-height:1;
+    box-shadow:0 2px 5px rgba(60,45,20,.18);transition:left .5s ease,top .5s ease,box-shadow .2s,border-color .2s}
+  .s15-card:disabled{cursor:default;opacity:1;color:#2b2620}
+  .s15-card:not(:disabled):hover{border-color:var(--accent)}
+  .s15-card:focus-visible{outline:3px solid var(--accent);outline-offset:2px;z-index:3}
+  .s15-card.o0{border-color:var(--azul);box-shadow:0 0 0 2px var(--azul) inset,0 2px 5px rgba(60,45,20,.18)}
+  .s15-card.o1{border-color:var(--rojo);box-shadow:0 0 0 2px var(--rojo) inset,0 2px 5px rgba(60,45,20,.18)}
+  .s15-card.hint::after{content:"";position:absolute;top:5px;right:5px;width:11px;height:11px;border-radius:50%;background:var(--accent)}
+  .s15-card.hint.h0::after{background:var(--azul)} .s15-card.hint.h1::after{background:var(--rojo)}
+  .s15-card.win{outline:4px solid var(--verde);outline-offset:2px;z-index:2}
+  .s15-mark{position:absolute;inset:0;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:clamp(2rem,11vw,3.2rem);
+    background:rgba(255,253,247,.72);opacity:0;transition:opacity .45s;pointer-events:none}
+  .truco .s15-card.o0 .s15-mark,.truco .s15-card.o1 .s15-mark{opacity:1}
+  .s15-card.o0 .s15-mark{color:var(--azul)} .s15-card.o1 .s15-mark{color:var(--rojo)}
+  .s15-ctrl2{margin-top:12px}
+  .s15-truco{font-size:.93rem;color:var(--muted);margin:10px 0 0;padding:10px 12px;border-left:3px solid var(--accent);background:var(--bg2);border-radius:0 8px 8px 0}
+  .s15-final{margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+  .s15-final h3{font-family:var(--display);font-weight:600;font-size:1.15rem;margin:0 0 6px}
+  .s15-final button{min-height:44px}
+  .s15-why{margin:10px 0 0;padding:0;list-style:none;font-size:.9rem}
+  .s15-why li{padding:4px 0;border-top:1px solid var(--line)}
+  .s15-why li.err{color:var(--rojo);font-weight:700}
+  .s15-why li.dec{background:color-mix(in srgb,var(--rojo) 12%,transparent);border-radius:6px;padding:4px 6px}
+  .s15-resumen{font-size:.95rem;margin:10px 0 0}
+  .s15-intro{font-size:.93rem;color:var(--muted);margin:0}
+  .s15-intro b{color:var(--ink)}
+  .s15-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  @media(prefers-reduced-motion:reduce){.s15-card,.s15-grid,.s15-mark{transition:none}}
+  @media(max-width:420px){.s15-ctrl button,.s15-ctrl select{flex:1 1 auto}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
