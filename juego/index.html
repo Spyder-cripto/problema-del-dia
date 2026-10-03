@@ -26,7 +26,7 @@
 <div class="wrap">
   <header>
     <h1>Mes de la Matemática Recreativa</h1>
-    <p class="sub">30 juegos clásicos de estrategia, para jugar en el navegador</p>
+    <p class="sub" id="sub">36 juegos y puzzles clásicos, para jugar en el navegador</p>
     <a class="back" href="../">← El problema del día</a>
   </header>
 
@@ -300,5 +300,12 @@
     Hecho con cariño · <a href="../">El problema del día</a> · juegos de Conway, Gardner, Lucas, Berlekamp &amp; Guy
   </footer>
 </div>
+<script>
+// el número del subtítulo sale de las tarjetas, para que no se quede desfasado al añadir juegos
+(function () {
+  var n = document.querySelectorAll('a.game').length, e = document.getElementById('sub');
+  if (e && n) e.textContent = n + ' juegos y puzzles clásicos, para jugar en el navegador';
+})();
+</script>
 </body>
 </html>
