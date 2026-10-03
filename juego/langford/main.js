@@ -41,7 +41,10 @@ const msgEl = h('div', 'lg-msg'); msgEl.setAttribute('role', 'status'); msgEl.se
 card.append(datos, msgEl);
 const fila = h('div', 'lg-fila'); fila.setAttribute('role', 'group'); fila.setAttribute('aria-label', 'Fila de huecos');
 const mano = h('div', 'lg-mano'); mano.setAttribute('role', 'group'); mano.setAttribute('aria-label', 'Cartas por colocar');
-card.append(fila, mano);
+const tapete = h('div', 'lg-tapete');
+const resumen = h('div', 'lg-resumen'); resumen.setAttribute('aria-hidden', 'true');   // vista de conjunto: solo para mirar (y tocar)
+tapete.append(resumen, fila, mano);
+card.appendChild(tapete);
 const ctrl2 = h('div', 'lg-ctrl lg-ctrl2');
 const bCheck = h('button', null, 'Comprobar'); bCheck.type = 'button';
 const bHint = h('button', null, 'Pista'); bHint.type = 'button'; bHint.title = 'Gasta una pista: te dice la siguiente carta compatible con alguna solución completa';
@@ -79,33 +82,85 @@ function legalSet() { const k = drag && drag.moved ? drag.k : sel; return ayuda 
 function changed() { marks = {}; pista = null; }
 
 // ---------- pintar ----------
+const usaCinta = () => 2 * n >= 14;
+// cuántos huecos se ven a la vez en la cinta: unos 8 en el móvil; si caben todos (escritorio ancho), todos y sin cinta
+function visibles() {
+  const W = tapete.clientWidth - 16, total = 2 * n;
+  if (W >= total * 46) return total;
+  return W < 420 ? 8 : Math.max(8, Math.min(total, Math.floor(W / 46)));
+}
+function estadoHueco(i, legal, st) {   // clases y datos de un hueco, comunes a la cinta y a la fila de conjunto
+  const v = a[i], cls = [];
+  if (v) {
+    cls.push('lleno');
+    if (marks[v] === 'ok' || (solved && st[v] === 'ok')) cls.push('ok'); else if (marks[v] === 'bad') cls.push('bad');
+  }
+  if (legal.has(i)) cls.push('legal');
+  if (pista && pista.hueco === i) cls.push('pista');
+  if (pista && pista.quitar && pista.quitar.includes(i)) cls.push('pista', 'quitar');
+  return cls;
+}
 function renderFila() {
-  const cols = 2 * n <= 8 ? 2 * n : Math.ceil(2 * n / 2);
-  fila.style.setProperty('--cols', String(cols));
-  fila.innerHTML = '';
-  const legal = legalSet();
-  const st = pairStatus(a, n);
-  for (let i = 0; i < 2 * n; i++) {
-    const v = a[i];
-    const b = h('button', 'lg-slot' + (v ? ' lleno' : '')); b.type = 'button'; b.dataset.slot = String(i);
+  const cinta = usaCinta(), total = 2 * n, vis = cinta ? visibles() : total;
+  const prev = fila.scrollLeft;
+  fila.className = cinta ? 'lg-cinta' : 'lg-fila';
+  if (cinta) fila.style.setProperty('--vis', String(vis));
+  else fila.style.setProperty('--cols', String(total <= 8 ? total : Math.ceil(total / 2)));
+  fila.innerHTML = ''; resumen.innerHTML = '';
+  const legal = legalSet(), st = pairStatus(a, n);
+  const verResumen = cinta && vis < total;
+  resumen.hidden = !verResumen;
+  for (let i = 0; i < total; i++) {
+    const v = a[i], cls = estadoHueco(i, legal, st);
+    const b = h('button', 'lg-slot ' + cls.join(' ')); b.type = 'button'; b.dataset.slot = String(i);
     b.appendChild(h('span', 'lg-i', String(i + 1)));
     if (v) {
       b.appendChild(document.createTextNode(String(v)));
-      if (marks[v] === 'ok' || (solved && st[v] === 'ok')) b.classList.add('ok');
-      else if (marks[v] === 'bad') b.classList.add('bad');
       b.setAttribute('aria-label', 'Hueco ' + (i + 1) + ': carta ' + v + (locked() ? '' : '. Pulsa para quitarla'));
-      if (!locked()) bindDrag(b, v, i);
+      if (!locked()) bindDrag(b, v, i, cinta);   // en la cinta, con el dedo solo se toca: el gesto horizontal desplaza la tira
     } else {
       b.setAttribute('aria-label', 'Hueco ' + (i + 1) + ', vacío' + (legal.has(i) ? ', aquí puede ir la pareja del ' + (drag && drag.moved ? drag.k : sel) : ''));
       b.addEventListener('click', () => onEmpty(i));
     }
-    if (legal.has(i)) b.classList.add('legal');
-    if (pista && pista.hueco === i) b.classList.add('pista');
-    if (pista && pista.quitar && pista.quitar.includes(i)) b.classList.add('pista', 'quitar');
     if (locked() && !v) b.disabled = true;
     fila.appendChild(b);
+    if (verResumen) { const m = h('div', 'lg-mini ' + cls.join(' '), v ? String(v) : ''); m.dataset.mini = String(i); resumen.appendChild(m); }
   }
+  if (verResumen) { const w = h('div', 'lg-ventana'); resumen.appendChild(w); }
+  if (cinta) { fila.scrollLeft = prev; actualizarVentana(); }
 }
+// recuadro de la fila de conjunto: el tramo que se ve ahora en la cinta
+function actualizarVentana() {
+  const w = resumen.querySelector('.lg-ventana'); if (!w || !usaCinta() || !fila.scrollWidth) return;
+  w.style.left = (fila.scrollLeft / fila.scrollWidth * 100) + '%';
+  w.style.width = (fila.clientWidth / fila.scrollWidth * 100) + '%';
+}
+// lleva la cinta hasta que el hueco i quede centrado (la ventana no se sale de los extremos)
+function mostrar(i, suave = true) {
+  if (!usaCinta()) return;
+  const sl = fila.querySelectorAll('.lg-slot'); if (sl.length < 2) return;
+  const paso = sl[1].offsetLeft - sl[0].offsetLeft, ancho = sl[0].offsetWidth;
+  const destino = Math.max(0, Math.min(fila.scrollWidth - fila.clientWidth, i * paso - (fila.clientWidth - ancho) / 2));
+  fila.scrollTo({ left: destino, behavior: suave && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'auto' });
+}
+let tScroll = 0;
+fila.addEventListener('scroll', () => { requestAnimationFrame(actualizarVentana); clearTimeout(tScroll); tScroll = setTimeout(ajustar, 140); });
+// al dejar de moverse, la cinta queda alineada a un hueco (además del scroll-snap del CSS, para que sea igual en todos los navegadores)
+function ajustar() {
+  if (!usaCinta() || (drag && drag.moved)) return;
+  const sl = fila.querySelectorAll('.lg-slot'); if (sl.length < 2) return;
+  const paso = sl[1].offsetLeft - sl[0].offsetLeft, max = fila.scrollWidth - fila.clientWidth;
+  const dest = Math.min(max, Math.max(0, Math.round(fila.scrollLeft / paso) * paso));
+  if (Math.abs(dest - fila.scrollLeft) > 1) fila.scrollTo({ left: dest, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+}
+// con ratón: la rueda desplaza la cinta
+fila.addEventListener('wheel', e => { if (usaCinta() && fila.scrollWidth > fila.clientWidth && Math.abs(e.deltaY) > Math.abs(e.deltaX)) { e.preventDefault(); fila.scrollLeft += e.deltaY; } }, { passive: false });
+// tocar la fila de conjunto lleva la cinta a ese punto
+resumen.addEventListener('click', e => {
+  const r = resumen.getBoundingClientRect(), i = Math.max(0, Math.min(2 * n - 1, Math.floor((e.clientX - r.left) / r.width * 2 * n)));
+  mostrar(i);
+});
+window.addEventListener('resize', () => { render(); });
 function renderMano() {
   const rem = remaining(a, n);
   mano.innerHTML = '';
@@ -183,10 +238,11 @@ function onTap(k, from) {
 }
 
 // ---------- arrastrar (ratón y dedo) ----------
-function bindDrag(el, k, from) {
+let ignorarClick = 0;   // tras un arrastre, el click que lo sigue no es un toque
+function bindDrag(el, k, from, soloRaton) {
   el.addEventListener('pointerdown', e => {
-    if (locked() || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    drag = { k, from, el, id: e.pointerId, x0: e.clientX, y0: e.clientY, moved: false, ghost: null };
+    if (locked() || (e.pointerType === 'mouse' && e.button !== 0) || (soloRaton && e.pointerType !== 'mouse')) return;
+    drag = { k, from, el, id: e.pointerId, x0: e.clientX, y0: e.clientY, moved: false, ghost: null, auto: 0, raf: 0 };
     try { el.setPointerCapture(e.pointerId); } catch (err) { /* sin captura */ }
   });
   el.addEventListener('pointermove', e => {
@@ -197,20 +253,42 @@ function bindDrag(el, k, from) {
   el.addEventListener('pointerup', e => {
     if (!drag || drag.el !== el || e.pointerId !== drag.id) return;
     const d = drag; drag = null;
-    if (d.moved) endDrag(d, e.clientX, e.clientY); else onTap(k, from);
+    if (d.moved) { ignorarClick = performance.now() + 400; endDrag(d, e.clientX, e.clientY); }
+    else if (from === null) onTap(k, from);   // las cartas ya colocadas se tocan con el click (sirve para ratón, dedo y teclado)
   });
   el.addEventListener('pointercancel', () => { if (drag && drag.el === el) { cancelDrag(drag); drag = null; render(); } });
-  el.addEventListener('click', e => { if (e.detail === 0) onTap(k, from); });   // teclado
+  el.addEventListener('click', e => {
+    if (from === null) { if (e.detail === 0) onTap(k, from); return; }   // mano: el toque lo gestiona pointerup
+    if (performance.now() < ignorarClick) return;
+    onTap(k, from);
+  });
 }
 function startDrag() {
   drag.moved = true;
   const g = h('div', 'lg-ghost', String(drag.k)); document.body.appendChild(g); drag.ghost = g;
   drag.el.style.opacity = '.3';
-  const legal = legalSet(); fila.querySelectorAll('.lg-slot').forEach(s => { if (legal.has(+s.dataset.slot)) s.classList.add('legal'); });
+  const legal = legalSet();
+  fila.querySelectorAll('.lg-slot').forEach(s => { if (legal.has(+s.dataset.slot)) s.classList.add('legal'); });
+  resumen.querySelectorAll('.lg-mini').forEach(m => { if (legal.has(+m.dataset.mini)) m.classList.add('legal'); });
   moveGhost(drag.x0, drag.y0);
 }
-function moveGhost(x, y) { if (drag && drag.ghost) drag.ghost.style.transform = 'translate(' + (x - 24) + 'px,' + (y - 33) + 'px)'; }
-function cancelDrag(d) { if (d.ghost) d.ghost.remove(); d.el.style.opacity = ''; }
+function moveGhost(x, y) {
+  if (!drag || !drag.ghost) return;
+  drag.ghost.style.transform = 'translate(' + (x - 24) + 'px,' + (y - 33) + 'px)';
+  autoscroll(x, y);
+}
+// arrastrando una carta cerca del borde de la cinta, la cinta se desplaza sola para poder llegar a los huecos ocultos
+function autoscroll(x, y) {
+  if (!usaCinta() || !drag) return;
+  const r = fila.getBoundingClientRect(), cerca = y > r.top - 70 && y < r.bottom + 70;
+  drag.auto = cerca ? (x < r.left + 44 ? -1 : x > r.right - 44 ? 1 : 0) : 0;
+  if (drag.auto && !drag.raf) {
+    fila.style.scrollSnapType = 'none';
+    const bucle = () => { if (!drag || !drag.auto) { if (drag) drag.raf = 0; return; } fila.scrollLeft += drag.auto * 7; drag.raf = requestAnimationFrame(bucle); };
+    drag.raf = requestAnimationFrame(bucle);
+  }
+}
+function cancelDrag(d) { if (d.ghost) d.ghost.remove(); d.el.style.opacity = ''; if (d.raf) cancelAnimationFrame(d.raf); d.auto = 0; d.raf = 0; fila.style.scrollSnapType = ''; }
 function endDrag(d, x, y) {
   cancelDrag(d);
   const target = document.elementFromPoint(x, y), slotEl = target && target.closest ? target.closest('[data-slot]') : null;
@@ -247,6 +325,7 @@ function pedirPista() {
     setMsg('Pista (gastada): lo que has colocado no lleva a ninguna solución.' + (r.quitar.length ? ' Si quitas la carta de uno de los huecos marcados, otra vez se puede resolver.' : ' Quita varias cartas y vuelve a intentarlo.'), 'bad');
   } else { pista = { k: r.k, hueco: r.hueco }; setMsg('Pista (gastada): pon un ' + r.k + ' en el hueco ' + (r.hueco + 1) + '. Con eso todavía hay ' + r.soluciones + (r.soluciones === 1 ? ' solución posible.' : ' soluciones posibles.'), ''); }
   render();
+  if (pista) { const objetivo = pista.hueco !== undefined ? pista.hueco : (pista.quitar && pista.quitar[0]); if (objetivo !== undefined) mostrar(objetivo); }   // si el hueco está fuera de la parte visible, la cinta va hasta él
 }
 function resolver() {
   if (revealed) return;
