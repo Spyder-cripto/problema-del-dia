@@ -161,7 +161,7 @@ console.log('== 7. Ningún nivel de la máquina hace una jugada ilegal');
     }
     for (const c of ms) dfs(G.play(S, c));
   })(G.newGame(0));
-  t(ilegales === 0, 'los tres niveles en ' + vistos.size + ' posiciones (' + consultas + ' consultas): ' + ilegales + ' jugadas ilegales');
+  t(ilegales === 0, 'los tres niveles en las ' + (consultas / 3) + ' posiciones no terminales (' + consultas + ' consultas): ' + ilegales + ' jugadas ilegales');
   let lanzo = false; try { G.machineMove('inventado', G.newGame(0), rng); } catch (e) { lanzo = true; } t(lanzo, 'un nivel desconocido da error');
   // partidas completas entre niveles
   let ilegalesPartida = 0, partidas = 0;
