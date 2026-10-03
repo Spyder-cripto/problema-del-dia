@@ -8,7 +8,7 @@ const root = document.getElementById('app');
 const h = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
 
 // ---------- estado ----------
-let S = null, lastRuleId = null, focusCardId = null, focusProphet = false, prefijo = '', placedAntes = 0;
+let S = null, lastRuleId = null, focusCardId = null, focusProphet = false, prefijo = '', placedAntes = 0, fpTexto = '';
 let T = newTotals();   // acumulado de todas las visitas (se guarda)
 let V = newTotals();   // solo esta visita (empieza en 0 al abrir la página)
 
@@ -45,8 +45,8 @@ how.appendChild(h('summary', null, 'Cómo se juega'));
   '<b>Jugar.</b> Toca cartas de tu mano (en el orden en que quieras jugarlas) y pulsa Jugar. Con una sola carta juegas normal. Con 2 a 4 juegas una <i>cadena</i>: si alguna falla, falla toda y te dan el doble de cartas de castigo que las de la cadena.',
   '<b>Resultado.</b> Si es correcta, la carta va a la línea principal. Si es incorrecta, cuelga debajo de la última carta correcta (línea lateral) y robas 2 cartas.',
   '<b>Sin jugada.</b> Si crees que ninguna de tus cartas vale, pulsa «No tengo jugada». Si aciertas te dan una mano con 4 cartas menos (si tenías 4 o menos, termina la ronda). Si te equivocas, el repartidor juega por ti una carta buena y robas 5.',
-  '<b>Profeta.</b> Cuando creas conocer la regla, declárate Profeta: te irán mostrando 10 cartas y debes decir si valen o no. Si aciertas las 10, ganas 10 puntos (15 en el nivel experto y 20 en el maestro) y termina la ronda. Si fallas, eres un Falso Profeta y robas 5 cartas. Si en algún punto la regla acepta cualquier carta, no hay ninguna rechazada que enseñar: verás solo cartas válidas y un aviso.',
-  '<b>Expulsión.</b> Solo cuentan las cartas de la mesa, no las de tu mano. Cuando ya hay 30 cartas sobre la mesa, un fallo te expulsa y la ronda termina; acertar nunca te expulsa. Las chinchetas numeradas marcan cada décima carta; la roja marca que ya se puede expulsar.',
+  '<b>Profeta.</b> Cuando creas conocer la regla, declárate Profeta: te irán mostrando 10 cartas y debes decir si valen o no. Si aciertas las 10, ganas 10 puntos (15 en el nivel experto y 20 en el maestro) y termina la ronda. Si fallas, eres un Falso Profeta y robas 5 cartas (y, si ya hay 30 o más cartas en la mesa, además te expulsan). Si en algún punto la regla acepta cualquier carta, no hay ninguna rechazada que enseñar: verás solo cartas válidas y un aviso.',
+  '<b>Expulsión.</b> Solo cuentan las cartas de la mesa, no las de tu mano. Cuando ya hay 30 cartas sobre la mesa, un fallo (una carta o cadena incorrecta, un «No tengo jugada» equivocado o un Falso Profeta) te expulsa y la ronda termina; acertar nunca te expulsa. Las chinchetas numeradas marcan cada décima carta; la roja marca que ya se puede expulsar.',
   '<b>Puntos.</b> 14 menos las cartas que te quedan (mínimo 0), +4 si te quedas sin cartas, +10 si eres Profeta (+15 en el nivel 4 y +20 en el 5), −3 si pediste pista. La regla solo depende de la secuencia de cartas correctas.',
   '<b>Niveles.</b> Del 1 al 3, la regla mira la última carta, las dos últimas o la posición en la línea. El <b>nivel 4 (experto)</b> junta varias condiciones a la vez: colores, palos, paridad, un círculo de valores o la posición, con casos distintos según la última carta. El <b>nivel 5 (maestro)</b> es el más difícil: además hay que fijarse en tres cartas seguidas, hacer cuentas con los valores de varias cartas, o llevar una cuenta de toda la línea. Es normal tardar mucho en dar con la regla, o no darla: son reglas para expertos. «Al azar» reparte reglas de los niveles 1 a 3; el experto y el maestro se eligen a propósito. La puntuación es la misma en todos los niveles, salvo el bonus de Profeta (+10, +15 o +20).',
   '<b>Cambiar de ronda.</b> «Rendirme y ver la regla» termina la ronda, te enseña la regla secreta y cuenta con 0 puntos. El botón de arriba, cuando ya has jugado alguna carta, se llama «Abandonar y nueva ronda»: también cuenta con 0 puntos, pero no te enseña la regla. Cuando la ronda ha terminado, «Otra ronda» empieza la siguiente sin perder nada.',
@@ -111,7 +111,7 @@ function setMsg(t, cls) { msg.textContent = t; msg.className = 'el-msg ' + (cls 
 
 function startRound() {
   // una ronda empezada que se deja a medias cuenta como jugada con 0 puntos
-  prefijo = '';
+  prefijo = ''; fpTexto = '';
   if (S && !S.over && abandonRound(S)) { applyTotals(T, S); applyTotals(V, S); save(); prefijo = 'Ronda anterior abandonada: cuenta como jugada, con 0 puntos. '; }
   const rule = pickRule(+levelSel.value, lastRuleId);
   lastRuleId = rule.id;
@@ -137,6 +137,7 @@ function roundOver() {
   const box = h('div', 'el-final');
   box.appendChild(h('h3', null, title));
   if (r.why === 'expelled') box.appendChild(h('p', 'el-expulsado', 'Has sido expulsado: esta ronda ha terminado y ya no puedes jugar en ella. Pulsa «Otra ronda» para empezar la siguiente.'));
+  if (r.why === 'expelled' && fpTexto) box.appendChild(h('p', null, fpTexto));
   const d1 = h('div'); d1.appendChild(h('b', null, 'Regla secreta: ')); d1.appendChild(document.createTextNode(S.rule.text)); box.appendChild(d1);
   const d2 = h('div', 'el-small'); d2.appendChild(document.createTextNode('Nivel ' + S.rule.level + ' · cartas en mano: ' + r.n + ' · puntos de la ronda: '));
   d2.appendChild(h('b', null, String(r.score)));
@@ -181,7 +182,10 @@ function onProphet() {
 function onAnswer(sayValid) {
   const res = prophetAnswer(S, sayValid);
   focusProphet = res.type === 'right';
-  if (res.type === 'wrong') after(res, 'Falso Profeta. La carta ' + cardShort(res.card) + ' ' + (res.actual ? 'era válida' : 'no era válida') + '. Robas 5 cartas y la carta queda en la mesa.', 'bad');
+  if (res.type === 'wrong' && res.expelled) {
+    fpTexto = 'Dijiste que el ' + cardShort(res.card) + (res.actual ? ' no era válido, y era válido' : ' era válido, y no lo era') + '. Como en cualquier Falso Profeta, robas 5 cartas; pero con ' + EXPEL_AT + ' o más cartas en la mesa también te expulsan.';
+    after(res);
+  } else if (res.type === 'wrong') after(res, 'Falso Profeta. La carta ' + cardShort(res.card) + ' ' + (res.actual ? 'era válida' : 'no era válida') + '. Robas 5 cartas y la carta queda en la mesa.', 'bad');
   else if (res.type === 'right') after(res, 'Bien: era ' + (res.actual ? 'válida' : 'no válida') + '. Van ' + res.step + ' de 10.', 'ok');
   else after(res);
 }
@@ -258,7 +262,7 @@ function renderCounts() {
   counts.textContent = 'Cartas en la mesa (sin contar la inicial): ' + S.placed + ' · En tu mano: ' + S.hand.length + ' · Mazo: ' + S.deck.length +
     (exp ? '' : ' · Expulsión a partir de ' + EXPEL_AT + ' cartas en la mesa');
   aviso.hidden = !(exp && !S.over);
-  aviso.textContent = 'Cuidado: ya hay ' + S.placed + ' cartas en la mesa. El próximo error (una carta o cadena incorrecta, o un «No tengo jugada» equivocado) te expulsa y termina la ronda. Acertar no te expulsa.';
+  aviso.textContent = 'Cuidado: ya hay ' + S.placed + ' cartas en la mesa. El próximo error (una carta o cadena incorrecta, un «No tengo jugada» equivocado o un Falso Profeta) te expulsa y termina la ronda. Acertar no te expulsa.';
 }
 function renderScore() {
   // «Ronda» es la que se está jugando (o la que acaba de terminar)

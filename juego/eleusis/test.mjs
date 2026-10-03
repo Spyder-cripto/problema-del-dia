@@ -144,6 +144,32 @@ console.log('== 6. Expulsión y chinchetas');
   t(r.type === 'bad' && !S.over && S.placed === 32, 'cadena de 3 con 29 en mesa: no expulsa aunque supere 30');
   S = mk('only-odd', [[3, 0], [5, 0]], [[1, 0]], { placed: 30 }); selC(S, [[3, 0]]); r = G.playSelection(S);
   t(r.type === 'ok' && !S.over, 'con 30 en mesa, acertar no expulsa');
+  // Falso Profeta (3-oct): con 30 o más cartas en la mesa expulsa (y reparte igualmente las 5 de castigo); con 29 no.
+  // Se mira S.placed ANTES de colocar la carta del Profeta, como en los demás errores. Se prueba con carta válida y no válida.
+  {
+    const vistos = new Set();
+    for (const [placed, expulsa] of [[30, true], [29, false], [45, true], [0, false]]) {
+      for (let seed = 1; seed <= 40; seed++) {
+        S = mk('only-odd', [[2, 0], [4, 0], [6, 0]], [[1, 0]], { placed, seed });
+        t(G.startProphet(S) === true, 'FP: startProphet');
+        const actual = !!S.rule.fn(S.prophet.line, S.prophet.card), mano = S.hand.length;
+        r = G.prophetAnswer(S, !actual);
+        vistos.add(placed + '/' + actual);
+        t(r.type === 'wrong' && !!r.expelled === expulsa && S.over === expulsa && S.hand.length === mano + 5, 'FP con ' + placed + ' en la mesa: ' + (expulsa ? 'expulsa y reparte 5' : 'no expulsa, roba 5'));
+        if (expulsa) t(S.result.why === 'expelled' && S.result.detail === 'Falso Profeta' && S.prophet === null && S.result.won === false, 'FP expulsado: resultado «expelled / Falso Profeta»');
+        else t(S.prophet === null && !S.result, 'FP sin expulsión: ronda sigue');
+      }
+    }
+    t([30, 29, 45].every(n => vistos.has(n + '/true') && vistos.has(n + '/false')), 'FP: probados con carta válida y no válida');
+    // acertar nunca expulsa, aunque haya 30 o más en la mesa: diez aciertos = Profeta verdadero
+    S = mk('only-odd', [[2, 0], [4, 0], [6, 0]], [[1, 0]], { placed: 30 }); G.startProphet(S); let fin = null;
+    for (let i = 0; i < 10; i++) fin = G.prophetAnswer(S, !!S.rule.fn(S.prophet.line, S.prophet.card));
+    t(fin.type === 'done' && S.over && S.result.why === 'prophet' && S.result.won, 'con 30 en mesa, acertar los 10 es Profeta verdadero (no expulsa)');
+    // un acierto suelto con 30 en la mesa tampoco expulsa
+    S = mk('only-odd', [[2, 0], [4, 0], [6, 0]], [[1, 0]], { placed: 30 }); G.startProphet(S);
+    r = G.prophetAnswer(S, !!S.rule.fn(S.prophet.line, S.prophet.card));
+    t(r.type === 'right' && !S.over, 'con 30 en mesa, un acierto del Profeta no expulsa');
+  }
   // chinchetas: la carta que ocupa el puesto 10, 20 y 30 lleva su número
   S = G.newRound(rule('only-odd'), mulberry(3)); S.main = [S.main[0]]; S.side = [[]]; S.placed = 0;
   const marcas = [];

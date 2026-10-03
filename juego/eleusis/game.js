@@ -5,7 +5,7 @@
 //  · Carta incorrecta: cuelga bajo la última correcta y robas 2; en cadena (2 a 4 cartas) falla toda y robas el doble.
 //  · «No tengo jugada»: acierto = mano con 4 cartas menos (o fin si tenías 4 o menos); error = juega una buena y robas 5.
 //  · Profeta: 10 cartas (5 válidas, 5 no) a decir si valen; acertar todas = +10 (+15 experto, +20 maestro) y fin; fallar = +5 cartas.
-//  · Expulsión: con 30 o más cartas en la mesa, un fallo termina la ronda.
+//  · Expulsión: con 30 o más cartas en la mesa, un fallo (carta o cadena incorrecta, «No tengo jugada» equivocado o Falso Profeta) termina la ronda; el Falso Profeta reparte además sus 5 cartas.
 
 export const SUITS = ['♠', '♣', '♥', '♦'];
 export const SUIT_NAMES = ['picas', 'tréboles', 'corazones', 'diamantes'];
@@ -214,9 +214,15 @@ export function startProphet(S) {
 }
 export function prophetAnswer(S, sayValid) {
   const P = S.prophet, c = P.card;
+  // como en los demás errores, la cuenta para expulsar es la de ANTES de colocar la carta (S.placed no incluye la inicial)
+  const expulsable = S.placed >= EXPEL_AT;
   const actual = !!S.rule.fn(P.line, c);
   if (actual) { P.line.push(c); addToMain(S, c); } else { c.wrong = true; addToSide(S, [c]); }
-  if (sayValid !== actual) { S.prophet = null; draw(S, 5); return { type: 'wrong', card: c, actual }; }
+  if (sayValid !== actual) {
+    S.prophet = null; draw(S, 5);   // el castigo se reparte también si te expulsan, para que se vea el error (y cuenta en los puntos)
+    if (expulsable) { endRound(S, 'expelled', 'Falso Profeta'); return { type: 'wrong', card: c, actual, expelled: true }; }
+    return { type: 'wrong', card: c, actual };
+  }
   P.step++;
   if (P.step >= 10) { S.prophet = null; S.prophetOK = true; endRound(S, 'prophet'); return { type: 'done' }; }
   P.card = protoCard(S, P.line, P.labels[P.step]); fixLabel(S);
