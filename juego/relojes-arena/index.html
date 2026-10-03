@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relojes de arena · El problema del día</title>
+<meta name="description" content="Con relojes de arena de duraciones raras, mide un tiempo exacto. La arena cae de verdad, y el periodo no tiene por qué empezar en el minuto 0. Con un puzzle clásico y uno nuevo de dificultad parecida.">
+<link rel="stylesheet" href="../_engine/style.css">
+<style>
+  .ra-enun{font-size:1.04rem;margin:10px 0 12px}
+  .ra-relojes{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:8px;margin:8px 0 12px}
+  .ra-reloj{border:1px solid var(--line);border-radius:12px;padding:8px 6px 10px;background:var(--bg);text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ra-reloj.acaba{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+  .ra-nombre{font-family:var(--display);font-weight:600;font-size:1.02rem}
+  .ra-svg{width:68px;height:auto;display:block}
+  .ra-svg.gira{animation:ra-gira .5s ease}
+  @keyframes ra-gira{0%{transform:rotate(180deg)}100%{transform:rotate(0)}}
+  .ra-est{font-size:.78rem;color:var(--muted);min-height:2.4em;line-height:1.25}
+  .ra-giros{font-size:.76rem;color:var(--muted)}
+  .ra-acc{display:flex;flex-direction:column;gap:5px;width:100%}
+  .ra-acc button{min-height:44px;width:100%;padding:6px 4px;font-size:.92rem}
+  .ra-acc button.apagado{opacity:.38}
+  .ra-ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0}
+  .ra-ctrl button,.ra-vel button{min-height:44px}
+  .ra-ctrl button:focus-visible,.ra-vel button:focus-visible,.ra-acc button:focus-visible,.ra-log button:focus-visible,select:focus-visible,.ra-opt input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  .ra-vel{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 8px;font-size:.92rem;color:var(--muted)}
+  .ra-vel button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .ra-opt{display:inline-flex;align-items:center;gap:6px;min-height:44px;cursor:pointer;font-size:.88rem}
+  .ra-opt input{width:20px;height:20px;margin:0}
+  .ra-status{min-height:3.2em;font-size:1.02rem;margin:6px 0}
+  .ra-status.aviso{color:var(--rojo);font-weight:700}
+  .ra-crono{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem;margin:0 0 6px}
+  .ra-h2{margin-top:14px}
+  .ra-log{list-style:none;margin:6px 0 0;padding:0;max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+  .ra-instante{padding:8px 10px;border-top:1px solid var(--line);font-size:.92rem}
+  .ra-instante:first-child{border-top:0}
+  .ra-instante.ini{background:color-mix(in srgb,var(--azul) 12%,transparent)} .ra-instante.fin{background:color-mix(in srgb,var(--verde) 14%,transparent)}
+  .ra-cab{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;margin-bottom:2px}
+  .ra-marcas{display:flex;gap:6px}
+  .ra-marcas button{min-height:36px;padding:4px 10px;font-size:.84rem}
+  .ra-marcas button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .ra-ev{color:var(--muted)} .ra-ev.acc{color:var(--ink)}
+  .ra-medida{margin:10px 0;padding:10px 12px;border-radius:10px;border:1px solid var(--line);font-size:.98rem;min-height:3em}
+  .ra-medida.bien{border-color:var(--verde);background:color-mix(in srgb,var(--verde) 12%,transparent);font-weight:600}
+  .ra-medida.mal{border-color:var(--rojo);background:color-mix(in srgb,var(--rojo) 10%,transparent)}
+  .ra-pista{margin:8px 0;padding:8px 12px;border-left:3px solid var(--accent);background:var(--bg2);border-radius:0 8px 8px 0;font-size:.94rem}
+  .ra-solucion{margin-top:10px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+  .ra-solucion h3{font-family:var(--display);font-weight:600;font-size:1.1rem;margin:0 0 6px}
+  .ra-solol{margin:0;padding-left:20px;font-size:.92rem}
+  .ra-solol li{margin:3px 0}
+  .ra-nota{font-size:.88rem;color:var(--muted)}
+  .ra-solucion button{min-height:44px}
+  .ra-intro{font-size:.93rem;color:var(--muted);margin:0 0 8px}
+  .ra-intro b{color:var(--ink)}
+  @media(prefers-reduced-motion:reduce){.ra-svg.gira{animation:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
