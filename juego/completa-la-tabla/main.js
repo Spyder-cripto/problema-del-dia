@@ -1,7 +1,7 @@
 // completa-la-tabla/main.js — interfaz de «Completa la tabla». La lógica vive en game.js (probada en test.mjs).
 // Autocontenido: solo usa la hoja de estilo del hub. Se coloca con toque (elige ficha, elige casilla) o arrastrando.
 import { CONFIGS, configDe, colorDe, COLORES, EMOJI, SUMA, CELDAS, tableroVacio, colocadas, fichasLibres, analiza, jugadaLimpia,
-  esSolucion, soluciones, pista as pedirJugada } from './game.js?v=20261106c';
+  esSolucion, soluciones, pista as pedirJugada } from './game.js?v=20261106d';
 
 const root = document.getElementById('app');
 const h = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
@@ -83,7 +83,7 @@ rules.appendChild(h('h2', null, 'Reglas'));
 const r0 = h('p', 'cb-intro'); r0.innerHTML = '<b>Coloca las 16 fichas en la tabla de forma que:</b>';
 const ul = h('ul', 'cb-reglas'); ul.id = 'cb-reglas';
 const r1 = h('p', 'cb-intro'); r1.innerHTML = '<b>Cómo se juega.</b> Toca una ficha de la mano y luego una casilla, o arrástrala. Toca una ficha colocada para devolverla a la mano, o arrástrala a otra casilla (si está ocupada, se intercambian). Las fichas con 📌 son pistas fijas y no se pueden mover. Los círculos de los bordes dan la suma de cada fila, columna y diagonal, y, en la versión extendida, los redondos entre cuatro casillas dan la de cada cuadrado 2×2. «Pista» primero te dice qué color va en una casilla y, si la pulsas otra vez, qué número. «Comprobar» marca en verde lo que ya está bien y en rojo lo que no.';
-const r2 = h('p', 'cb-intro'); r2.innerHTML = '<b>Un detalle curioso.</b> Con los colores del acertijo original no existe ninguna solución en la que además las dos diagonales tengan los cuatro colores. Por eso la versión extendida usa otro reparto: rojas 1–4, amarillas 5–8, verdes 9–12 y azules 13–16. Con ese reparto, y con 1, 8 y 10 en la primera fila, la solución es única. La variante «un solo color» quita la regla de las diagonales, porque no es compatible con tener una ficha roja en cada cuadrado 2×2.';
+const r2 = h('p', 'cb-intro'); r2.innerHTML = '<b>Un detalle curioso.</b> Con los colores del acertijo original no existe ninguna solución en la que además las dos diagonales tengan los cuatro colores. Por eso la versión extendida usa otro reparto: rojas 1–4, amarillas 5–8, verdes 9–12 y azules 13–16. Con ese reparto, y con el 1 y el 8 en la primera fila, quedan solo dos soluciones; con el 1, el 8 y el 10 hay una única solución (es la variante «un solo color»). La variante «un solo color» quita la regla de las diagonales, porque no es compatible con tener una ficha roja en cada cuadrado 2×2.';
 rules.append(r0, ul, r1, r2);
 wrap.appendChild(rules);
 const foot = h('footer'); foot.innerHTML = 'Acertijo «Completa la tabla» de Junio Puzzles, con una versión extendida de este sitio · <a href="../">Juegos</a> · <a href="../../">El problema del día</a>';
@@ -209,7 +209,7 @@ function renderReglas() {
 function renderInfo() {
   info.innerHTML = '';
   const n = soluciones(cfg).length, dados = Object.keys(cfg.dados).length;
-  info.appendChild(h('p', null, cfg.corto + ': ' + n + (n === 1 ? ' solución en total.' : ' soluciones en total, contando giros y reflejos del tablero.') + (dados ? ' Hay ' + dados + ' casillas dadas (📌).' : '')));
+  info.appendChild(h('p', null, cfg.corto + ': ' + n + (n === 1 ? ' solución en total.' : dados ? ' soluciones en total, y vale cualquiera.' : ' soluciones en total, contando giros y reflejos del tablero.') + (dados ? ' Hay ' + dados + ' casillas dadas (📌).' : '')));
 }
 function renderBotones() {
   bCheck.disabled = locked() || colocadas(b) === Object.keys(cfg.dados).length;

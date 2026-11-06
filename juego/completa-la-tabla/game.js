@@ -26,8 +26,8 @@ const dados = cs => Object.fromEntries(cs.map(i => [i, SOL_EXT[i]]));
 export const CONFIGS = [
   { key: 'ayuda', label: 'Fácil · versión extendida con las 4 esquinas dadas', paleta: 'ext', diagColor: true, cuadrados: true, dados: dados([0, 3, 12, 15]),
     corto: 'Fácil', resumen: 'Con las cuatro esquinas ya colocadas (1, 15, 12 y 6). Se resuelve por deducción y tiene una única solución.' },
-  { key: 'ext', label: 'Medio · versión extendida con 3 casillas dadas (solución única)', paleta: 'ext', diagColor: true, cuadrados: true, dados: dados([0, 1, 2]),
-    corto: 'Medio', resumen: 'Versión extendida: solo se dan el 1, el 8 y el 10 y se resuelve por deducción, sin adivinar. Tiene una única solución.' },
+  { key: 'ext', label: 'Medio · versión extendida con 2 casillas dadas (2 soluciones)', paleta: 'ext', diagColor: true, cuadrados: true, dados: dados([0, 1]),
+    corto: 'Medio', resumen: 'Versión extendida: solo se dan el 1 y el 8. La deducción llega hasta la mitad de la tabla y después hay que elegir entre dos opciones. Hay dos soluciones y vale cualquiera.' },
   { key: 'uno', label: 'Medio · un solo color, con 3 casillas dadas (solución única)', paleta: 'ext', diagColor: false, cuadrados: true, cubre: 0, dados: dados([0, 1, 2]),
     corto: 'Medio · un solo color', resumen: 'Sin la regla de las diagonales, pero con una ficha roja en cada uno de los 9 cuadrados 2×2. Se dan el 1, el 8 y el 10; se resuelve por deducción y tiene una única solución.' },
   { key: 'exp', label: 'Difícil · versión extendida sin casillas dadas', paleta: 'ext', diagColor: true, cuadrados: true, dados: {},
