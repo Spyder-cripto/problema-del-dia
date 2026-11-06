@@ -22,14 +22,16 @@ export const PALETAS = {
 // Una solución de la versión extendida, para las variantes con casillas dadas.
 const SOL_EXT = [1, 8, 10, 15, 14, 11, 5, 4, 7, 2, 16, 9, 12, 13, 3, 6];
 
-const dados = cs => Object.fromEntries(cs.map(i => [i, SOL_EXT[i]]));
+// una solución de la variante «un solo color», para sus casillas dadas
+const SOL_UNO = [1, 8, 10, 15, 12, 13, 3, 6, 7, 2, 16, 9, 14, 11, 5, 4];
+const dados = (cs, sol = SOL_EXT) => Object.fromEntries(cs.map(i => [i, sol[i]]));
 export const CONFIGS = [
   { key: 'ayuda', label: 'Fácil · versión extendida con las 4 esquinas dadas', paleta: 'ext', diagColor: true, cuadrados: true, dados: dados([0, 3, 12, 15]),
     corto: 'Fácil', resumen: 'Con las cuatro esquinas ya colocadas (1, 15, 12 y 6). Se resuelve por deducción y tiene una única solución.' },
-  { key: 'ext', label: 'Medio · versión extendida con 2 casillas dadas (2 soluciones)', paleta: 'ext', diagColor: true, cuadrados: true, dados: dados([0, 1]),
-    corto: 'Medio', resumen: 'Versión extendida: solo se dan el 1 y el 8. La deducción llega hasta la mitad de la tabla y después hay que elegir entre dos opciones. Hay dos soluciones y vale cualquiera.' },
-  { key: 'uno', label: 'Medio · un solo color, con 3 casillas dadas (solución única)', paleta: 'ext', diagColor: false, cuadrados: true, cubre: 0, dados: dados([0, 1, 2]),
-    corto: 'Medio · un solo color', resumen: 'Sin la regla de las diagonales, pero con una ficha roja en cada uno de los 9 cuadrados 2×2. Se dan el 1, el 8 y el 10; se resuelve por deducción y tiene una única solución.' },
+  { key: 'ext', label: 'Medio · versión extendida con 3 casillas dadas (solución única)', paleta: 'ext', diagColor: true, cuadrados: true, dados: dados([0, 11, 14]),
+    corto: 'Medio', resumen: 'Versión extendida: solo se dan tres fichas, bien separadas (el 1, el 9 y el 3: ninguna comparte fila, columna ni diagonal larga). La deducción no basta: hay que probar, y la solución es única.' },
+  { key: 'uno', label: 'Medio · un solo color, con 3 casillas dadas (solución única)', paleta: 'ext', diagColor: false, cuadrados: true, cubre: 0, dados: dados([0, 11, 13], SOL_UNO),
+    corto: 'Medio · un solo color', resumen: 'Sin la regla de las diagonales, pero con una ficha roja en cada uno de los 9 cuadrados 2×2. Se dan tres fichas bien separadas (el 1, el 9 y el 11); hay que probar y la solución es única.' },
   { key: 'exp', label: 'Difícil · versión extendida sin casillas dadas', paleta: 'ext', diagColor: true, cuadrados: true, dados: {},
     corto: 'Difícil', resumen: 'Versión extendida sin ninguna casilla dada: hay que probar y comprobar. Hay 128 soluciones (contando giros y reflejos), y vale cualquiera.' },
   { key: 'orig', label: 'Original · sin casillas dadas', paleta: 'orig', diagColor: false, cuadrados: false, dados: {},
