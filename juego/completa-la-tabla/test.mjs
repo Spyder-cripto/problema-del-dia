@@ -17,7 +17,7 @@ console.log('== 2. Recuentos de soluciones (calculados por búsqueda exhaustiva)
 const n = k => G.soluciones(cfg(k)).length;
 t(n('orig') === 384, 'original: 384 soluciones (' + n('orig') + ')');
 t(n('exp') === 128, 'extendida sin casillas dadas: 128 soluciones (' + n('exp') + ')');
-t(n('ext') === 2, 'medio, con el 1 y el 8 dados: dos soluciones (' + n('ext') + ')');
+t(n('ext') === 1, 'medio, con el 1, el 9 y el 3 dados: solución única (' + n('ext') + ')');
 t(n('ayuda') === 1, 'fácil, con las 4 esquinas dadas (1, 15, 12 y 6): solución única (' + n('ayuda') + ')');
 t(Object.keys(cfg('ayuda').dados).join() === '0,3,12,15' && G.soluciones(cfg('ayuda'))[0].join() === '1,8,10,15,14,11,5,4,7,2,16,9,12,13,3,6', 'fácil: las esquinas dadas y la solución es la misma que la del reto medio');
 for (const c of G.CONFIGS) {
@@ -30,8 +30,8 @@ for (const c of G.CONFIGS) {
 console.log('== 3. La solución publicada y el reparto original');
 const SOL = [1, 8, 10, 15, 14, 11, 5, 4, 7, 2, 16, 9, 12, 13, 3, 6];
 t(G.esSolucion(cfg('ext'), SOL), 'la solución del reto extendido es válida');
-t(G.soluciones(cfg('ext')).some(x => x.join() === SOL.join()), 'una de las dos del reto medio');
-t(G.soluciones(cfg('ext')).map(x => x.join()).includes('1,8,11,14,15,10,5,4,6,3,16,9,12,13,2,7'), 'y la otra, con 11 y 14 en lugar de 10 y 15');
+t(G.soluciones(cfg('ext'))[0].join() === SOL.join(), 'y es la solución publicada');
+{ const ds = Object.keys(cfg('ext').dados).map(Number); t(ds.every((a, i) => ds.slice(i + 1).every(b => a >> 2 !== b >> 2 && (a & 3) !== (b & 3) && !((a >> 2 === (a & 3)) && (b >> 2 === (b & 3))) && !((a >> 2) + (a & 3) === 3 && (b >> 2) + (b & 3) === 3))), 'las 3 casillas dadas del medio no comparten fila, columna ni diagonal larga'); }
 { const mid = cfg('ext'); const todas = G.soluciones({ ...mid, key: 'ext-libre', dados: {} }); let unica = 0; for (let a = 0; a < 16; a++) for (let c = a + 1; c < 16; c++) { if (G.soluciones({ ...mid, key: 'par' + a + '_' + c, dados: { [a]: SOL[a], [c]: SOL[c] } }).length === 1) unica++; } t(todas.length === 128 && unica === 0, 'con solo 2 casillas dadas de la solución nunca hay solución única (por eso el medio tiene dos)'); }
 t(!G.esSolucion(cfg('orig'), SOL), 'con los colores originales esa solución NO vale (el reparto es distinto)');
 {
@@ -50,9 +50,9 @@ t(!G.esSolucion(cfg('orig'), SOL), 'con los colores originales esa solución NO 
 console.log('== 4. Análisis de tableros');
 {
   const c = cfg('ext'), b = G.tableroVacio(c);
-  t(b.filter(v => v).length === 2 && b[0] === 1 && b[1] === 8, 'el tablero inicial trae el 1 y el 8 en la primera fila');
+  t(b.filter(v => v).length === 3 && b[0] === 1 && b[11] === 9 && b[14] === 3, 'el tablero inicial trae el 1 (arriba a la izquierda), el 9 y el 3');
   const a0 = G.analiza(c, b);
-  t(a0.filas[0].estado === 'parcial' && a0.filas[0].suma === 9 && a0.filas[1].estado === 'vacia', 'fila 1 parcial con suma 9; fila 2 vacía');
+  t(a0.filas[0].estado === 'parcial' && a0.filas[0].suma === 1 && a0.filas[1].estado === 'vacia', 'fila 1 parcial con suma 1; fila 2 vacía');
   const full = G.analiza(c, SOL);
   t(full.correcto && full.errores === 0 && full.completo, 'la solución se analiza como correcta y sin errores');
   t(full.filas.every(l => l.suma === 34) && full.cols.every(l => l.suma === 34) && full.diags.every(l => l.suma === 34) && full.cuads.length === 9 && full.cuads.every(l => l.suma === 34), 'filas, columnas, diagonales y los 9 cuadrados suman 34');
@@ -65,9 +65,9 @@ console.log('== 4. Análisis de tableros');
   const pasada = new Array(16).fill(0); pasada[0] = 16; pasada[1] = 15; pasada[2] = 14;
   t(G.estadoLinea(pasada, [0, 1, 2, 3]).estado === 'mal', 'una línea parcial que ya pasa de 34 está mal');
   t(G.estadoLinea(new Array(16).fill(0), [0, 1, 2, 3]).estado === 'vacia', 'línea vacía');
-  t(G.fichasLibres(b).join() === [2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 16].join(), 'fichas libres al empezar: las 14 restantes');
+  t(G.fichasLibres(b).join() === [2, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16].join(), 'fichas libres al empezar: las 13 restantes');
   t(G.jugadaLimpia(c, b, 3, 15) && !G.jugadaLimpia(c, b, 3, 2), 'en la casilla 4: el 15 no choca, el 2 sí (rojo repetido con el 1)');
-  t(!G.jugadaLimpia(c, b, 2, 7), 'el 7 es amarillo y ya hay un amarillo (el 8) en la fila');
+  t(!G.jugadaLimpia(c, b, 5, 4), 'el 4 es rojo y la diagonal ya tiene un rojo (el 1)');
   t(G.analiza(cfg('orig'), G.tableroVacio(cfg('orig'))).cuads.length === 0, 'el original no tiene cuadrados 2×2');
 }
 
@@ -75,11 +75,11 @@ console.log('== 5. Pistas');
 {
   const c = cfg('ext');
   const p = G.pista(c, G.tableroVacio(c));
-  t(p.tipo === 'poner' && p.soluciones === 2 && G.compatibles(c, Object.assign(G.tableroVacio(c), { [p.celda]: p.valor })).length >= 1, 'con el 1 y el 8: la pista propone una jugada con solución (' + JSON.stringify(p) + ')');
-  // aplicando pistas una tras otra se llega a la solución en 14 pasos
+  t(p.tipo === 'poner' && p.soluciones === 1 && G.compatibles(c, Object.assign(G.tableroVacio(c), { [p.celda]: p.valor })).length >= 1, 'con el 1, el 9 y el 3: la pista propone una jugada con solución (' + JSON.stringify(p) + ')');
+  // aplicando pistas una tras otra se llega a la solución en 13 pasos
   let b = G.tableroVacio(c), pasos = 0;
   while (!G.esSolucion(c, b) && pasos < 20) { const q = G.pista(c, b); t(q.tipo === 'poner', 'solo hay jugadas de poner mientras no haya errores'); b[q.celda] = q.valor; pasos++; }
-  t(G.esSolucion(c, b) && pasos === 14, 'las pistas encadenadas resuelven el reto en 14 jugadas (' + pasos + ')');
+  t(G.esSolucion(c, b) && pasos === 13, 'las pistas encadenadas resuelven el reto en 13 jugadas (' + pasos + ')');
   t(G.pista(c, SOL).tipo === 'completo', 'con el tablero resuelto: completo');
   // error: una ficha que no lleva a ninguna solución
   const e = G.tableroVacio(c); e[3] = 2;
@@ -110,7 +110,8 @@ console.log('== 7. Variante «un solo color» (una ficha roja en cada cuadrado 2
 {
   const c = cfg('uno');
   t(c.cubre === 0 && !c.diagColor && c.cuadrados, 'rojo en cada 2×2, sin regla de diagonales');
-  t(G.soluciones(c).length === 1, 'con 1, 8 y 10: solución única (' + G.soluciones(c).length + ')');
+  t(G.soluciones(c).length === 1, 'con el 1, el 9 y el 11 (bien separados): solución única (' + G.soluciones(c).length + ')');
+  t(Object.keys(c.dados).join() === '0,11,13', 'casillas dadas: (1,1), (3,4) y (4,2)');
   const sol = G.soluciones(c)[0];
   t(sol.join() === '1,8,10,15,12,13,3,6,7,2,16,9,14,11,5,4', 'es la solución publicada');
   t(G.esSolucion(c, sol), 'el validador la acepta');
