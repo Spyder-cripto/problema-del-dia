@@ -24,14 +24,14 @@ const SOL_EXT = [1, 8, 10, 15, 14, 11, 5, 4, 7, 2, 16, 9, 12, 13, 3, 6];
 
 const dados = cs => Object.fromEntries(cs.map(i => [i, SOL_EXT[i]]));
 export const CONFIGS = [
-  { key: 'orig', label: 'El original · sin pistas', paleta: 'orig', diagColor: false, cuadrados: false, dados: {},
+  { key: 'orig', label: 'Original · sin casillas dadas', paleta: 'orig', diagColor: false, cuadrados: false, dados: {},
     corto: 'Original', resumen: 'El acertijo tal como se publicó: sumas de 34 y un color de cada en cada fila y columna.' },
-  { key: 'ayuda', label: 'Versión extendida · con 8 casillas dadas', paleta: 'ext', diagColor: true, cuadrados: true, dados: dados([0, 1, 2, 3, 4, 5, 6, 7]),
-    corto: 'Extendida · fácil', resumen: 'Con las dos primeras filas ya colocadas. Para entrar en materia.' },
-  { key: 'ext', label: 'Versión extendida · 3 casillas dadas (solución única)', paleta: 'ext', diagColor: true, cuadrados: true, dados: dados([0, 1, 2]),
-    corto: 'Extendida · difícil', resumen: 'El reto de Junio Puzzles: solo se da el 1, el 8 y el 10. Tiene una única solución.' },
-  { key: 'exp', label: 'Versión extendida · sin casillas dadas', paleta: 'ext', diagColor: true, cuadrados: true, dados: {},
-    corto: 'Extendida · experto', resumen: 'Sin ninguna casilla dada: hay 128 soluciones (contando giros y reflejos).' },
+  { key: 'ayuda', label: 'Fácil · versión extendida con 8 casillas dadas', paleta: 'ext', diagColor: true, cuadrados: true, dados: dados([0, 1, 2, 3, 4, 5, 6, 7]),
+    corto: 'Fácil', resumen: 'Con las dos primeras filas ya colocadas. Para entrar en materia.' },
+  { key: 'ext', label: 'Medio · versión extendida con 3 casillas dadas (solución única)', paleta: 'ext', diagColor: true, cuadrados: true, dados: dados([0, 1, 2]),
+    corto: 'Medio', resumen: 'Versión extendida: solo se dan el 1, el 8 y el 10 y se resuelve por deducción, sin adivinar. Tiene una única solución.' },
+  { key: 'exp', label: 'Difícil · versión extendida sin casillas dadas', paleta: 'ext', diagColor: true, cuadrados: true, dados: {},
+    corto: 'Difícil', resumen: 'Versión extendida sin ninguna casilla dada: hay que probar y comprobar. Hay 128 soluciones (contando giros y reflejos), y vale cualquiera.' },
 ];
 export const configDe = key => CONFIGS.find(c => c.key === key) || CONFIGS[0];
 
