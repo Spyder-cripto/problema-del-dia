@@ -1,7 +1,7 @@
 // completa-la-tabla/main.js — interfaz de «Completa la tabla». La lógica vive en game.js (probada en test.mjs).
 // Autocontenido: solo usa la hoja de estilo del hub. Se coloca con toque (elige ficha, elige casilla) o arrastrando.
 import { CONFIGS, configDe, colorDe, COLORES, EMOJI, SUMA, CELDAS, tableroVacio, colocadas, fichasLibres, analiza, jugadaLimpia,
-  esSolucion, soluciones, pista as pedirJugada } from './game.js?v=20261106b';
+  esSolucion, soluciones, pista as pedirJugada } from './game.js?v=20261106c';
 
 const root = document.getElementById('app');
 const h = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
