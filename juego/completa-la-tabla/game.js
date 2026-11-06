@@ -24,8 +24,8 @@ const SOL_EXT = [1, 8, 10, 15, 14, 11, 5, 4, 7, 2, 16, 9, 12, 13, 3, 6];
 
 const dados = cs => Object.fromEntries(cs.map(i => [i, SOL_EXT[i]]));
 export const CONFIGS = [
-  { key: 'ayuda', label: 'Fácil · versión extendida con 8 casillas dadas', paleta: 'ext', diagColor: true, cuadrados: true, dados: dados([0, 1, 2, 3, 4, 5, 6, 7]),
-    corto: 'Fácil', resumen: 'Con las dos primeras filas ya colocadas. Para entrar en materia.' },
+  { key: 'ayuda', label: 'Fácil · versión extendida con las 4 esquinas dadas', paleta: 'ext', diagColor: true, cuadrados: true, dados: dados([0, 3, 12, 15]),
+    corto: 'Fácil', resumen: 'Con las cuatro esquinas ya colocadas (1, 15, 12 y 6). Se resuelve por deducción y tiene una única solución.' },
   { key: 'ext', label: 'Medio · versión extendida con 3 casillas dadas (solución única)', paleta: 'ext', diagColor: true, cuadrados: true, dados: dados([0, 1, 2]),
     corto: 'Medio', resumen: 'Versión extendida: solo se dan el 1, el 8 y el 10 y se resuelve por deducción, sin adivinar. Tiene una única solución.' },
   { key: 'uno', label: 'Medio · un solo color, con 3 casillas dadas (solución única)', paleta: 'ext', diagColor: false, cuadrados: true, cubre: 0, dados: dados([0, 1, 2]),

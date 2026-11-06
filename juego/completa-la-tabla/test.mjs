@@ -18,7 +18,8 @@ const n = k => G.soluciones(cfg(k)).length;
 t(n('orig') === 384, 'original: 384 soluciones (' + n('orig') + ')');
 t(n('exp') === 128, 'extendida sin casillas dadas: 128 soluciones (' + n('exp') + ')');
 t(n('ext') === 1, 'extendida con 1, 8 y 10: solución única (' + n('ext') + ')');
-t(n('ayuda') >= 1, 'extendida con 8 casillas dadas: al menos una (' + n('ayuda') + ')');
+t(n('ayuda') === 1, 'fácil, con las 4 esquinas dadas (1, 15, 12 y 6): solución única (' + n('ayuda') + ')');
+t(Object.keys(cfg('ayuda').dados).join() === '0,3,12,15' && G.soluciones(cfg('ayuda'))[0].join() === '1,8,10,15,14,11,5,4,7,2,16,9,12,13,3,6', 'fácil: las esquinas dadas y la solución es la misma que la del reto medio');
 for (const c of G.CONFIGS) {
   const sols = G.soluciones(c);
   t(sols.every(s => G.esSolucion(c, s)), c.key + ': todas las soluciones pasan el validador');
