@@ -30,6 +30,8 @@ export const CONFIGS = [
     corto: 'Fácil', resumen: 'Con las dos primeras filas ya colocadas. Para entrar en materia.' },
   { key: 'ext', label: 'Medio · versión extendida con 3 casillas dadas (solución única)', paleta: 'ext', diagColor: true, cuadrados: true, dados: dados([0, 1, 2]),
     corto: 'Medio', resumen: 'Versión extendida: solo se dan el 1, el 8 y el 10 y se resuelve por deducción, sin adivinar. Tiene una única solución.' },
+  { key: 'uno', label: 'Medio · un solo color, con 3 casillas dadas (solución única)', paleta: 'ext', diagColor: false, cuadrados: true, cubre: 0, dados: dados([0, 1, 2]),
+    corto: 'Medio · un solo color', resumen: 'Sin la regla de las diagonales, pero con una ficha roja en cada uno de los 9 cuadrados 2×2. Se dan el 1, el 8 y el 10; se resuelve por deducción y tiene una única solución.' },
   { key: 'exp', label: 'Difícil · versión extendida sin casillas dadas', paleta: 'ext', diagColor: true, cuadrados: true, dados: {},
     corto: 'Difícil', resumen: 'Versión extendida sin ninguna casilla dada: hay que probar y comprobar. Hay 128 soluciones (contando giros y reflejos), y vale cualquiera.' },
 ];
@@ -93,8 +95,14 @@ export function analiza(cfg, b) {
   const conflictos = conflictosColor(cfg, b);
   const todas = [...filas, ...cols, ...diags, ...cuads];
   const completo = colocadas(b) === CELDAS;
-  return { filas, cols, diags, cuads, conflictos, completo, correcto: completo && conflictos.size === 0 && todas.every(l => l.estado === 'ok'),
-    errores: todas.filter(l => l.estado === 'mal').length + conflictos.size };
+  // regla de «un solo color»: cada cuadrado 2×2 debe llevar al menos una ficha de ese color (estado por cuadrado)
+  const cubren = cfg.cubre === undefined ? [] : L.cuads.map(idx => {
+    const tiene = idx.some(i => b[i] && colorDe(cfg, b[i]) === cfg.cubre), llenos = idx.every(i => b[i]);
+    return { tiene, estado: tiene ? 'ok' : llenos ? 'mal' : 'parcial' };
+  });
+  return { filas, cols, diags, cuads, cubren, conflictos, completo,
+    correcto: completo && conflictos.size === 0 && todas.every(l => l.estado === 'ok') && cubren.every(c => c.estado === 'ok'),
+    errores: todas.filter(l => l.estado === 'mal').length + conflictos.size + cubren.filter(c => c.estado === 'mal').length };
 }
 export const esSolucion = (cfg, b) => b.length === CELDAS && new Set(b).size === CELDAS && analiza(cfg, b).correcto;
 
@@ -117,6 +125,10 @@ export function soluciones(cfg) {
   sumas.forEach((idx, k) => idx.forEach(i => sumasDe[i].push(k)));
   colores.forEach((idx, k) => idx.forEach(i => coloresDe[i].push(k)));
   const ultima = sumas.map(idx => Math.max(...idx));   // la última casilla (en orden de lectura) de cada línea de suma
+  // cuadrados 2×2 que deben llevar un color concreto: se comprueban cuando se coloca su última casilla
+  const cuadsCubre = cfg.cubre === undefined ? [] : lineas(cfg).cuads;
+  const cierraCubre = Array.from({ length: CELDAS }, () => []);
+  cuadsCubre.forEach(idx => cierraCubre[Math.max(...idx)].push(idx));
   const b = new Array(CELDAS).fill(0), usado = new Array(17).fill(false), out = [];
   const parcial = sumas.map(() => 0), mask = colores.map(() => 0);
   for (const [i, v] of Object.entries(cfg.dados)) { b[+i] = v; usado[v] = true; }
@@ -138,7 +150,9 @@ export function soluciones(cfg) {
         if (s > SUMA || (ultima[k] === i && s !== SUMA)) { ok = false; break; }
       }
       if (!ok) continue;
-      b[i] = v; usado[v] = true;
+      b[i] = v;
+      if (cierraCubre[i].some(idx => !idx.some(j => col[b[j]] === cfg.cubre))) { b[i] = 0; continue; }
+      usado[v] = true;
       sumasDe[i].forEach(k => { parcial[k] += v; }); coloresDe[i].forEach(k => { mask[k] |= bit; });
       rec(i + 1);
       sumasDe[i].forEach(k => { parcial[k] -= v; }); coloresDe[i].forEach(k => { mask[k] &= ~bit; });
