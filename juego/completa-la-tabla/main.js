@@ -83,7 +83,7 @@ rules.appendChild(h('h2', null, 'Reglas'));
 const r0 = h('p', 'cb-intro'); r0.innerHTML = '<b>Coloca las 16 fichas en la tabla de forma que:</b>';
 const ul = h('ul', 'cb-reglas'); ul.id = 'cb-reglas';
 const r1 = h('p', 'cb-intro'); r1.innerHTML = '<b>Cómo se juega.</b> Toca una ficha de la mano y luego una casilla, o arrástrala. Toca una ficha colocada para devolverla a la mano, o arrástrala a otra casilla (si está ocupada, se intercambian). Las fichas con 📌 son pistas fijas y no se pueden mover. Los círculos de los bordes dan la suma de cada fila, columna y diagonal, y, en la versión extendida, los redondos entre cuatro casillas dan la de cada cuadrado 2×2. «Pista» primero te dice qué color va en una casilla y, si la pulsas otra vez, qué número. «Comprobar» marca en verde lo que ya está bien y en rojo lo que no.';
-const r2 = h('p', 'cb-intro'); r2.innerHTML = '<b>Un detalle curioso.</b> Con los colores del acertijo original no existe ninguna solución en la que además las dos diagonales tengan los cuatro colores. Por eso la versión extendida usa otro reparto: rojas 1–4, amarillas 5–8, verdes 9–12 y azules 13–16. Con ese reparto, y con 1, 8 y 10 en la primera fila, la solución es única.';
+const r2 = h('p', 'cb-intro'); r2.innerHTML = '<b>Un detalle curioso.</b> Con los colores del acertijo original no existe ninguna solución en la que además las dos diagonales tengan los cuatro colores. Por eso la versión extendida usa otro reparto: rojas 1–4, amarillas 5–8, verdes 9–12 y azules 13–16. Con ese reparto, y con 1, 8 y 10 en la primera fila, la solución es única. La variante «un solo color» quita la regla de las diagonales, porque no es compatible con tener una ficha roja en cada cuadrado 2×2.';
 rules.append(r0, ul, r1, r2);
 wrap.appendChild(rules);
 const foot = h('footer'); foot.innerHTML = 'Acertijo «Completa la tabla» de Junio Puzzles, con una versión extendida de este sitio · <a href="../">Juegos</a> · <a href="../../">El problema del día</a>';
@@ -154,9 +154,16 @@ function renderTabla() {
   { const [c, t] = textoChip(A.diags[1], 'Diagonal ↙'); chipD2.className = 'cb-chip cb-d2 ' + c; chipD2.textContent = (t === '·' ? '↙' : t); chipD2.title = 'Diagonal larga ↙ (de arriba a la derecha a abajo a la izquierda)'; }
   // cuadrados 2×2: redondos en el cruce de cuatro casillas
   if (cfg.cuadrados) A.cuads.forEach((l, k) => {
-    const r = Math.floor(k / 3), c = k % 3, [cl, t] = textoChip(l, '');
-    const oculto = l.estado === 'parcial' || l.estado === 'vacia';
-    const e = chip((oculto ? 'vacia' : cl) + ' cb-sq', oculto ? '' : t, 'Cuadrado 2×2');
+    const r = Math.floor(k / 3), c = k % 3, [cl0, t] = textoChip(l, '');
+    const cub = cfg.cubre !== undefined ? A.cubren[k] : null;   // regla de «un solo color»
+    const completo = l.estado === 'ok' || l.estado === 'mal';
+    let cl = cl0, oculto = !completo;
+    if (cub) {
+      if (completo) cl = (l.estado === 'ok' && cub.estado === 'ok') ? (hayAvisos() ? 'ok' : 'parcial') : (hayAvisos() ? 'mal' : 'parcial');
+      else if (cub.tiene) { cl = 'parcial'; oculto = false; }
+    }
+    const e = chip((oculto ? 'vacia' : cl) + ' cb-sq', oculto || !completo ? '' : t, 'Cuadrado 2×2' + (cub ? ' (suma 34 y una ficha ' + COLORES[cfg.cubre] + ')' : ''));
+    if (cub && cub.tiene) e.style.boxShadow = '0 0 0 3px ' + ['#ee2e4b', '#ffc81e', '#14b85a', '#1f78ff'][cfg.cubre] + ', 0 1px 4px rgba(0,0,0,.25)';
     e.style.left = 'calc(' + (c + 1) * 25 + '% + (' + (c - 1) + ') * var(--g) / 4)';
     e.style.top = 'calc(' + (r + 1) * 25 + '% + (' + (r - 1) + ') * var(--g) / 4)';
     tab.appendChild(e);
@@ -197,6 +204,7 @@ function renderReglas() {
   li('Cada fila, columna y diagonal larga suma <b>34</b>.');
   li('Un cuadrado de cada color (rojo, amarillo, verde y azul) aparece en cada fila y columna' + (cfg.diagColor ? ' <b>y en las dos diagonales largas</b>' : '') + '.');
   if (cfg.cuadrados) li('Cada uno de los <b>9 cuadrados 2×2</b> interiores suma 34.');
+  if (cfg.cubre !== undefined) li('En cada uno de los 9 cuadrados 2×2 hay <b>una ficha ' + COLORES[cfg.cubre] + '</b> (el redondo se rodea de ' + COLORES[cfg.cubre] + ' cuando ya la tiene).');
 }
 function renderInfo() {
   info.innerHTML = '';

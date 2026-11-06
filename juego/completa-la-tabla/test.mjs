@@ -103,5 +103,30 @@ for (const c of G.CONFIGS) {
   t(G.esSolucion(c, b), c.key + ': resuelto solo con pistas en ' + pasos + ' jugadas');
 }
 
+console.log('== 7. Variante «un solo color» (una ficha roja en cada cuadrado 2×2, sin diagonales de color)');
+{
+  const c = cfg('uno');
+  t(c.cubre === 0 && !c.diagColor && c.cuadrados, 'rojo en cada 2×2, sin regla de diagonales');
+  t(G.soluciones(c).length === 1, 'con 1, 8 y 10: solución única (' + G.soluciones(c).length + ')');
+  const sol = G.soluciones(c)[0];
+  t(sol.join() === '1,8,10,15,12,13,3,6,7,2,16,9,14,11,5,4', 'es la solución publicada');
+  t(G.esSolucion(c, sol), 'el validador la acepta');
+  const an = G.analiza(c, sol);
+  t(an.cubren.length === 9 && an.cubren.every(x => x.estado === 'ok'), 'los 9 cuadrados 2×2 llevan una ficha roja');
+  // la solución de la versión extendida NO vale aquí (otro dibujo de colores) y la de aquí no vale allí (diagonales)
+  t(!G.esSolucion(cfg('ext'), sol), 'esta solución no vale en la versión extendida (diagonales con colores repetidos)');
+  t(!G.esSolucion(c, [1, 8, 10, 15, 14, 11, 5, 4, 7, 2, 16, 9, 12, 13, 3, 6]), 'la solución de la versión extendida no vale aquí: algún 2×2 no lleva rojo');
+  // sin casillas dadas hay 32 soluciones, todas válidas
+  const libre = { ...c, key: 'uno-libre', dados: {} };
+  const todas = G.soluciones(libre);
+  t(todas.length === 32 && todas.every(s => G.esSolucion(libre, s)), 'sin casillas dadas: 32 soluciones, todas válidas (' + todas.length + ')');
+  // un 2×2 sin rojo completo es un error
+  const sin = new Array(16).fill(0); [5, 6, 9, 10].forEach((i, k) => { sin[i] = [5, 9, 13, 6][k]; });
+  t(G.analiza(c, sin).cubren[4].estado === 'mal', 'un 2×2 completo sin ficha roja está mal');
+  let b = G.tableroVacio(c), pasos = 0;
+  while (!G.esSolucion(c, b) && pasos < 20) { const q = G.pista(c, b); if (q.tipo !== 'poner') break; b[q.celda] = q.valor; pasos++; }
+  t(G.esSolucion(c, b) && pasos === 13, 'resuelta solo con pistas en 13 jugadas (' + pasos + ')');
+}
+
 console.log(ko ? '\n' + ko + ' FALLOS de ' + (ok + ko) : '\nTodo bien: ' + ok + ' comprobaciones');
 process.exit(ko ? 1 : 0);
