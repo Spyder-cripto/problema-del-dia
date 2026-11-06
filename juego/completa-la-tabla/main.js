@@ -7,7 +7,7 @@ const root = document.getElementById('app');
 const h = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
 
 // ---------- estado ----------
-let cfg = configDe(new URLSearchParams(location.search).get('v') || 'ext');
+let cfg = configDe(new URLSearchParams(location.search).get('v') || 'ayuda');
 let b = tableroVacio(cfg), sel = null, moves = 0, hints = 0, elapsed = 0, since = null;
 let solved = false, revealed = false, ayuda = true, avisos = true, comprobado = false;
 let msg = { text: '', cls: '' }, pista = null, drag = null;
