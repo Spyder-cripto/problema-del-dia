@@ -180,6 +180,17 @@ Las de Genio (7-11 aristas) son **árboles ramificados con jugada ganadora ÚNIC
 
 **Validar en node antes de publicar:** (1) `node --check` del `<script>` extraído; (2) ejecutar el IIFE con un DOM simulado (stub de document/createElementNS/getElementById…) para que `loadPreset`→`render` corran sin throw; (3) para el motor v2 y el roster, recomputar con la librería (`evalFull`) el valor canónico y nº de jugadas ganadoras de cada preset (la batería de 18 tiene oráculo fijo; números ½,⅛,1/16,1/64 y nimbers/infinitesimales ∗k,↑,⇑,↑∗ exactos). **OJO rendimiento:** la forma canónica de posiciones mixtas grandes (>10 aristas) explota (abanico de 10 verdes tardaba 64 s) → el despacho rápido lo evita; mantener los niveles mixtos pequeños. **No depende de la GitHub Action (es estático) → NO hay cache-buster:** forzar recarga (Ctrl+F5) o abrir con `?v=N`. Surgió el 2026-06-19 al explorar a Conway tras bajar *Winning Ways Vol.1* a `Downloads\Conway`.
 
+## Siete segmentos (`juego/siete-segmentos/`)
+
+Puzzle en solitario: **series lógicas con dígitos de display** (URL `…/problema-del-dia/juego/siete-segmentos/`), enlazado desde la tarjeta 📟 de «Acertijos clásicos» en `juego/index.html`. **25 retos en 4 niveles** (Fácil 6, Medio 6, Difícil 6, Experto 7). Estética propia de neón multicolor (cada segmento tiene su color), por eso NO usa `_engine/style.css`; fuentes Bungee + Outfit de Google Fonts.
+
+- **Archivos:** `game.js` = datos (`PUZZLES`) + lógica pura sin DOM (`eqState`, `decode`, `comprobarRespuesta`, `comprobarPalillos`, solucionador `solucionesPalillos`); `main.js` = interfaz; `test.mjs` = batería (`node juego/siete-segmentos/test.mjs`, 201 pruebas).
+- **Tipos de reto (`kind`):** `series` (se escribe el término que falta), `eqs` («suma de luces»: superponer segmentos), `odd` (tocar el intruso) y `match` (igualdad de palillos: mover exactamente `k` segmentos). En `match` el estado es un conjunto de claves `'pos:seg'` (pos 0 = primer número, 1 = signo con barras `h`/`v`, 2 = segundo número, 3 = resultado; el `=` es fijo).
+- **Convenio de dígitos:** el **7 usa 3 segmentos** (abc) y el 6 y el 9 usan 6. Cambiarlo rompe la mitad de las series.
+- **Campos útiles:** `base` (la sucesión real; la explicación la dibuja con su recuento), `totals: true` (los términos son los segmentos de `base`; el test lo recalcula), `mode: 'off' | 'cum'`, `alt` (mensajes para respuestas casi correctas), 3 `hints`, `why`.
+- **Añadir un reto:** añadir el objeto en su nivel con `id` nuevo (no reutilizar ids: las estrellas se guardan por id en `localStorage`, clave `siete-segmentos-v2`) y pasar `test.mjs`. Para palillos el test exige **solución única** con `k` movimientos y ninguna con menos.
+- **Estrellas:** 3 sin pistas, 2 con 1-2, 1 con 3; ver la solución (con doble confirmación) no suma. Cada reto tiene enlace propio con `#id` (p. ej. `#e7`).
+
 ## Reabastecer problemas
 
 Antes de que el ciclo de ~62 días repita demasiado, minar más acertijos de la biblioteca (`D:\libros_maravillosos\Matemáticas`: Perelman, Gardner, Sam Loyd/Dudeney, Malba Tahan, Ignátiev, Yaglom, Steinhaus, Guik, Lucas, Paenza…). Adaptar (reescribir, no copiar; respeta copyright) y seguir el procedimiento de "Cómo añadir un problema".
