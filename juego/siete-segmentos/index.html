@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Siete segmentos · El problema del día</title>
+<meta name="description" content="Series lógicas con dígitos de display de siete segmentos: cuenta barras, mueve palillos y descubre la regla. 25 retos en cuatro niveles, de fácil a experto, con pistas, deshacer y solución.">
+<meta name="theme-color" content="#130a2e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Concepto: sala de juegos en neón. Cada segmento tiene su propio color y los dígitos se encienden como un marcador inclinado. */
+:root{
+  --bg:#130a2e; --panel:#221453; --inset:#10082a; --line:#3b2a80;
+  --fg:#f6f1ff; --muted:#b9abe8; --ink:#190c3a;
+  --pink:#ff4d8d; --yellow:#ffd23f; --green:#7cff6b; --cyan:#2de2e6; --blue:#3d8bff; --violet:#9b5cff; --orange:#ff8a3d;
+  --display:'Bungee','Arial Black',Impact,sans-serif;
+  --body:'Outfit',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --gw:34px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+body{
+  background:var(--bg);
+  background-image:
+    radial-gradient(520px 320px at 8% -4%,rgba(255,77,141,.28),transparent 70%),
+    radial-gradient(560px 360px at 100% 6%,rgba(45,226,230,.22),transparent 70%),
+    radial-gradient(640px 400px at 50% 108%,rgba(155,92,255,.30),transparent 70%);
+  background-attachment:fixed;
+  margin:0; color:var(--fg); font-family:var(--body); font-size:16px; line-height:1.45;
+  padding-block:22px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:920px;margin:0 auto;display:grid;gap:18px}
+button{font-family:inherit}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+
+/* Cabecera */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.logo{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(26px,6vw,40px);letter-spacing:.02em;line-height:1;
+  background:linear-gradient(90deg,var(--pink),var(--yellow),var(--green),var(--cyan),var(--blue),var(--violet));
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.score{display:flex;align-items:center;gap:10px;padding:8px 14px;border:2px solid var(--yellow);border-radius:999px;background:rgba(255,210,63,.1);font-weight:700}
+.score b{font-family:var(--display);font-weight:400;color:var(--yellow);font-size:18px;font-variant-numeric:tabular-nums}
+.tool{min-height:44px;padding:8px 14px;border-radius:999px;border:2px solid var(--line);background:var(--inset);color:var(--muted);font-weight:700;font-size:14px;cursor:pointer}
+.tool[aria-pressed="true"]{border-color:var(--cyan);color:var(--fg)}
+.tool:hover{border-color:var(--cyan)}
+.sub{margin:6px 0 0;color:var(--muted);max-width:56ch}
+.back{display:inline-flex;align-items:center;min-height:44px;margin-top:4px;color:var(--cyan);font-weight:700;text-decoration:none}
+.back:hover{text-decoration:underline}
+.back:focus-visible{outline:3px solid #fff;outline-offset:2px;border-radius:6px}
+.how{border:1px solid var(--line);border-radius:14px;background:rgba(16,8,42,.6);padding:0 14px}
+.how summary{cursor:pointer;padding:12px 0;font-weight:700;color:var(--fg)}
+.how ul{margin:0 0 14px;padding-left:20px;color:var(--muted);display:grid;gap:6px}
+.how b{color:var(--fg)}
+kbd{font-family:var(--body);font-size:12px;font-weight:700;padding:1px 6px;border-radius:6px;border:1px solid var(--line);background:var(--inset);color:var(--fg)}
+
+/* Niveles */
+.levels{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.lvl{--lv:var(--green);display:grid;gap:2px;text-align:left;padding:10px 12px;border-radius:16px;border:2px solid var(--lv);
+  background:transparent;color:var(--fg);cursor:pointer;min-width:0}
+.lvl .n{font-family:var(--display);font-size:15px;color:var(--lv)}
+.lvl .c{font-size:13px;color:var(--muted)}
+.lvl .bar{height:5px;border-radius:3px;margin-top:6px;background:color-mix(in srgb,var(--lv) 18%,transparent);overflow:hidden}
+.lvl .bar i{display:block;height:100%;width:var(--p);background:var(--lv);border-radius:3px;transition:width .4s}
+.lvl:hover{background:color-mix(in srgb,var(--lv) 12%,transparent)}
+.lvl[aria-selected="true"]{background:color-mix(in srgb,var(--lv) 22%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--lv) 28%,transparent),0 0 24px color-mix(in srgb,var(--lv) 45%,transparent)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{--lv:var(--green);width:46px;height:46px;border-radius:12px;border:2px solid var(--line);background:var(--inset);color:var(--muted);
+  font-family:var(--display);font-size:16px;cursor:pointer;display:grid;place-items:center;position:relative;padding:0 0 6px}
+.chip:hover{border-color:var(--lv)}
+.chip.cur{border-color:var(--lv);color:var(--fg);box-shadow:0 0 14px color-mix(in srgb,var(--lv) 55%,transparent)}
+.chip.done{background:color-mix(in srgb,var(--lv) 26%,var(--inset));border-color:var(--lv);color:var(--fg)}
+.chip small{position:absolute;bottom:3px;left:0;right:0;text-align:center;font-family:var(--body);font-size:9px;letter-spacing:1px;color:var(--yellow);line-height:1}
+
+/* Tarjeta de juego */
+.card{--lv:var(--green);background:var(--panel);border:2px solid var(--line);border-radius:24px;padding:clamp(16px,3vw,26px);display:grid;gap:16px;min-width:0}
+.meta{display:grid;gap:6px}
+.pill{justify-self:start;font-family:var(--display);font-size:12px;letter-spacing:.06em;padding:5px 10px;border-radius:999px;background:var(--lv);color:var(--ink)}
+.card h2{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(20px,4.4vw,28px);line-height:1.1;text-wrap:balance}
+.card p{margin:0;color:var(--muted);max-width:62ch}
+.info{display:flex;gap:6px 16px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.info b{color:var(--yellow);letter-spacing:1px}
+.stage{background:var(--inset);border:2px solid var(--line);border-radius:18px;padding:clamp(16px,3vw,26px);display:grid;gap:16px;justify-items:center;overflow-x:auto}
+.row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:14px 24px}
+.row.eq{gap:14px}
+.row.series{gap:12px 14px}
+.sep{width:7px;height:7px;border-radius:50%;background:var(--line);flex:none}
+.num{display:inline-flex;gap:6px}
+.gl{width:var(--gw);height:calc(var(--gw)*1.667);display:block;overflow:visible;transform:skewX(-6deg)}
+.seg{fill:var(--c)}
+.seg.off{opacity:.13}
+.seg.on{opacity:1;filter:drop-shadow(0 0 3px var(--c))}
+.q{min-width:calc(var(--gw)*1.15);height:calc(var(--gw)*1.667 + 12px);padding:0 8px;border:3px dashed var(--yellow);border-radius:12px;display:inline-flex;gap:6px;align-items:center;justify-content:center;
+  font-family:var(--display);color:var(--yellow);font-size:calc(var(--gw)*.9);animation:pulse 1.6s ease-in-out infinite}
+.q.filled{border-style:solid;animation:none;background:rgba(255,210,63,.08)}
+.q.solved{border:3px solid var(--green);background:rgba(124,255,107,.1);animation:none}
+.q.shown{border:3px solid var(--orange);background:rgba(255,138,61,.1);animation:none}
+@keyframes pulse{50%{box-shadow:0 0 18px rgba(255,210,63,.55)}}
+.tok{border:2px dashed transparent;background:none;border-radius:12px;padding:6px;cursor:pointer;color:inherit}
+.tok:hover:not(:disabled){border-color:var(--muted)}
+.tok.sel{border:2px solid var(--yellow);background:rgba(255,210,63,.12)}
+.tok:disabled{cursor:default}
+.match{--gw:clamp(44px,11vw,68px)}
+.match .row{gap:clamp(8px,2.4vw,18px);flex-wrap:nowrap}
+.match .seg{cursor:pointer;stroke:rgba(0,0,0,0);stroke-width:8px;pointer-events:all}
+.match .seg.off:hover{opacity:.5}
+.match .seg:focus{outline:none}
+.match .seg:focus-visible{stroke:#fff;stroke-width:3px}
+.ghost{fill:none;stroke:rgba(255,255,255,.6);stroke-width:1.5px;stroke-dasharray:3 3;pointer-events:none}
+.ring{fill:none;stroke:#fff;stroke-width:2px;pointer-events:none}
+.locked .seg{pointer-events:none;cursor:default}
+.status{font-size:14px;color:var(--muted);text-align:center}
+.status b{color:var(--yellow)}
+.shake{animation:shake .42s}
+@keyframes shake{20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+
+/* Teclado */
+.keys{display:grid;grid-template-columns:repeat(10,1fr);gap:8px;width:100%;max-width:640px;justify-self:center}
+.key{--gw:18px;border:2px solid var(--line);background:var(--inset);border-radius:12px;padding:8px 0 6px;display:grid;place-items:center;gap:2px;cursor:pointer;color:var(--muted);font-weight:700;font-size:12px;min-height:56px}
+.key:hover:not(:disabled){border-color:var(--cyan);color:var(--fg);transform:translateY(-2px)}
+.key:active:not(:disabled){transform:translateY(0)}
+.key:disabled{opacity:.4;cursor:default}
+
+/* Botones */
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.btn{--b:var(--cyan);font-weight:700;font-size:15px;line-height:1;padding:13px 16px;min-height:46px;border-radius:14px;border:2px solid var(--b);
+  background:color-mix(in srgb,var(--b) 14%,transparent);color:var(--fg);cursor:pointer}
+.btn:hover:not(:disabled){background:color-mix(in srgb,var(--b) 30%,transparent)}
+.btn:disabled{opacity:.38;cursor:default}
+.btn.primary{background:var(--b);color:var(--ink);flex:1 1 170px;font-size:16px}
+.btn.primary:hover:not(:disabled){background:color-mix(in srgb,var(--b) 82%,#fff)}
+.btn.armed{background:var(--b);color:var(--ink)}
+.btn:focus-visible,.chip:focus-visible,.lvl:focus-visible,.key:focus-visible,.tool:focus-visible,.tok:focus-visible,.linkbtn:focus-visible,.how summary:focus-visible{outline:3px solid #fff;outline-offset:2px}
+
+/* Mensajes */
+.fb{min-height:24px;font-weight:700;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fb.ok{color:var(--green)} .fb.bad{color:var(--pink)} .fb.info{color:var(--cyan)}
+.hints{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.hints li{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:rgba(255,210,63,.09);border:1px solid rgba(255,210,63,.4)}
+.hints b{flex:none;width:24px;height:24px;border-radius:50%;background:var(--yellow);color:var(--ink);display:grid;place-items:center;font-size:13px}
+.why{padding:14px 16px;border-radius:14px;border:2px solid var(--green);background:rgba(124,255,107,.08);display:grid;gap:10px}
+.why.shown{border-color:var(--orange);background:rgba(255,138,61,.08)}
+.why strong{font-family:var(--display);font-weight:400}
+.why p{color:var(--fg)}
+.steps{display:flex;flex-wrap:wrap;gap:8px}
+.step{--gw:13px;display:grid;justify-items:center;gap:5px;padding:8px 10px;border-radius:12px;background:var(--inset);border:1px solid var(--line)}
+.step .num{gap:3px}
+.step span:last-child{font-size:12px;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums;white-space:nowrap}
+.step.last{border:2px solid var(--yellow)}
+.step.last span:last-child{color:var(--yellow)}
+.banner{padding:14px 16px;border-radius:16px;border:2px solid var(--yellow);font-weight:700;
+  background:linear-gradient(90deg,rgba(255,77,141,.22),rgba(155,92,255,.22),rgba(45,226,230,.22))}
+.banner strong{font-family:var(--display);font-weight:400;display:block;font-size:18px;color:var(--yellow)}
+
+/* Guía */
+.guide{display:grid;gap:10px}
+.guide h3{margin:0;font-family:var(--display);font-weight:400;font-size:16px}
+.guide p{margin:0;color:var(--muted);font-size:14px}
+.guide .g{display:grid;grid-template-columns:repeat(10,1fr);gap:8px}
+.guide .d{--gw:20px;display:grid;justify-items:center;gap:4px;padding:8px 0;border-radius:12px;background:var(--inset);border:1px solid var(--line);font-size:12px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:13px;padding:10px 0;min-height:44px}
+
+/* Confeti */
+#fx{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:20}
+#fx i{position:absolute;top:-24px;width:9px;height:20px;border-radius:3px;animation:fall 1.7s ease-in forwards}
+@keyframes fall{to{transform:translateY(112vh) rotate(540deg);opacity:.9}}
+
+@media (max-width:640px){
+  :root{--gw:26px}
+  .levels{grid-template-columns:repeat(2,1fr)}
+  .keys{grid-template-columns:repeat(5,1fr)}
+  .guide .g{grid-template-columns:repeat(5,1fr)}
+  .row{gap:12px 16px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="top">
+      <h1 class="logo">Siete Segmentos</h1>
+      <div class="tools">
+        <button class="tool" id="b-sound" type="button" aria-pressed="true">Sonido: sí</button>
+        <div class="score">Estrellas <b id="stars">0 / 0</b></div>
+      </div>
+    </div>
+    <p class="sub">Series lógicas con dígitos de display. Cuenta barras, compara formas y descubre la regla.</p>
+    <a class="back" href="../">← Volver a los juegos</a>
+  </header>
+
+  <details class="how">
+    <summary>Cómo se juega</summary>
+    <ul>
+      <li>Cada reto esconde una regla basada en los segmentos encendidos de un display.</li>
+      <li>Escribe la respuesta con los botones o con el teclado: <kbd>0</kbd>–<kbd>9</kbd> escribe, <kbd>Retroceso</kbd> deshace, <kbd>Intro</kbd> comprueba y <kbd>P</kbd> pide una pista.</li>
+      <li>En las <b>igualdades de palillos</b>, toca un segmento para apagarlo o encenderlo. Solo se mueve: cada segmento que enciendes tiene que salir de otro sitio. El hueco que dejas se marca con línea discontinua.</li>
+      <li><b>Estrellas:</b> sin pistas 3, con 1 o 2 pistas 2, con 3 pistas 1. Ver la solución no suma.</li>
+    </ul>
+  </details>
+
+  <nav class="levels" id="levels" role="tablist" aria-label="Niveles"></nav>
+  <div class="chips" id="chips" aria-label="Retos del nivel"></div>
+
+  <main class="card" id="card" role="tabpanel"></main>
+
+  <section class="guide" aria-label="Guía de dígitos">
+    <h3>Guía de dígitos</h3>
+    <p>Debajo de cada dígito, cuántos segmentos enciende. En este juego el 7 usa 3 segmentos y el 6 y el 9 usan 6.</p>
+    <div class="g" id="guide"></div>
+  </section>
+
+  <footer class="foot">
+    <span id="total-note"></span>
+    <button class="linkbtn" id="wipe" type="button">Borrar progreso</button>
+  </footer>
+</div>
+<div id="live" class="sr" aria-live="polite"></div>
+<div id="fx" aria-hidden="true"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
