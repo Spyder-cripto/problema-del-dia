@@ -190,6 +190,7 @@ Puzzle en solitario: **series lógicas con dígitos de display** (URL `…/probl
 - **Campos útiles:** `base` (la sucesión real; la explicación la dibuja con su recuento), `totals: true` (los términos son los segmentos de `base`; el test lo recalcula), `mode: 'off' | 'cum'`, `alt` (mensajes para respuestas casi correctas), 3 `hints`, `why`.
 - **Añadir un reto:** añadir el objeto en su nivel con `id` nuevo (no reutilizar ids: las estrellas se guardan por id en `localStorage`, clave `siete-segmentos-v2`) y pasar `test.mjs`. Para palillos el test exige **solución única** con `k` movimientos y ninguna con menos.
 - **Estrellas:** 3 sin pistas, 2 con 1-2, 1 con 3; ver la solución (con doble confirmación) no suma. Cada reto tiene enlace propio con `#id` (p. ej. `#e7`).
+- **Compartir:** `index.html` lleva etiquetas Open Graph con `preview.jpg` (1200×630, 82 KB) para que el enlace salga con tarjeta en WhatsApp. **En los estados de WhatsApp, el enlace dentro del pie de una foto no siempre se puede pulsar:** compartirlo como estado de texto (solo el enlace) y la tarjeta pone la imagen. Si se cambia `preview.jpg`, subir el `?v=` de `og:image` para que WhatsApp no use la copia vieja. `estado_siete_segmentos.png` (raíz, 1080×1080) es la imagen suelta para subir como foto.
 
 ## Reabastecer problemas
 
