@@ -11,12 +11,24 @@ En la simulación intervienen dos "jugadores":
 
   * Jugador 1 · El Azar ......... genera los resultados con un generador
                                   pseudoaleatorio moderno (numpy PCG64) y los
-                                  va "cantando" por lotes.
-  * Jugador 2 · El Estadístico .. registra cada lote en cuanto sale (contadores
-                                  en vivo que se muestran por consola) y, al
-                                  terminar, elabora un informe exhaustivo que
-                                  compara lo observado con lo que predice la
-                                  teoría.
+                                  va "cantando" por lotes. Con --trucar puede
+                                  hacer trampa en secreto.
+  * Jugador 2 · El Estadístico .. juega de la forma más inteligente posible:
+                                  - conoce el valor esperado EXACTO de apostar a
+                                    cada número con la tabla de premios real;
+                                  - vigila con inferencia bayesiana jerárquica si
+                                    la máquina está trucada (sin dejarse engañar
+                                    por la "maldición del ganador");
+                                  - solo apuesta cuando el valor esperado es
+                                    positivo (en un sorteo justo, nunca);
+                                  - no cae en falacias (números "calientes" o
+                                    "atrasados").
+                                  Además registra cada sorteo y elabora un
+                                  informe estadístico exhaustivo.
+
+Para comparar, cuatro rivales apuestan en todos los sorteos: un cazador de
+números calientes, un cazador de atrasados, un supersticioso (siempre el 777)
+y uno que elige al azar.
 
 Todas las probabilidades teóricas se calculan de forma EXACTA enumerando el
 universo de los 1000 números posibles, de modo que cada métrica observada se
@@ -28,6 +40,7 @@ Dependencias (Python 3.9 o superior):
 Uso:
     python simulador_triplex.py                  # pregunta el nº de sorteos
     python simulador_triplex.py -n 50000 -s 42   # sin preguntas, reproducible
+    python simulador_triplex.py -n 50000 --trucar 10 --factor 3   # ¿lo descubrirá?
     python simulador_triplex.py --help           # todas las opciones
 """
 
@@ -37,8 +50,9 @@ import argparse
 import math
 import secrets
 import sys
+import textwrap
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Dict, Iterator, List, Optional, Tuple
 
@@ -86,6 +100,8 @@ class Configuracion:
     guardar_png: bool = True
     guardar_csv: bool = False
     mostrar: bool = True
+    trucados: int = 0                     # nº de números que el Azar trucará en secreto
+    factor: float = 3.0                   # cuántas veces más salen los números trucados
 
 
 class Paleta:
@@ -111,6 +127,11 @@ class Paleta:
     BANDA = "#e7e6e0"
     DIVERGENTE = ("#184f95", "#3987e5", "#9ec5f4", "#f0efec",
                   "#f4b0af", "#e34948", "#a8292a")
+    # Un color fijo por jugador de la partida (siempre en este orden)
+    CATEGORICA = ("#2a78d6", "#eb6834", "#1baf7a", "#eda100",
+                  "#e87ba4", "#008300", "#6250d6", "#e34948")
+    # Rampa ordinal para las categorías de premio (de mayor a menor)
+    RAMPA_GRIS = ("#3d3c39", "#6e6d68", "#a3a29b", "#d3d2cb")
 
 
 P = Paleta
@@ -144,6 +165,15 @@ def fmt_p(p: float) -> str:
     if p is None or math.isnan(p):
         return "n/d"
     return "< 0,0001" if p < 1e-4 else fmt_dec(p, 4)
+
+
+def fmt_euros(x: float, dec: int = 2) -> str:
+    """-12.5 -> '-12,50 €'; 3 -> '+3,00 €' (con signo, salvo el cero)."""
+    if x is None or math.isnan(x):
+        return "n/d"
+    if round(x, dec) == 0:
+        return f"{fmt_dec(0.0, dec)} €"
+    return f"{'+' if x > 0 else ''}{fmt_dec(x, dec)} €"
 
 
 def fmt_num(n: int) -> str:
@@ -408,29 +438,237 @@ class ModeloTeorico:
 
 
 # =============================================================================
-# 4. JUGADOR 1: EL AZAR
+# 4. EL JUEGO: TABLA DE PREMIOS Y DETECTOR BAYESIANO DE TRAMPAS
+# =============================================================================
+
+# Tabla de premios del Tríplex de la ONCE para una apuesta de 0,50 € (según
+# resuloto.com y statyr.com, consultados en noviembre de 2026; conviene
+# comprobarla en juegosonce.es). Solo se cobra el premio MÁS ALTO de cada
+# apuesta. Si las reglas cambian, basta con editar estos valores: el valor
+# esperado de cada número y la estrategia del Estadístico se recalculan solos.
+PRECIO_APUESTA = 0.50
+TABLA_PREMIOS = {
+    "exacto": 150.00,        # las tres cifras en su orden
+    "otro_orden": 10.00,     # las tres cifras, en distinto orden
+    "dos_primeras": 2.00,    # las dos primeras cifras, en su orden
+    "dos_ultimas": 2.00,     # las dos últimas cifras, en su orden
+    "primera": 0.50,         # la primera cifra
+    "ultima": 0.50,          # la última cifra
+}
+CATEGORIAS_ACIERTO = ("Exacto", "Otro orden", "Dos cifras", "Una cifra", "Nada")
+EJEMPLOS_TIPO = {"Tres cifras distintas": "123", "Pareja contigua": "112, 211",
+                 "Pareja separada": "121", "Trío": "777"}
+
+
+def tipo_de_numero(numero: int) -> str:
+    """Clasifica un número según el patrón de sus cifras."""
+    c, d, u = numero // 100, (numero // 10) % 10, numero % 10
+    if c == d == u:
+        return "Trío"
+    if c == u:
+        return "Pareja separada"
+    if c == d or d == u:
+        return "Pareja contigua"
+    return "Tres cifras distintas"
+
+
+class ReglasTriplex:
+    """Premio de cada apuesta frente a cada resultado, y su valor esperado EXACTO.
+
+    Se construye una matriz 1000 x 1000 en la que premio[i, j] son los euros que
+    cobra quien apuesta al número i si sale el j. La media de cada fila es el
+    premio esperado de apostar a i en un sorteo justo, sin aproximaciones.
+    Los números con el mismo valor esperado forman un "grupo".
+    """
+
+    def __init__(self, precio: float = PRECIO_APUESTA,
+                 premios: Optional[Dict[str, float]] = None):
+        self.precio = precio
+        self.premios = dict(TABLA_PREMIOS if premios is None else premios)
+        c, d, u = descomponer(UNIVERSO)
+        A, B, C = c[:, None], d[:, None], u[:, None]      # número apostado (filas)
+        X, Y, Z = c[None, :], d[None, :], u[None, :]      # número premiado (columnas)
+        firma = np.sort(np.stack([c, d, u], axis=1), axis=1) @ np.array([100, 10, 1])
+        exacto = (A == X) & (B == Y) & (C == Z)
+        otro_orden = (firma[:, None] == firma[None, :]) & ~exacto
+        condiciones = (   # (categoría para el recuento, importe, condición)
+            (3, self.premios["ultima"], C == Z),
+            (3, self.premios["primera"], A == X),
+            (2, self.premios["dos_ultimas"], (B == Y) & (C == Z)),
+            (2, self.premios["dos_primeras"], (A == X) & (B == Y)),
+            (1, self.premios["otro_orden"], otro_orden),
+            (0, self.premios["exacto"], exacto),
+        )
+        self.premio = np.zeros((TOTAL_NUMEROS, TOTAL_NUMEROS), dtype=np.float32)
+        self.categoria = np.full((TOTAL_NUMEROS, TOTAL_NUMEROS), 4, dtype=np.int8)
+        for categoria, importe, cumple in condiciones:
+            mejora = cumple & (importe > self.premio)     # solo cuenta el premio más alto
+            self.premio[mejora] = importe
+            self.categoria[mejora] = categoria
+        self.premio_exacto = np.diag(self.premio).astype(np.float64)
+        self.premio_esperado = self.premio.mean(axis=1, dtype=np.float64)
+        self.varianza = ((self.premio.astype(np.float64) ** 2).mean(axis=1)
+                         - self.premio_esperado ** 2)
+        # Aportación de cada categoría al premio esperado: (1000, 4)
+        self.contribucion = np.stack(
+            [np.where(self.categoria == k, self.premio, 0).mean(axis=1, dtype=np.float64)
+             for k in range(4)], axis=1)
+        valores, grupo = np.unique(np.round(self.premio_esperado, 9), return_inverse=True)
+        self.grupo = grupo.reshape(-1)
+        self.premio_esperado_grupo = valores
+        self.miembros = [np.flatnonzero(self.grupo == g) for g in range(len(valores))]
+        self.representante = np.array([int(m[0]) for m in self.miembros])
+        self.premio_exacto_grupo = np.array([self.premio_exacto[m].max() for m in self.miembros])
+
+    @property
+    def n_grupos(self) -> int:
+        return len(self.miembros)
+
+    def describir_grupo(self, g: int) -> str:
+        tipos: List[str] = []
+        for numero in self.miembros[g]:
+            tipo = tipo_de_numero(int(numero))
+            if tipo not in tipos:
+                tipos.append(tipo)
+        return " / ".join(f"{t} ({EJEMPLOS_TIPO[t]})" for t in tipos)
+
+    def resumen_premios(self) -> str:
+        nombres = {"exacto": "exacto", "otro_orden": "otro orden", "dos_primeras": "2 primeras",
+                   "dos_ultimas": "2 últimas", "primera": "1.ª cifra", "ultima": "última"}
+        return " · ".join(f"{nombres[k]} {fmt_dec(v, 2)} €" for k, v in self.premios.items())
+
+
+def _sigmoide(x):
+    return 1 / (1 + np.exp(-np.clip(x, -700, 700)))
+
+
+class DetectorDeTrampas:
+    """Inferencia bayesiana jerárquica: ¿está trucada la máquina? ¿qué números?
+
+    Modelo en dos niveles:
+      * La máquina está trucada con probabilidad ρ = 5 % (prior escéptico: las
+        máquinas de sorteo están homologadas y auditadas).
+      * Si lo está, cada número está trucado con probabilidad q = 1 %, y TODOS
+        los trucados salen el mismo número de veces más, λ (log-uniforme entre
+        1,25 y 5): el "factor" de la trampa es una propiedad de la máquina.
+      * Un número honrado sale con p = 1/1000. La verosimilitud es binomial exacta.
+
+    Por qué así:
+      * Entre 1000 números siempre hay alguno que PARECE caliente por puro azar
+        (la "maldición del ganador"). Un número aislado no basta para convencerle
+        de que hay trampa; varios números desviados a la vez, sí.
+      * λ se estima con TODOS los números sospechosos a la vez. Si se estimara
+        con el más salido, se sobrestimaría (otra vez la maldición del ganador)
+        y apostaría por números que, aun trucados, no compensan.
+    """
+
+    def __init__(self, prior_maquina: float = 0.05, prior_numero: float = 0.01,
+                 lambda_min: float = 1.25, lambda_max: float = 5.0, puntos: int = 24):
+        self.p0 = 1 / TOTAL_NUMEROS
+        self.prior_maquina = prior_maquina
+        self.prior_numero = prior_numero
+        self.lambdas = np.geomspace(lambda_min, lambda_max, puntos)
+        self._log_lambdas = np.log(self.lambdas)
+        self._k = np.log1p(-self.lambdas * self.p0) - math.log1p(-self.p0)
+        self._logit_numero = math.log(prior_numero / (1 - prior_numero))
+        # P(máquina trucada y su factor es λ_k | datos); al principio, el prior
+        self._pesos = np.full(puntos, prior_maquina / puntos)
+
+    @property
+    def prob_maquina(self) -> float:
+        """Probabilidad a posteriori de que la máquina esté trucada."""
+        return float(self._pesos.sum())
+
+    @property
+    def exceso_maximo(self) -> float:
+        """Cota superior de (p - 1/1000)·1000 para CUALQUIER número con los datos
+        actuales (se alcanzaría si fuera seguro que está trucado)."""
+        return float((self._pesos * (self.lambdas - 1)).sum())
+
+    @property
+    def lambda_estimada(self) -> float:
+        """Factor de la trampa estimado (media a posteriori, si está trucada)."""
+        return float((self._pesos * self.lambdas).sum() / self._pesos.sum())
+
+    def _log_razon(self, veces, n) -> np.ndarray:
+        """log(L_trucado(λ_k) / L_honrado) de un número que ha salido 'veces'
+        veces en 'n' sorteos, para cada λ_k de la rejilla (último eje)."""
+        c = np.asarray(veces, dtype=np.float64)[..., None]
+        resto = np.asarray(n, dtype=np.float64)[..., None] - c
+        return c * self._log_lambdas + resto * self._k
+
+    def revisar_maquina(self, frecuencias: np.ndarray, n: int) -> float:
+        """Actualiza P(máquina trucada, λ | todos los recuentos) y devuelve
+        la probabilidad de que la máquina esté trucada."""
+        log_razon = self._log_razon(frecuencias, n)                         # (1000, K)
+        log_verosimilitud = np.logaddexp(math.log1p(-self.prior_numero),
+                                         math.log(self.prior_numero) + log_razon).sum(axis=0)
+        log_trucada = math.log(self.prior_maquina / len(self.lambdas)) + log_verosimilitud
+        log_justa = math.log1p(-self.prior_maquina)
+        total = np.logaddexp(np.logaddexp.reduce(log_trucada), log_justa)
+        self._pesos = np.exp(log_trucada - total)
+        return self.prob_maquina
+
+    def evaluar(self, veces, n) -> Tuple[np.ndarray, np.ndarray]:
+        """Para un número que ha salido 'veces' veces en 'n' sorteos devuelve:
+        (probabilidad predictiva de que salga en el próximo sorteo,
+         probabilidad a posteriori de que ese número esté trucado). Admite arrays.
+
+        P(trucado | datos) = Σ_k P(máquina trucada, λ_k | datos) · P(trucado | λ_k, datos)
+        """
+        condicionada = _sigmoide(self._logit_numero + self._log_razon(veces, n))
+        prob = (condicionada * self._pesos).sum(axis=-1)
+        exceso = (condicionada * self._pesos * (self.lambdas - 1)).sum(axis=-1)
+        return self.p0 * (1 + exceso), prob
+
+
+# =============================================================================
+# 5. JUGADOR 1: EL AZAR
 # =============================================================================
 
 class JugadorAzar:
-    """Genera sorteos del Tríplex uniformes e independientes en [000, 999]."""
+    """Genera sorteos del Tríplex independientes en [000, 999].
+
+    Por defecto es un sorteo justo (los 1000 números equiprobables). Con
+    'trucados' > 0 elige en secreto esa cantidad de números y los hace salir
+    'factor' veces más, para comprobar si el Estadístico lo descubre.
+    """
 
     nombre = "Jugador 1 · El Azar"
 
-    def __init__(self, semilla: int):
+    def __init__(self, semilla: int, trucados: int = 0, factor: float = 3.0):
         self.semilla = semilla
+        self.factor = factor
         self._rng = np.random.default_rng(semilla)
+        self.trucados = np.array([], dtype=np.int64)
+        self._cdf: Optional[np.ndarray] = None
+        if trucados > 0:
+            secreto = np.random.default_rng([semilla, 7])
+            self.trucados = np.sort(secreto.choice(TOTAL_NUMEROS, size=trucados, replace=False))
+            pesos = np.ones(TOTAL_NUMEROS)
+            pesos[self.trucados] = factor
+            self._cdf = np.cumsum(pesos / pesos.sum())
+            self._cdf[-1] = 1.0
+
+    @property
+    def es_justo(self) -> bool:
+        return self._cdf is None
 
     def sortear(self, n: int, tam_lote: int) -> Iterator[np.ndarray]:
         """Produce los n resultados en lotes de, como mucho, 'tam_lote' sorteos."""
         restantes = n
         while restantes > 0:
             k = min(tam_lote, restantes)
-            yield self._rng.integers(0, TOTAL_NUMEROS, size=k, dtype=np.int32)
+            if self._cdf is None:
+                yield self._rng.integers(0, TOTAL_NUMEROS, size=k, dtype=np.int32)
+            else:   # muestreo por inversión de la función de distribución
+                indices = np.searchsorted(self._cdf, self._rng.random(k), side="right")
+                yield np.minimum(indices, TOTAL_NUMEROS - 1).astype(np.int32)
             restantes -= k
 
 
 # =============================================================================
-# 5. JUGADOR 2: EL ESTADÍSTICO
+# 6. JUGADOR 2: EL ESTADÍSTICO
 # =============================================================================
 
 @dataclass
@@ -498,6 +736,8 @@ class Informe:
     ultimos: np.ndarray                # últimos sorteos (para el trazado)
     # --- Propiedades curiosas: (nombre, observado, teórico, z) ---------------
     propiedades: List[Tuple[str, float, float, float]]
+    # --- La partida (apuestas del Estadístico y de sus rivales) ---------------
+    partida: Optional["ResultadoPartida"] = None
 
     @property
     def impares(self) -> int:
@@ -509,11 +749,22 @@ class Informe:
 
 
 class JugadorEstadistico:
-    """Registra los sorteos en tiempo real y produce el informe final.
+    """Juega, registra los sorteos en tiempo real y produce el informe final.
 
-    Durante la simulación mantiene contadores 'en vivo' (frecuencias, pares,
-    altos, suma acumulada) que se actualizan con cada lote; al terminar, calcula
-    la batería completa de métricas sobre el historial registrado.
+    Cómo JUEGA (la estrategia más inteligente posible para un jugador que solo
+    ve los resultados):
+      1. Calcula el valor esperado EXACTO de apostar a cada número con la tabla
+         de premios. En un sorteo justo el pasado no cambia nada, pero el número
+         sí importa: los de tres cifras distintas devuelven un 64,1 % y un trío
+         como el 777 solo un 54,3 % (por el premio "en otro orden").
+      2. Antes de cada sorteo actualiza, con inferencia bayesiana, la
+         probabilidad de que algún número esté trucado (DetectorDeTrampas).
+      3. Apuesta 0,50 € SOLO si su mejor número tiene valor esperado positivo.
+         En un sorteo justo eso no ocurre nunca: su mejor jugada es no jugar.
+         No persigue números "calientes" ni "atrasados": sabe que son falacias.
+
+    Cómo ANALIZA: mantiene contadores en vivo que se actualizan con cada lote
+    y, al terminar, calcula la batería completa de métricas del historial.
     """
 
     nombre = "Jugador 2 · El Estadístico"
@@ -521,12 +772,55 @@ class JugadorEstadistico:
     def __init__(self, n_previstos: int, corte: int):
         self.corte = corte
         self.teoria = ModeloTeorico(corte)
+        self.detector = DetectorDeTrampas()
         self._historial = np.empty(n_previstos, dtype=np.int32)
         self.n = 0
         self.frecuencias = np.zeros(TOTAL_NUMEROS, dtype=np.int64)
         self._suma = 0
         self._pares = 0
         self._altos = 0
+
+    # ---- Decisión de apuesta (antes de conocer cada resultado) ---------------
+    def decidir_apuestas(self, ctx: "ContextoLote",
+                         reglas: "ReglasTriplex") -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Para cada sorteo del lote, usando solo los sorteos ANTERIORES, devuelve
+        (número elegido, valor esperado estimado de apostarle en €, P(trucado)).
+
+        Valor esperado de apostar al número i (aproximación de primer orden):
+            VE_i = premio_esperado_justo_i + (p_i - 1/1000) · premio_exacto_i - precio
+        donde p_i es la probabilidad predictiva bayesiana de que salga i. Dentro
+        de un grupo de igual valor esperado, VE_i crece con las veces que ha
+        salido i, así que basta comparar al número más salido de cada grupo.
+        """
+        tam = len(ctx.lote)
+        mejor_ve = np.full(tam, -np.inf)
+        mejor_numero = np.zeros(tam, dtype=np.int64)
+        mejor_prob = np.zeros(tam)
+        # Poda exacta: el VE de un grupo está entre su VE justo (cota inferior) y
+        # ese valor más el máximo exceso posible (cota superior). Un grupo cuya
+        # cota superior no alcanza la mejor cota inferior no puede ganar nunca.
+        cota_inferior = reglas.premio_esperado_grupo - reglas.precio
+        cota_superior = (cota_inferior + self.detector.p0 * reglas.premio_exacto_grupo
+                         * self.detector.exceso_maximo)
+        for g, (lider, veces) in enumerate(ctx.lideres_grupo):
+            if cota_superior[g] < cota_inferior.max():
+                continue
+            p_predictiva, prob = self.detector.evaluar(veces, ctx.n)
+            ve = (reglas.premio_esperado_grupo[g]
+                  + (p_predictiva - self.detector.p0) * reglas.premio_exacto[lider]
+                  - reglas.precio)
+            mejora = ve > mejor_ve
+            mejor_ve = np.where(mejora, ve, mejor_ve)
+            mejor_numero = np.where(mejora, lider, mejor_numero)
+            mejor_prob = np.where(mejora, prob, mejor_prob)
+        return mejor_numero, mejor_ve, mejor_prob
+
+    def sospechosos(self, umbral: float = 0.5) -> List[Tuple[int, float]]:
+        """Números con probabilidad a posteriori de estar trucados > umbral."""
+        self.detector.revisar_maquina(self.frecuencias, self.n)
+        _, prob = self.detector.evaluar(self.frecuencias, self.n)
+        orden = np.argsort(-prob, kind="stable")
+        return [(int(i), float(prob[i])) for i in orden if prob[i] > umbral]
 
     # ---- Registro en tiempo real --------------------------------------------
     def registrar(self, lote: np.ndarray) -> None:
@@ -547,13 +841,10 @@ class JugadorEstadistico:
         """Una línea con las métricas acumuladas hasta el momento."""
         if self.n == 0:
             return ""
-        caliente = int(self.frecuencias.argmax())
-        return (f"pares {fmt_pct(self._pares / self.n)} · "
-                f"altos {fmt_pct(self._altos / self.n)} · "
-                f"media {fmt_dec(self._suma / self.n, 1)} · "
-                f"más salido {fmt_num(caliente)} (×{fmt_int(self.frecuencias[caliente])})")
+        return (f"pares {fmt_pct(self._pares / self.n, 1)} · "
+                f"media {fmt_dec(self._suma / self.n, 1)}")
 
-    def comentar(self, posicion: int, numero: int, anterior: Optional[int]) -> str:
+    def comentar(self, numero: int, anterior: Optional[int]) -> str:
         """Comentario del Estadístico sobre un sorteo concreto (narración inicial)."""
         x = np.array([numero])
         rasgos = [
@@ -572,7 +863,7 @@ class JugadorEstadistico:
         if anterior is not None and anterior == numero:
             curiosidades.append("¡repite el anterior!")
         extra = f"  ★ {', '.join(curiosidades)}" if curiosidades else ""
-        return f"   #{posicion:<3d} → {fmt_num(numero)}   {' · '.join(rasgos)}{extra}"
+        return f"→ sale el {fmt_num(numero)}: {' · '.join(rasgos)}{extra}"
 
     # ---- Análisis final -----------------------------------------------------
     def analizar(self) -> Informe:
@@ -709,7 +1000,309 @@ class JugadorEstadistico:
 
 
 # =============================================================================
-# 6. ORQUESTACIÓN DE LA SIMULACIÓN (con progreso en vivo)
+# 7. LA PARTIDA: RIVALES, MESA DE JUEGO Y LIBRO DE CUENTAS
+# =============================================================================
+
+@dataclass
+class ContextoLote:
+    """Lo que puede saber cualquier jugador ANTES de cada sorteo de un lote.
+
+    Todos los arrays tienen un elemento por sorteo del lote y se calculan solo
+    con los resultados anteriores a ese sorteo (nadie mira el futuro). 'lote'
+    son los resultados que van a salir y solo se usa para pagar los premios.
+    """
+
+    lote: np.ndarray
+    n: np.ndarray                                      # sorteos ya celebrados
+    lider: np.ndarray                                  # número más salido
+    lideres_grupo: List[Tuple[np.ndarray, np.ndarray]]  # (número, veces) por grupo de VE
+    atrasado: np.ndarray                               # el que más lleva sin salir
+
+
+@dataclass
+class Cuenta:
+    """Libro de cuentas de un jugador."""
+
+    nombre: str
+    descripcion: str
+    color: str
+    apuestas: int = 0
+    apostado: float = 0.0
+    cobrado: float = 0.0
+    cobro_esperado: float = 0.0     # lo que "debería" cobrar según los números elegidos
+    aciertos: np.ndarray = field(default_factory=lambda: np.zeros(5, dtype=np.int64))
+
+    @property
+    def saldo(self) -> float:
+        return self.cobrado - self.apostado
+
+    @property
+    def devuelto(self) -> float:
+        """Fracción de lo apostado que ha vuelto en premios (1 = recupera todo)."""
+        return self.cobrado / self.apostado if self.apostado else float("nan")
+
+    @property
+    def devuelto_esperado(self) -> float:
+        """Lo que cabía esperar con los números elegidos, si el sorteo es justo."""
+        return self.cobro_esperado / self.apostado if self.apostado else float("nan")
+
+
+class Apostador:
+    """Rival del Estadístico: apuesta 0,50 € en TODOS los sorteos con una regla fija."""
+
+    nombre = "Apostador"
+    descripcion = ""
+
+    def elegir(self, ctx: ContextoLote) -> np.ndarray:
+        raise NotImplementedError
+
+
+class CazadorDeCalientes(Apostador):
+    nombre = "Cazador de calientes"
+    descripcion = "apuesta siempre al número que más ha salido"
+
+    def elegir(self, ctx: ContextoLote) -> np.ndarray:
+        return ctx.lider
+
+
+class CazadorDeAtrasados(Apostador):
+    nombre = "Cazador de atrasados"
+    descripcion = "apuesta al que más tiempo lleva sin salir (falacia del jugador)"
+
+    def elegir(self, ctx: ContextoLote) -> np.ndarray:
+        return ctx.atrasado
+
+
+class Supersticioso(Apostador):
+    descripcion = "juega siempre su número de la suerte"
+
+    def __init__(self, numero: int = 777):
+        self.numero = numero
+        self.nombre = f"Supersticioso ({fmt_num(numero)})"
+
+    def elegir(self, ctx: ContextoLote) -> np.ndarray:
+        return np.full(len(ctx.lote), self.numero, dtype=np.int64)
+
+
+class ApostadorAleatorio(Apostador):
+    nombre = "Aleatorio"
+    descripcion = "elige un número al azar en cada sorteo"
+
+    def __init__(self, semilla: int):
+        self._rng = np.random.default_rng([semilla, 99])
+
+    def elegir(self, ctx: ContextoLote) -> np.ndarray:
+        return self._rng.integers(0, TOTAL_NUMEROS, size=len(ctx.lote))
+
+
+@dataclass
+class ResultadoPartida:
+    """Resumen de la partida para la consola y los gráficos."""
+
+    reglas: ReglasTriplex
+    cuentas: List[Cuenta]           # [Estadístico, Estadístico obligado, rivales...]
+    sorteos_saldo: np.ndarray       # nº de sorteo de cada muestra de saldo
+    saldos: np.ndarray              # (jugadores, muestras)
+    sorteos_mente: np.ndarray       # nº de sorteo de cada muestra de la "mente"
+    mente_ve: np.ndarray            # VE estimado de su mejor apuesta en ese momento
+    mente_prob: np.ndarray          # P(trucado) del número elegido en ese momento
+    trucados: np.ndarray            # números que el Azar trucó (vacío si fue justo)
+    factor: float
+    sospechosos: List[Tuple[int, float]]
+    prob_maquina: float             # P(máquina trucada) según el Estadístico, al final
+    lambda_estimada: float          # factor de la trampa que estima (si la hay)
+
+    @property
+    def lambda_rentable(self) -> float:
+        """Factor mínimo para que apostar a un número trucado tenga VE > 0."""
+        r = self.reglas
+        g = int(np.argmax(r.premio_esperado_grupo))
+        i = int(r.representante[g])
+        return 1 + (r.precio - r.premio_esperado[i]) / (r.premio_exacto[i] / TOTAL_NUMEROS)
+
+    @property
+    def estadistico(self) -> Cuenta:
+        return self.cuentas[0]
+
+    @property
+    def rivales(self) -> List[Cuenta]:
+        return self.cuentas[2:]
+
+
+class MesaDeJuego:
+    """Celebra la partida: antes de cada sorteo todos eligen número; luego se paga.
+
+    Todo se calcula por lotes con numpy, pero cada decisión usa EXCLUSIVAMENTE
+    los sorteos anteriores, igual que si se jugara uno a uno (lo comprueba
+    test_simulador_triplex.py comparándolo con una versión sorteo a sorteo).
+    """
+
+    MUESTRAS = 1500
+    PASO_REVISION = 100
+
+    def __init__(self, reglas: ReglasTriplex, estadistico: JugadorEstadistico,
+                 rivales: List[Apostador], n_total: int, azar: JugadorAzar):
+        self.reglas = reglas
+        self.estadistico = estadistico
+        self.rivales = rivales
+        self.azar = azar
+        colores = P.CATEGORICA
+        self.cuentas = [
+            Cuenta("Estadístico", "apuesta solo si el valor esperado es positivo", colores[0]),
+            Cuenta("Estadístico (obligado)", "si le obligan a jugar siempre, elige el número "
+                   "de mayor valor esperado", colores[1]),
+        ] + [Cuenta(r.nombre, r.descripcion, colores[2 + i]) for i, r in enumerate(rivales)]
+        self.n = 0
+        self._revision = 0                  # sorteo de la próxima revisión de la máquina
+        self._lideres: Dict[object, Tuple[int, int]] = {"global": (0, 0)}
+        for g in range(reglas.n_grupos):
+            self._lideres[g] = (0, int(reglas.representante[g]))
+        self._ultimo = np.full(TOTAL_NUMEROS, -1, dtype=np.int64)
+        self._muestras_saldo = np.unique(
+            np.linspace(0, n_total - 1, min(n_total, self.MUESTRAS)).astype(np.int64))
+        self._saldos = np.zeros((len(self.cuentas), len(self._muestras_saldo)))
+        self._muestras_mente = np.unique(
+            np.geomspace(1, n_total, min(n_total, self.MUESTRAS)).astype(np.int64)) - 1
+        self._mente_ve = np.zeros(len(self._muestras_mente))
+        self._mente_prob = np.zeros(len(self._muestras_mente))
+
+    # ---- un lote de sorteos --------------------------------------------------
+    def proxima_revision(self, n: int) -> int:
+        """Sorteo en el que el Estadístico vuelve a revisar si la máquina está
+        trucada: cada 100 sorteos al principio y, después, cada vez que el
+        historial ha crecido un 1 % (la sospecha cambia muy despacio)."""
+        return n + max(self.PASO_REVISION, n // 100)
+
+    def jugar_lote(self, lote: np.ndarray, frecuencias_antes: np.ndarray):
+        """Todos apuestan antes de cada sorteo del lote y se liquidan los premios.
+        Devuelve la decisión del Estadístico (número, VE estimado, P(trucado))."""
+        frecuencias = frecuencias_antes.copy()
+        salidas = []
+        inicio = 0
+        while inicio < len(lote):
+            if self.n >= self._revision:
+                self.estadistico.detector.revisar_maquina(frecuencias, self.n)
+                self._revision = self.proxima_revision(self.n)
+            fin = min(len(lote), inicio + self._revision - self.n)
+            tramo = lote[inicio:fin]
+            salidas.append(self._jugar_tramo(tramo, frecuencias))
+            frecuencias += np.bincount(tramo, minlength=TOTAL_NUMEROS)
+            inicio = fin
+        return tuple(np.concatenate(partes) for partes in zip(*salidas))
+
+    def _jugar_tramo(self, lote: np.ndarray, frecuencias_antes: np.ndarray):
+        ctx = self._contexto(lote, frecuencias_antes)
+        numero, ve, prob = self.estadistico.decidir_apuestas(ctx, self.reglas)
+        decisiones = [(numero, ve > 0), (numero, None)]
+        decisiones += [(r.elegir(ctx), None) for r in self.rivales]
+        for fila, (numeros, apuesta) in enumerate(decisiones):
+            self._liquidar(fila, np.asarray(numeros, dtype=np.int64), apuesta, lote)
+        a, b = np.searchsorted(self._muestras_mente, [self.n, self.n + len(lote)])
+        locales = self._muestras_mente[a:b] - self.n
+        self._mente_ve[a:b] = ve[locales]
+        self._mente_prob[a:b] = prob[locales]
+        self.n += len(lote)
+        return numero, ve, prob
+
+    def _contexto(self, lote: np.ndarray, frecuencias_antes: np.ndarray) -> ContextoLote:
+        tam = len(lote)
+        # Nº de veces que ha salido lote[k] contando hasta el sorteo k inclusive
+        orden = np.argsort(lote, kind="stable")
+        ordenados = lote[orden]
+        nuevo = np.ones(tam, dtype=bool)
+        nuevo[1:] = ordenados[1:] != ordenados[:-1]
+        inicio = np.maximum.accumulate(np.where(nuevo, np.arange(tam), 0))
+        ocurrencia = np.empty(tam, dtype=np.int64)
+        ocurrencia[orden] = np.arange(tam) - inicio + 1
+        veces_tras = frecuencias_antes[lote] + ocurrencia
+
+        lider, _ = self._avanzar_lider("global", lote, veces_tras)
+        grupo_lote = self.reglas.grupo[lote]
+        lideres_grupo = [self._avanzar_lider(g, lote, np.where(grupo_lote == g, veces_tras, 0))
+                         for g in range(self.reglas.n_grupos)]
+        atrasado = self._avanzar_atrasados(lote)
+        return ContextoLote(lote, self.n + np.arange(tam), lider, lideres_grupo, atrasado)
+
+    def _avanzar_lider(self, clave, lote: np.ndarray, veces: np.ndarray):
+        """Número más salido (y sus veces) ANTES de cada sorteo; en caso de empate
+        conserva el que llegó primero a esa cifra."""
+        maximo, lider = self._lideres[clave]
+        tam = len(lote)
+        acumulado = np.maximum.accumulate(np.maximum(veces, maximo))
+        antes = np.empty(tam, dtype=np.int64)
+        antes[0] = maximo
+        antes[1:] = acumulado[:-1]
+        record = veces > antes
+        posicion = np.maximum.accumulate(np.where(record, np.arange(tam), -1))
+        lider_tras = np.where(posicion >= 0, lote[np.maximum(posicion, 0)], lider)
+        lider_antes = np.empty(tam, dtype=np.int64)
+        lider_antes[0] = lider
+        lider_antes[1:] = lider_tras[:-1]
+        self._lideres[clave] = (int(acumulado[-1]), int(lider_tras[-1]))
+        return lider_antes, antes
+
+    def _avanzar_atrasados(self, lote: np.ndarray) -> np.ndarray:
+        """Número que más sorteos lleva sin salir ANTES de cada sorteo del lote
+        (los que nunca han salido van primero, del menor al mayor).
+
+        Truco vectorizado: se antepone un "evento virtual" por número, ordenado
+        por su última aparición; el más atrasado en el instante τ es el primer
+        evento cuya siguiente aparición es posterior a τ.
+        """
+        tam = len(lote)
+        virtuales = np.lexsort((UNIVERSO, self._ultimo))
+        eventos = np.concatenate([virtuales, lote])
+        total = len(eventos)
+        orden = np.argsort(eventos, kind="stable")
+        ordenados = eventos[orden]
+        siguiente = np.full(total, total, dtype=np.int64)
+        mismo = ordenados[1:] == ordenados[:-1]
+        siguiente[orden[:-1][mismo]] = orden[1:][mismo]
+        techo = np.maximum.accumulate(siguiente)
+        tau = TOTAL_NUMEROS - 1 + np.arange(tam)       # último evento visto antes del sorteo k
+        atrasado = eventos[np.searchsorted(techo, tau, side="right")]
+        vistos, desde_final = np.unique(lote[::-1], return_index=True)
+        self._ultimo[vistos] = self.n + tam - 1 - desde_final
+        return atrasado.astype(np.int64)
+
+    def _liquidar(self, fila: int, numeros: np.ndarray, apuesta: Optional[np.ndarray],
+                  lote: np.ndarray) -> None:
+        cuenta = self.cuentas[fila]
+        if apuesta is None:
+            apuesta = np.ones(len(lote), dtype=bool)
+        cobro = self.reglas.premio[numeros, lote].astype(np.float64) * apuesta
+        movimiento = cobro - self.reglas.precio * apuesta
+        a, b = np.searchsorted(self._muestras_saldo, [self.n, self.n + len(lote)])
+        if b > a:
+            acumulado = cuenta.saldo + np.cumsum(movimiento)
+            self._saldos[fila, a:b] = acumulado[self._muestras_saldo[a:b] - self.n]
+        k = int(apuesta.sum())
+        cuenta.apuestas += k
+        cuenta.apostado += self.reglas.precio * k
+        cuenta.cobrado += float(cobro.sum())
+        cuenta.cobro_esperado += float(self.reglas.premio_esperado[numeros][apuesta].sum())
+        cuenta.aciertos += np.bincount(self.reglas.categoria[numeros, lote][apuesta],
+                                       minlength=5)
+
+    # ---- información ---------------------------------------------------------
+    def estado_en_vivo(self) -> str:
+        rivales = [c.saldo for c in self.cuentas[2:]]
+        return (f"saldo Estadístico {fmt_euros(self.cuentas[0].saldo)} · "
+                f"rivales {fmt_euros(sum(rivales) / len(rivales))} de media")
+
+    def resultado(self) -> ResultadoPartida:
+        return ResultadoPartida(
+            reglas=self.reglas, cuentas=self.cuentas,
+            sorteos_saldo=self._muestras_saldo + 1, saldos=self._saldos,
+            sorteos_mente=self._muestras_mente + 1, mente_ve=self._mente_ve,
+            mente_prob=self._mente_prob, trucados=self.azar.trucados,
+            factor=self.azar.factor, sospechosos=self.estadistico.sospechosos(),
+            prob_maquina=self.estadistico.detector.prob_maquina,
+            lambda_estimada=self.estadistico.detector.lambda_estimada)
+
+
+# =============================================================================
+# 8. ORQUESTACIÓN DE LA SIMULACIÓN (con progreso en vivo)
 # =============================================================================
 
 def barra_progreso(fraccion: float, ancho: int = 24) -> str:
@@ -717,25 +1310,44 @@ def barra_progreso(fraccion: float, ancho: int = 24) -> str:
     return "█" * llenos + "░" * (ancho - llenos)
 
 
-def simular(config: Configuracion) -> Tuple[JugadorEstadistico, float]:
-    """Pone a jugar al Azar y al Estadístico. Devuelve el Estadístico y el tiempo."""
-    azar = JugadorAzar(config.semilla)
+def texto_decision(numero: int, ve: float, prob: float) -> str:
+    """Cómo explica el Estadístico su decisión antes de un sorteo."""
+    if ve > 0:
+        return (f"apuesta 0,50 € al {fmt_num(numero)} (VE {fmt_euros(ve, 3)}, "
+                f"P(trucado) {fmt_pct(prob, 0)})")
+    return (f"no apuesta: su mejor opción, el {fmt_num(numero)}, "
+            f"vale {fmt_euros(ve, 3)} por apuesta")
+
+
+def simular(config: Configuracion) -> Tuple[JugadorEstadistico, MesaDeJuego, float]:
+    """Pone a jugar al Azar, al Estadístico y a sus rivales."""
+    azar = JugadorAzar(config.semilla, config.trucados, config.factor)
     estadistico = JugadorEstadistico(config.n_sorteos, config.corte)
+    rivales = [CazadorDeCalientes(), CazadorDeAtrasados(), Supersticioso(777),
+               ApostadorAleatorio(config.semilla)]
     n = config.n_sorteos
+    mesa = MesaDeJuego(ReglasTriplex(), estadistico, rivales, n, azar)
     # ~60 actualizaciones de pantalla, con lotes de entre 1.000 y 250.000 sorteos
     tam_lote = int(min(max(n // 60, 1_000), 250_000))
     en_terminal = sys.stdout.isatty()
 
     print(f"\n▶ {azar.nombre} empieza a cantar números (semilla {config.semilla})")
-    print(f"▶ {estadistico.nombre} los anota y comenta los primeros:\n")
+    if not azar.es_justo:
+        print(f"   (en secreto ha trucado {len(azar.trucados)} números para que salgan "
+              f"{fmt_dec(azar.factor, 1)} veces más: ¿lo descubrirá el Estadístico?)")
+    print(f"▶ {estadistico.nombre} decide antes de cada sorteo si apuesta y, "
+          "después, lo analiza:\n")
 
     inicio = time.perf_counter()
     ultimo_refresco = 0.0
     for numero_lote, lote in enumerate(azar.sortear(n, tam_lote)):
+        numeros_e, ve_e, prob_e = mesa.jugar_lote(lote, estadistico.frecuencias)
         if numero_lote == 0:
             anterior = None
             for i, numero in enumerate(lote[:SORTEOS_NARRADOS]):
-                print(estadistico.comentar(i + 1, int(numero), anterior))
+                print(f"   #{i + 1:<3d} Estadístico: "
+                      f"{texto_decision(int(numeros_e[i]), float(ve_e[i]), float(prob_e[i]))}")
+                print("      " + estadistico.comentar(int(numero), anterior))
                 anterior = int(numero)
             if n > SORTEOS_NARRADOS:
                 print("   …")
@@ -748,20 +1360,22 @@ def simular(config: Configuracion) -> Tuple[JugadorEstadistico, float]:
             ultimo_refresco = ahora
             fraccion = estadistico.n / n
             linea = (f"\r   {barra_progreso(fraccion)} {100 * fraccion:5.1f} % · "
-                     f"{fmt_int(estadistico.n)} sorteos · {estadistico.estado_en_vivo()}")
+                     f"{fmt_int(estadistico.n)} sorteos · {estadistico.estado_en_vivo()} · "
+                     f"{mesa.estado_en_vivo()}")
             print(linea.ljust(130), end="", flush=True)
 
     duracion = time.perf_counter() - inicio
     if en_terminal:
         print()
     else:
-        print(f"   {fmt_int(estadistico.n)} sorteos · {estadistico.estado_en_vivo()}")
+        print(f"   {fmt_int(estadistico.n)} sorteos · {estadistico.estado_en_vivo()} · "
+              f"{mesa.estado_en_vivo()}")
     print(f"   Simulación completada en {fmt_dec(duracion, 3)} s.\n")
-    return estadistico, duracion
+    return estadistico, mesa, duracion
 
 
 # =============================================================================
-# 7. INFORME POR CONSOLA
+# 9. INFORME POR CONSOLA
 # =============================================================================
 
 ANCHO_INFORME = 78
@@ -880,11 +1494,102 @@ def imprimir_informe(inf: Informe, semilla: int) -> None:
                inf.chi2_sumas, inf.chi2_raices, *inf.chi2_posiciones]
     superadas = sum(1 for p in pruebas if not math.isnan(p.p_valor) and p.p_valor >= 0.05)
     print(f"   Pruebas χ² superadas al 5 % ... {superadas} de {len(pruebas)}")
+    if inf.partida is not None:
+        imprimir_partida(inf.partida)
     print("═" * ANCHO_INFORME)
 
 
+def veredicto_partida(part: ResultadoPartida, breve: bool = False) -> List[str]:
+    """Conclusión de la partida, en lenguaje llano ('breve' omite el apunte
+    sobre la varianza, para que quepa en el gráfico)."""
+    e = part.estadistico
+    r = part.reglas
+    mejor = r.premio_esperado_grupo.max() / r.precio
+    perdida_rivales = -sum(c.saldo for c in part.rivales)
+    lineas = []
+    trampa_vista = part.prob_maquina > 0.5
+    if e.apuestas == 0 and trampa_vista:
+        lineas.append(f"El Estadístico ha descubierto la trampa (máquina trucada con un "
+                      f"{fmt_pct(part.prob_maquina, 1)} de probabilidad; los trucados salen "
+                      f"≈ {fmt_dec(part.lambda_estimada, 2)} veces más), pero NO apuesta: "
+                      f"para ganar dinero haría falta que salieran más de "
+                      f"{fmt_dec(part.lambda_rentable, 2)} veces más.")
+    elif e.apuestas == 0:
+        lineas.append(f"El Estadístico no ha apostado ni una vez: ningún número tenía valor "
+                      f"esperado positivo (el mejor solo devuelve un {fmt_pct(mejor, 1)}).")
+        lineas.append("Su mejor jugada era no jugar, y por eso no ha perdido nada.")
+    elif e.saldo >= 0:
+        lineas.append(f"El Estadístico ha descubierto la trampa (los trucados salen "
+                      f"≈ {fmt_dec(part.lambda_estimada, 2)} veces más; compensa a partir de "
+                      f"{fmt_dec(part.lambda_rentable, 2)}), ha apostado {fmt_int(e.apuestas)} "
+                      f"veces y gana {fmt_euros(e.saldo)}.")
+    else:
+        lineas.append(f"El Estadístico ha apostado {fmt_int(e.apuestas)} veces porque creyó "
+                      f"ver un sesgo, y pierde {fmt_euros(e.saldo)}.")
+    # ¿Cuántos sorteos hacen falta para que elegir bien se note frente al peor número?
+    mejor_g, peor_g = int(np.argmax(r.premio_esperado_grupo)), int(np.argmin(r.premio_esperado_grupo))
+    mejor_i = int(r.representante[mejor_g])
+    peor_i = 777 if r.grupo[777] == peor_g else int(r.representante[peor_g])
+    diferencia = r.premio_esperado[mejor_i] - r.premio_esperado[peor_i]
+    if diferencia > 0 and not breve:
+        necesarios = (Z95 * math.sqrt(r.varianza[mejor_i] + r.varianza[peor_i]) / diferencia) ** 2
+        lineas.append(f"Obligado a jugar, elige números de tipo «{r.describir_grupo(mejor_g)}» "
+                      f"(devuelven {fmt_pct(r.premio_esperado[mejor_i] / r.precio, 1)} frente al "
+                      f"{fmt_pct(r.premio_esperado[peor_i] / r.precio, 1)} de un {fmt_num(peor_i)}), "
+                      f"pero la suerte pesa tanto que hacen falta unos {fmt_int(round(necesarios, -3))} "
+                      f"sorteos para que esa ventaja se note con un 95 % de confianza.")
+    if perdida_rivales > 0:
+        lineas.append(f"Sus cuatro rivales, que apuestan siempre, pierden entre todos "
+                      f"{fmt_dec(perdida_rivales, 2)} €.")
+    else:
+        lineas.append(f"Sus cuatro rivales, que apuestan siempre, ganan entre todos "
+                      f"{fmt_dec(-perdida_rivales, 2)} € (pura suerte en una serie corta).")
+    if len(part.trucados):
+        trucados = ", ".join(fmt_num(t) for t in part.trucados)
+        lineas.append(f"El Azar confiesa: había trucado {trucados} "
+                      f"(salían {fmt_dec(part.factor, 1)} veces más).")
+        sospechas = [num for num, _ in part.sospechosos]
+        acertados = sorted(set(sospechas) & set(int(t) for t in part.trucados))
+        falsos = sorted(set(sospechas) - set(int(t) for t in part.trucados))
+        lineas.append(f"El Estadístico ha desenmascarado {len(acertados)} de {len(part.trucados)}"
+                      + (f" ({', '.join(fmt_num(x) for x in acertados)})" if acertados else "")
+                      + (f" y ha sospechado sin razón de {len(falsos)}" if falsos else "") + ".")
+    elif part.sospechosos:
+        lineas.append("El Estadístico sospecha de " + ", ".join(
+            f"{fmt_num(num)} ({fmt_pct(p, 0)})" for num, p in part.sospechosos[:5])
+            + ", pero el sorteo era justo: casualidad.")
+    return lineas
+
+
+def imprimir_partida(part: ResultadoPartida) -> None:
+    r = part.reglas
+    _seccion("[11] La partida: ¿puede el Estadístico ganar al Azar?")
+    print(f"   Apuesta: {fmt_dec(r.precio, 2)} € por número · se cobra solo el premio más alto")
+    print(f"   Premios: {r.resumen_premios()}")
+    print("\n   Lo que devuelve, de media, cada tipo de número (sorteo justo):")
+    for g in np.argsort(-r.premio_esperado_grupo):
+        pe = r.premio_esperado_grupo[g]
+        print(f"     {r.describir_grupo(g):<38}{len(r.miembros[g]):>5} núm.   devuelve "
+              f"{fmt_pct(pe / r.precio):>8}   VE {fmt_euros(pe - r.precio, 4)} por apuesta")
+    print("   → El pasado no cambia las probabilidades, pero el TIPO de número sí cambia el premio")
+    print("     esperado. Aun así, todos pierden: la única forma de no perder es no jugar.")
+
+    print(f"\n   {'Jugador':<26}{'Apuestas':>10}{'Apostado':>13}{'Cobrado':>13}{'Saldo':>14}"
+          f"{'Devuelto':>10}{'Esperado':>10}{'Exactos':>9}")
+    for c in part.cuentas:
+        devuelto = fmt_pct(c.devuelto, 1) if c.apuestas else "—"
+        esperado = fmt_pct(c.devuelto_esperado, 1) if c.apuestas else "—"
+        print(f"   {c.nombre:<26}{fmt_int(c.apuestas):>10}{fmt_dec(c.apostado, 2) + ' €':>13}"
+              f"{fmt_dec(c.cobrado, 2) + ' €':>13}{fmt_euros(c.saldo):>14}{devuelto:>10}"
+              f"{esperado:>10}{fmt_int(c.aciertos[0]):>9}")
+    print("   (Esperado = lo que cabía esperar con los números que eligió, si el sorteo es justo)")
+    print()
+    for linea in veredicto_partida(part):
+        print(f"   ▸ {linea}")
+
+
 # =============================================================================
-# 8. VISUALIZACIÓN
+# 10. VISUALIZACIÓN
 # =============================================================================
 
 def configurar_estilo() -> None:
@@ -1419,9 +2124,187 @@ class VisualizadorTriplex:
         self._titulo(ax, "Detector de anomalías",
                      f"Propiedad  observado | teórico · {int(fuera.sum())} de {len(z)} fuera del 95 %")
 
+    # ---- PANEL 3: la partida -------------------------------------------------
+    def figura_partida(self):
+        fig = plt.figure(figsize=(20, 12.5), layout="constrained")
+        fig.get_layout_engine().set(h_pad=0.12, w_pad=0.12, hspace=0.07, wspace=0.05)
+        filas = fig.subfigures(2, 1, height_ratios=[1.05, 1], hspace=0.04)
+        arriba = filas[0].subplots(1, 2, width_ratios=[1.85, 1])
+        abajo = filas[1].subplots(1, 3, width_ratios=[1.2, 1, 1])
+        self._panel_saldos(arriba[0])
+        self._panel_rentabilidad(arriba[1])
+        self._panel_valor_esperado(abajo[0])
+        self._panel_mente(abajo[1])
+        self._panel_libro(abajo[2])
+        fig.suptitle(f"Tríplex · Panel 3 — La partida: el Estadístico contra el Azar      "
+                     f"({self._meta()})", x=0.006, ha="left", fontsize=15,
+                     fontweight="bold", color=P.TINTA)
+        return fig
+
+    @staticmethod
+    def _formato_euros_eje(valor, _pos=None) -> str:
+        return f"{fmt_dec(valor, 0 if abs(valor) >= 10 or valor == 0 else 2)} €"
+
+    def _panel_saldos(self, ax) -> None:
+        """Saldo acumulado (premios - apuestas) de cada jugador, sorteo a sorteo."""
+        part = self.inf.partida
+        x = part.sorteos_saldo
+        marcador = "o" if len(x) < 3 else None
+        ax.axhline(0, color=P.TINTA_2, linewidth=0.9, zorder=1)
+        # Se dibuja primero a los rivales y al final al Estadístico, para que quede encima
+        for fila in list(range(1, len(part.cuentas))) + [0]:
+            cuenta = part.cuentas[fila]
+            ax.plot(x, part.saldos[fila], color=cuenta.color,
+                    linewidth=2.8 if fila == 0 else 1.6, marker=marcador, markersize=5,
+                    label=f"{cuenta.nombre}: {fmt_euros(cuenta.saldo)}",
+                    zorder=4 if fila == 0 else 3)
+        manejadores, etiquetas = ax.get_legend_handles_labels()
+        orden = [len(etiquetas) - 1] + list(range(len(etiquetas) - 1))   # Estadístico primero
+        ax.legend([manejadores[i] for i in orden], [etiquetas[i] for i in orden],
+                  loc="lower left", fontsize=8.5, ncols=2)
+        ax.yaxis.set_major_formatter(FuncFormatter(self._formato_euros_eje))
+        ax.xaxis.set_major_formatter(FuncFormatter(_formato_miles))
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True, nbins=10))
+        ax.yaxis.grid(True)
+        ax.set_axisbelow(True)
+        ax.tick_params(length=0)
+        ax.set_xlabel("Nº de sorteo")
+        ax.set_ylabel("Saldo acumulado")
+        bajo, alto = ax.get_ylim()
+        ax.set_ylim(bajo - 0.35 * (alto - bajo), alto)       # hueco para la leyenda
+        self._titulo(ax, "Saldo de cada jugador",
+                     "Todos apuestan 0,50 € por sorteo, salvo el Estadístico: él solo apuesta "
+                     "cuando el valor esperado es positivo")
+
+    def _panel_rentabilidad(self, ax) -> None:
+        """% de lo apostado que ha vuelto en premios, frente a lo esperable."""
+        part = self.inf.partida
+        cuentas = part.cuentas
+        y = np.arange(len(cuentas))[::-1]
+        maximo = max([1.0] + [c.devuelto for c in cuentas if c.apuestas])
+        for yi, c in zip(y, cuentas):
+            if c.apuestas == 0:
+                ax.text(0.01, yi, "no ha apostado: ninguna apuesta tenía VE > 0",
+                        va="center", fontsize=8, color=P.TINTA_2, style="italic")
+                continue
+            ax.barh(yi, c.devuelto, height=0.62, color=c.color, linewidth=0)
+            ax.vlines(c.devuelto_esperado, yi - 0.4, yi + 0.4, color=P.TINTA, linewidth=1.8)
+            ax.text(max(c.devuelto, c.devuelto_esperado) + maximo * 0.015, yi,
+                    fmt_pct(c.devuelto, 1), va="center", fontsize=8, color=P.TINTA)
+        ax.axvline(1.0, color=P.TINTA_2, linewidth=1, linestyle=(0, (4, 3)))
+        ax.text(1.0, len(cuentas) - 0.45, " 100 % = recuperar lo apostado", fontsize=7.5,
+                color=P.TINTA_2, va="bottom")
+        ax.set_yticks(y)
+        ax.set_yticklabels([c.nombre for c in cuentas], fontsize=8.5, color=P.TINTA)
+        ax.set_xlim(0, maximo * 1.18)
+        ax.set_ylim(-0.6, len(cuentas) + 0.2)
+        ax.xaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
+        ax.xaxis.grid(True)
+        ax.set_axisbelow(True)
+        ax.tick_params(length=0)
+        ax.spines["left"].set_visible(False)
+        ax.legend(handles=[Patch(facecolor=P.TINTA_SUAVE, label="Devuelto en premios"),
+                           Line2D([], [], color=P.TINTA, marker="|", linestyle="None",
+                                  markersize=12, markeredgewidth=1.8,
+                                  label="Esperado con sus números (sorteo justo)")],
+                  loc="upper center", bbox_to_anchor=(0.5, -0.12), ncols=2, fontsize=7.5)
+        self._titulo(ax, "¿Cuánto recupera cada uno?",
+                     "Premios cobrados / dinero apostado")
+
+    def _panel_valor_esperado(self, ax) -> None:
+        """Premio esperado de cada tipo de número, desglosado por categoría de premio."""
+        r = self.inf.partida.reglas
+        grupos = list(np.argsort(r.premio_esperado_grupo))      # el mejor, arriba
+        y = np.arange(len(grupos))
+        for yi, g in zip(y, grupos):
+            aportes = r.contribucion[r.representante[g]]
+            izquierda = 0.0
+            for k, aporte in enumerate(aportes):
+                ax.barh(yi, aporte, left=izquierda, height=0.6, color=P.RAMPA_GRIS[k],
+                        edgecolor=P.SUPERFICIE, linewidth=1.5)
+                izquierda += aporte
+            pe = r.premio_esperado_grupo[g]
+            ax.text(pe + 0.008, yi, f"{fmt_dec(pe, 3)} €  (devuelve {fmt_pct(pe / r.precio, 1)})",
+                    va="center", fontsize=8, color=P.TINTA)
+        ax.axvline(r.precio, color=P.TINTA, linewidth=1.6)
+        ax.text(r.precio, len(grupos) - 0.45, f" precio de la apuesta ({fmt_dec(r.precio, 2)} €)",
+                fontsize=7.5, color=P.TINTA, va="bottom")
+        ax.set_yticks(y)
+        ax.set_yticklabels([f"{r.describir_grupo(g)}\n{len(r.miembros[g])} números" for g in grupos],
+                           fontsize=8, color=P.TINTA)
+        ax.set_xlim(0, r.precio * 1.42)
+        ax.set_ylim(-0.6, len(grupos) + 0.1)
+        ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _p: f"{fmt_dec(v, 2)} €"))
+        ax.xaxis.grid(True)
+        ax.set_axisbelow(True)
+        ax.tick_params(length=0)
+        ax.spines["left"].set_visible(False)
+        ax.legend(handles=[Patch(facecolor=P.RAMPA_GRIS[k], label=CATEGORIAS_ACIERTO[k])
+                           for k in range(4)],
+                  loc="upper center", bbox_to_anchor=(0.5, -0.12), ncols=4, fontsize=7.5)
+        self._titulo(ax, "¿Qué número conviene?",
+                     "Premio esperado de una apuesta según el tipo de número (sorteo justo)")
+
+    def _panel_mente(self, ax) -> None:
+        """Valor esperado que el Estadístico atribuye a su mejor apuesta en cada momento."""
+        part = self.inf.partida
+        x = part.sorteos_mente.astype(float)
+        ve = part.mente_ve
+        ax.axhline(0, color=P.TINTA, linewidth=1.2, zorder=2)
+        ax.fill_between(x, 0, ve, where=ve > 0, color=P.SERIE_1_CLARO, linewidth=0,
+                        zorder=1, label="Apuesta (VE > 0)")
+        ax.plot(x, ve, color=P.SERIE_1, linewidth=1.8, zorder=3,
+                marker="o" if len(x) < 3 else None, label="VE de su mejor número")
+        if self.inf.n >= 10:
+            ax.set_xscale("log")
+        else:
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.xaxis.set_major_formatter(FuncFormatter(_formato_miles))
+        ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _p: f"{fmt_dec(v, 2)} €"))
+        ax.yaxis.grid(True)
+        ax.set_axisbelow(True)
+        ax.tick_params(length=0)
+        ax.set_xlabel("Nº de sorteo" + (" (escala logarítmica)" if self.inf.n >= 10 else ""))
+        ax.set_ylabel("Valor esperado por apuesta")
+        bajo, alto = ax.get_ylim()
+        ax.set_ylim(min(bajo, -0.2), max(alto, 0.05))
+        ax.legend(loc="upper left", fontsize=7.5)
+        maxima = float(part.mente_prob.max()) if len(part.mente_prob) else 0.0
+        self._titulo(ax, "La mente del Estadístico",
+                     f"Solo apuesta si la línea supera 0 € · "
+                     f"máxima sospecha de trampa: {fmt_pct(maxima, 0)}")
+
+    def _panel_libro(self, ax) -> None:
+        """Libro de cuentas y veredicto, en texto."""
+        part = self.inf.partida
+        ax.axis("off")
+        ax.text(0, 1.0, "Libro de cuentas", transform=ax.transAxes, fontsize=11,
+                fontweight="bold", color=P.TINTA, va="top")
+        columnas = [("Jugador", 0.05, "left"), ("Apuestas", 0.60, "right"),
+                    ("Saldo", 0.83, "right"), ("Exactos", 1.0, "right")]
+        y = 0.90
+        for titulo, xc, ha in columnas:
+            ax.text(xc, y, titulo, transform=ax.transAxes, fontsize=8, color=P.TINTA_SUAVE,
+                    fontweight="bold", ha=ha, va="top")
+        for c in part.cuentas:
+            y -= 0.072
+            ax.add_patch(plt.Rectangle((0.0, y - 0.035), 0.03, 0.03, transform=ax.transAxes,
+                                       color=c.color, clip_on=False))
+            valores = (c.nombre, fmt_int(c.apuestas), fmt_euros(c.saldo), fmt_int(c.aciertos[0]))
+            for (_, xc, ha), valor in zip(columnas, valores):
+                ax.text(xc, y, valor, transform=ax.transAxes, fontsize=8.5, color=P.TINTA,
+                        ha=ha, va="top")
+        y -= 0.05
+        for linea in veredicto_partida(part, breve=True):
+            for trozo in textwrap.wrap(linea, 66):
+                y -= 0.047
+                ax.text(0, y, trozo, transform=ax.transAxes, fontsize=7.8, color=P.TINTA_2,
+                        va="top")
+            y -= 0.018
+
 
 # =============================================================================
-# 9. ENTRADA POR CONSOLA Y PROGRAMA PRINCIPAL
+# 11. ENTRADA POR CONSOLA Y PROGRAMA PRINCIPAL
 # =============================================================================
 
 def interpretar_entero(texto: str) -> Optional[int]:
@@ -1476,6 +2359,10 @@ def leer_argumentos(argv: Optional[List[str]] = None) -> argparse.Namespace:
                         help="umbral alto/bajo: 'alto' si el número es >= corte (por defecto 500)")
     parser.add_argument("-o", "--salida", type=Path, default=Path("resultados_triplex"),
                         help="carpeta donde guardar los PNG/CSV (por defecto ./resultados_triplex)")
+    parser.add_argument("--trucar", type=int, default=0, metavar="K",
+                        help="el Azar trucará en secreto K números (por defecto 0: sorteo justo)")
+    parser.add_argument("--factor", type=float, default=3.0,
+                        help="cuántas veces más salen los números trucados (por defecto 3)")
     parser.add_argument("--csv", action="store_true",
                         help="guarda también la lista de sorteos en un CSV")
     parser.add_argument("--no-guardar", action="store_true",
@@ -1490,11 +2377,16 @@ def construir_configuracion(args: argparse.Namespace) -> Configuracion:
         sys.exit(f"El nº de sorteos debe estar entre 1 y {fmt_int(MAX_SORTEOS)}.")
     if not 1 <= args.corte <= 999:
         sys.exit("El corte debe estar entre 1 y 999.")
+    if not 0 <= args.trucar <= 100:
+        sys.exit("--trucar debe estar entre 0 y 100.")
+    if not 0 < args.factor <= 100:
+        sys.exit("--factor debe ser mayor que 0 (y como mucho 100).")
     n = args.sorteos if args.sorteos is not None else solicitar_numero_sorteos()
     semilla = args.semilla if args.semilla is not None else secrets.randbelow(10 ** 9)
     return Configuracion(n_sorteos=n, semilla=semilla, corte=args.corte,
                          carpeta_salida=args.salida, guardar_png=not args.no_guardar,
-                         guardar_csv=args.csv, mostrar=not args.no_mostrar)
+                         guardar_csv=args.csv, mostrar=not args.no_mostrar,
+                         trucados=args.trucar, factor=args.factor)
 
 
 def guardar_csv(config: Configuracion, estadistico: JugadorEstadistico) -> None:
@@ -1539,10 +2431,11 @@ def main(argv: Optional[List[str]] = None) -> None:
     print("╚" + "═" * 60 + "╝")
 
     config = construir_configuracion(leer_argumentos(argv))
-    estadistico, _ = simular(config)
+    estadistico, mesa, _ = simular(config)
 
     print("▶ El Estadístico prepara su informe…\n")
     informe = estadistico.analizar()
+    informe.partida = mesa.resultado()
     imprimir_informe(informe, config.semilla)
     print()
     if config.guardar_csv:
@@ -1553,7 +2446,8 @@ def main(argv: Optional[List[str]] = None) -> None:
     print("▶ Dibujando los paneles gráficos…")
     visual = VisualizadorTriplex(informe, config.semilla)
     figuras = [("panel1_distribucion", visual.figura_distribucion()),
-               ("panel2_evolucion_rachas", visual.figura_dinamica())]
+               ("panel2_evolucion_rachas", visual.figura_dinamica()),
+               ("panel3_partida", visual.figura_partida())]
     if config.guardar_png:
         guardar_figuras(config, figuras)
 
