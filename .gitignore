@@ -1,3 +1,6 @@
 # Artefactos de Python (caché de bytecode de generate_*.py)
 __pycache__/
 *.py[cod]
+
+# Salidas del simulador del Tríplex (PNG/CSV generados al ejecutarlo)
+resultados_triplex/
