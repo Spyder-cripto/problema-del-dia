@@ -192,6 +192,26 @@ Puzzle en solitario: **series lógicas con dígitos de display** (URL `…/probl
 - **Estrellas:** 3 sin pistas, 2 con 1-2, 1 con 3; ver la solución (con doble confirmación) no suma. Cada reto tiene enlace propio con `#id` (p. ej. `#e7`).
 - **Compartir:** `index.html` lleva etiquetas Open Graph con `preview.jpg` (1200×630, 82 KB) para que el enlace salga con tarjeta en WhatsApp. **En los estados de WhatsApp, el enlace dentro del pie de una foto no siempre se puede pulsar:** compartirlo como estado de texto (solo el enlace) y la tarjeta pone la imagen. Si se cambia `preview.jpg`, subir el `?v=` de `og:image` para que WhatsApp no use la copia vieja. `estado_siete_segmentos.png` (raíz, 1080×1080) es la imagen suelta para subir como foto.
 
+## Balanzas imposibles (`juego/balanzas/`)
+
+Colección de **10 acertijos de balanzas** de dificultad máxima, al estilo de los de Junio Puzzles pero con láminas originales (URL `…/problema-del-dia/juego/balanzas/`). Enlazada desde la tarjeta ⚖️ de «Acertijos clásicos» en `juego/index.html`. Cada lámina pregunta cuántos objetos hay en un recipiente con «?».
+
+- **Página:** `juego/balanzas/index.html` es un único archivo con las 10 láminas en SVG dentro. **No se edita a mano:** se genera con `python3 juego/balanzas/generador/generar.py` (necesita `sympy`).
+- **Selector y enlaces:** cada lámina tiene su ancla (`#puerto`, `#taller`, `#nieve`, `#circo`, `#selva`, `#golosinas`, `#laboratorio`, `#castillo`, `#mar`, `#jardin`). Las resueltas se marcan en verde con `localStorage` (clave `balanzas-resueltos`).
+- **Por lámina:** reglas comunes + reglas propias, comprobador de respuesta con mensajes para las trampas típicas (campo `trampas`), 2 pistas y solución paso a paso con la tabla de pesos.
+- **Mecanismos:** polea móvil, doble polea (÷4), polipasto de 4 tramos, torno de dos radios, engranajes con tambores, rampas (6/10, 3-4-5, 2/5 y dos laderas enfrentadas), palanca acodada (se mide con azulejos o tablas de valla), viga inclinada, trapecio colgado de dos vigas, cuerda compartida entre dos vigas (por arriba o anclada al fondo), polea montada en la viga y anclada al suelo, palanca con bisagra y dinamómetro, contrapeso, globos y boyas, y vigas colgantes con un objeto justo bajo el eje (no las inclina, pero pesa para la de arriba).
+
+### Generador (`juego/balanzas/generador/`)
+- `lib.py`: motor de dibujo. Cada viga (`Beam`) **registra sus cargas mientras se dibuja**, así que las ecuaciones salen del mismo código que la lámina y no pueden contradecirse.
+- `p1_puerto.py` … `p10_jardin.py`: una lámina por archivo (`build()`). El puzle 1 es anterior al motor y sus ecuaciones están a mano en `p1_ecuaciones.py`.
+- `datos.py`: títulos, preguntas, reglas, respuesta, trampas, pistas, pasos de la solución y distractores (lista `PUZLES`).
+- `build_page.py`: monta la página (`build(..., web=True)` para la web; sin `web` produce la versión de artefacto de claude.ai).
+- `generar.py`: dibuja los SVG en `generador/svg/`, **resuelve cada lámina con sympy** y exige que la solución sea única y positiva, que coincida con `datos.py` y que **no sobre ninguna ecuación**. Si algo falla, no toca la página.
+- `tarjetas.js` (Playwright): regenera `juego/balanzas/preview.jpg` (1200×630, tarjeta al compartir) y `estado_balanzas.png` (raíz, 1080×1080, para estados de WhatsApp). Uso: `node juego/balanzas/generador/tarjetas.js juego/balanzas/generador/svg/04-circo.svg juego/balanzas/preview.jpg estado_balanzas.png`. Si se cambia `preview.jpg`, subir el `?v=` de `og:image` en `build_page.py`.
+- `render.js`: exporta una lámina a PNG (`node render.js svg/03-nieve.svg salida.png 2`).
+
+**Añadir una lámina:** copiar un `pN_*.py` como plantilla, añadir su entrada en `datos.py` (con `svg="svg/NN-id.svg"`) y en `MODULOS` de `generar.py`, y la unidad (el objeto que vale 1) en `UNIDADES`. Ejecutar `generar.py`: solo publica si la nueva lámina tiene solución única y todas sus ecuaciones hacen falta.
+
 ## Reabastecer problemas
 
 Antes de que el ciclo de ~62 días repita demasiado, minar más acertijos de la biblioteca (`D:\libros_maravillosos\Matemáticas`: Perelman, Gardner, Sam Loyd/Dudeney, Malba Tahan, Ignátiev, Yaglom, Steinhaus, Guik, Lucas, Paenza…). Adaptar (reescribir, no copiar; respeta copyright) y seguir el procedimiento de "Cómo añadir un problema".
