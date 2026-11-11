@@ -82,52 +82,54 @@ def suelo_poste(x, ytop, h):
 # ---------------------------------------------------------------- figuras
 def fig_palanca():
     h = 380
-    px, y, u = 380, 150, 26
-    pegs = [px + u * k for k in range(-12, 13)]
+    px, y, k = 380, 150, 12
+    xl, xr = px - 24 * k, px + 14 * k
     b = [techo(px, y),
-         colgar_pesa(px - 12 * u, y, 9), colgar_pesa(px + u, y, 9), colgar_pesa(px + 9 * u, y, 11),
-         P1.viga(px - 12 * u - 18, px + 12 * u + 18, y, pegs, px),
-         cota(px, px - 12 * u, 112, "12"), cota(px, px + u, 120, "1", lx=px + u + 26), cota(px, px + 9 * u, 76, "9"),
-         etiqueta(150, 300, "9 × 12 = 108"), etiqueta(560, 300, "9 × 1 + 11 × 9 = 108")]
-    return lienzo("".join(b), h, "Palanca: 9 a 12 puntos equilibra 9 a 1 punto más 11 a 9 puntos")
+         colgar_pesa(xl, y, 21), colgar_pesa(xr, y, 36),
+         P1.viga(xl - 18, px + 26 * k, y, [xl, xr], px),
+         cota(px, xl, 112, "24"), cota(px, xr, 112, "14"),
+         etiqueta(xl + 60, 300, "21 × 24 = 504"), etiqueta(xr + 20, 300, "36 × 14 = 504")]
+    return lienzo("".join(b), h, "Palanca: una pesa de 21 a 24 del eje equilibra una de 36 a 14")
+
 
 def fig_colgantes():
     h = 430
-    Mx, My, u = 420, 110, 30
-    pegsM = [Mx + u * k for k in range(-9, 10)]
-    Sx, Sy, us = Mx - 9 * u, 250, 64
-    pegsS = [Sx + us * k for k in range(-1, 2)]
+    Mx, My, k = 420, 110, 13
+    xl, xr = Mx - 21 * k, Mx + 21 * k
+    Sx, Sy, a = xl, 250, 63
     b = [techo(Mx, My),
          cuerda(Sx, My, Sx, Sy - 12), f'<circle cx="{Sx}" cy="{Sy-14}" r="5" fill="none" stroke="{OUT}" stroke-width="3"/>',
-         colgar_pesa(Sx - us, Sy, 9), colgar_pesa(Sx, Sy, 11), colgar_pesa(Sx + us, Sy, 9),
-         P1.viga(Sx - us - 20, Sx + us + 20, Sy, pegsS, Sx),
-         colgar_pesa(Mx + 9 * u, My, 29),
-         P1.viga(Mx - 9 * u - 18, Mx + 9 * u + 18, My, pegsM, Mx),
-         f'<rect x="{Sx-us-46}" y="{Sy-40}" width="{2*us+92}" height="140" rx="16" fill="none" stroke="{AZUL}" stroke-width="3" stroke-dasharray="9 7"/>',
-         etiqueta(250, 182, "esta viga pesa 9 + 11 + 9 = 29", AZUL, 19),
+         colgar_pesa(Sx - a, Sy, 22), colgar_pesa(Sx, Sy, 14), colgar_pesa(Sx + a, Sy, 22),
+         P1.viga(Sx - a - 20, Sx + a + 20, Sy, [Sx - a, Sx + a], Sx),
+         colgar_pesa(xr, My, 58),
+         P1.viga(xl - 18, xr + 18, My, [xl, xr], Mx),
+         cota(Mx, xl, 70, "21"), cota(Mx, xr, 70, "21"),
+         f'<rect x="{Sx-a-46}" y="{Sy-40}" width="{2*a+92}" height="140" rx="16" fill="none" stroke="{AZUL}" stroke-width="3" stroke-dasharray="9 7"/>',
+         etiqueta(260, 182, "esta viga pesa 22 + 14 + 22 = 58", AZUL, 19),
          flecha(206, 374, Sx + 10, 334, ROJO, 4),
          etiqueta(300, 394, "en el eje: no la inclina", ROJO, 18),
-         etiqueta(560, 396, "29 × 9 = 29 × 9", OUT, 19)]
+         etiqueta(570, 396, "58 × 21 = 58 × 21", OUT, 19)]
     return lienzo("".join(b), h, "Viga colgante con una pesa en su eje: no la inclina, pero cuenta en su peso total")
+
 
 def fig_globos():
     h = 380
-    px, y, u = 420, 190, 30
-    pegs = [px + u * k for k in range(-9, 10)]
-    gx = px - 9 * u
+    px, y, k = 420, 190, 12
+    xp, gx, xr = px - 14 * k, px - 22 * k, px + 14 * k
     b = [techo(px, y),
          P1.globo(gx, y, gx - 30, 84),
-         colgar_pesa(px - u, y, 20), colgar_pesa(px + u, y, 11),
-         P1.viga(px - 9 * u - 18, px + 9 * u + 18, y, pegs, px),
-         cota(px, gx, 152, "9"), cota(px, px - u, 124, "1", lx=px - u - 26),
-         flecha(64, 160, 64, 92, VERDE, 5), etiqueta(104, 236, "tira 1 hacia arriba", VERDE, 16),
-         etiqueta(230, 322, "20 × 1 − 1 × 9 = 11"), etiqueta(600, 322, "11 × 1 = 11")]
+         colgar_pesa(xp, y, 44), colgar_pesa(xr, y, 22),
+         P1.viga(gx - 18, px + 22 * k, y, [gx, xp, xr], px),
+         cota(px, gx, 150, "22"), cota(px, xp, 98, "14"), cota(px, xr, 150, "14"),
+         flecha(56, 160, 56, 92, VERDE, 5), etiqueta(110, 236, "tira 14 hacia arriba", VERDE, 16),
+         etiqueta(236, 322, "44 × 14 − 14 × 22 = 308"), etiqueta(600, 322, "22 × 14 = 308")]
     return lienzo("".join(b), h, "Globo que tira hacia arriba: resta en su lado de la balanza")
+
 
 def fig_plano():
     h = 400
-    L, H = 12, 9
-    u = 22
+    L, H = 28, 21
+    u = 9.5
     hyp, alt = L * u, H * u
     base = math.sqrt(hyp ** 2 - alt ** 2)
     A = (60, h - 40); B = (60 + base, h - 40); C = (60 + base, h - 40 - alt)
@@ -142,29 +144,29 @@ def fig_plano():
     ang = math.degrees(math.atan2(d[1], d[0]))
     carro = (f'<rect x="-34" y="-26" width="68" height="16" rx="4" fill="#c98a4b" stroke="{OUT}" stroke-width="3"/>'
              f'<circle cx="-20" cy="-8" r="8" fill="#5b5f6b" stroke="{OUT}" stroke-width="3"/><circle cx="20" cy="-8" r="8" fill="#5b5f6b" stroke="{OUT}" stroke-width="3"/>'
-             + pesa(0, -26 - 58, 20, anilla=False))
+             + pesa(0, -26 - 58, 40, anilla=False))
     att = (P0[0] + 38 * d[0] + h_att * nup[0], P0[1] + 38 * d[1] + h_att * nup[1])
     DIM = f'stroke="{OUT}" stroke-width="2.4" fill="none" stroke-linecap="round"'
     def on(s_, off):
         return (A[0] + s_ * d[0] + off * ndn[0], A[1] + s_ * d[1] + off * ndn[1])
     q1, q2 = on(20 / math.tan(math.asin(H / L)) + 26, 20), on(hyp - 64, 20)
-    tm = on(hyp * 0.36, 44)
+    tm = on(hyp * 0.26, 40)
     b = [f'<path d="M{A[0]},{A[1]} L{B[0]:.1f},{B[1]} L{C[0]:.1f},{C[1]:.1f} Z" fill="#cfd5dc" stroke="{OUT}" stroke-width="3.5" stroke-linejoin="round"/>',
          f'<g {DIM}><line x1="{q1[0]:.1f}" y1="{q1[1]:.1f}" x2="{q2[0]:.1f}" y2="{q2[1]:.1f}"/>' + arrow_head(q1[0], q1[1], -d[0], -d[1], 9) + arrow_head(q2[0], q2[1], d[0], d[1], 9) + '</g>',
          text(tm[0], tm[1], str(L), 26, rot=ang),
          f'<g {DIM}><line x1="{B[0]-16:.1f}" y1="{C[1]+40:.1f}" x2="{B[0]-16:.1f}" y2="{B[1]-8}"/>' + arrow_head(B[0] - 16, C[1] + 40, 0, -1, 9) + arrow_head(B[0] - 16, B[1] - 8, 0, 1, 9) + '</g>',
-         text(B[0] - 30, B[1] - 50, str(H), 26, anchor="end"),
+         text(B[0] - 30, B[1] - 84, str(H), 26, anchor="end"),
          f'<path d="M{C[0]-4:.1f},{C[1]+6:.1f} L{PC[0]:.1f},{PC[1]:.1f}" stroke="{OUT}" stroke-width="11" stroke-linecap="round"/>'
          f'<path d="M{C[0]-4:.1f},{C[1]+6:.1f} L{PC[0]:.1f},{PC[1]:.1f}" stroke="#c08a4c" stroke-width="6" stroke-linecap="round"/>',
          f'<g transform="translate({P0[0]:.1f},{P0[1]:.1f}) rotate({ang:.3f})">{carro}</g>',
          f'<path d="M{att[0]:.1f},{att[1]:.1f} L{T1[0]:.1f},{T1[1]:.1f} A{R},{R} 0 0 1 {PC[0]+R:.1f},{PC[1]:.1f} L{PC[0]+R:.1f},{PC[1]+90:.1f}" fill="none" stroke="{ROPE}" stroke-width="3" stroke-linecap="round"/>',
          P1.polea(PC[0], PC[1], R),
-         pesa(PC[0] + R, PC[1] + 90, 15),
+         pesa(PC[0] + R, PC[1] + 90, 30),
          flecha(att[0] + 26 * d[0] - 10, att[1] + 26 * d[1] - 10, att[0] + 90 * d[0] - 10, att[1] + 90 * d[1] - 10, VERDE, 5),
          etiqueta(560, 120, "la vagoneta tira con", OUT, 19),
-         etiqueta(560, 160, "20 × 9 ÷ 12 = 15", ROJO, 22),
+         etiqueta(560, 160, "40 × 21 ÷ 28 = 30", ROJO, 22),
          etiqueta(560, 222, "peso × altura ÷ cuesta", AZUL, 19)]
-    return lienzo("".join(b), h, "Plano inclinado de 12 de cuesta y 9 de altura: una vagoneta de 20 tira con 15")
+    return lienzo("".join(b), h, "Plano inclinado de 28 de cuesta y 21 de altura: una vagoneta de 40 tira con 30")
 
 def fig_polea_fija():
     h = 380
@@ -173,10 +175,10 @@ def fig_polea_fija():
          f'<line x1="{cx}" y1="46" x2="{cx}" y2="{cy}" stroke="{OUT}" stroke-width="6"/>',
          cuerda(cx - R, cy, cx - R, 236), cuerda(cx + R, cy, cx + R, 196),
          f'<path d="M{cx-R},{cy} A{R},{R} 0 0 1 {cx+R},{cy}" fill="none" stroke="{ROPE}" stroke-width="3.5"/>',
-         P1.polea(cx, cy, R), pesa(cx - R, 236, 9), pesa(cx + R, 196, 9),
-         etiqueta(cx - 190, 260, "la cuerda tira igual", OUT, 19), etiqueta(cx - 190, 296, "a los dos lados: 9 = 9", OUT, 19),
+         P1.polea(cx, cy, R), pesa(cx - R, 236, 24), pesa(cx + R, 196, 24),
+         etiqueta(cx - 190, 260, "la cuerda tira igual", OUT, 19), etiqueta(cx - 190, 296, "a los dos lados: 24 = 24", OUT, 19),
          flecha(cx + 110, 140, cx + 110, 60, VERDE, 5), etiqueta(cx + 200, 170, "el soporte aguanta", VERDE, 18),
-         etiqueta(cx + 200, 206, "9 + 9 = 18", VERDE, 21)]
+         etiqueta(cx + 200, 206, "24 + 24 = 48", VERDE, 21)]
     return lienzo("".join(b), h, "Polea fija: la cuerda tira igual a los dos lados y el soporte aguanta los dos")
 
 
@@ -188,13 +190,13 @@ def fig_polea_movil():
          cuerda(cx - R, 46, cx - R, cy), cuerda(cx + R, 46, cx + R, cy),
          f'<path d="M{cx-R},{cy} A{R},{R} 0 0 0 {cx+R},{cy}" fill="none" stroke="{ROPE}" stroke-width="3.5"/>',
          f'<path d="M{cx-12},{cy} L{cx},{cy+R+14} L{cx+12},{cy}" fill="none" stroke="{OUT}" stroke-width="4" stroke-linejoin="round"/>',
-         P1.polea(cx, cy, R), pesa(cx, cy + R + 16, 18),
-         etiqueta(cx - R - 34, 120, "9", VERDE, 22), etiqueta(cx + R + 34, 120, "9", VERDE, 22),
-         etiqueta(cx, 370, "cada tramo, la mitad: 9", OUT, 18)]
-    # --- polipasto de 12 tramos (derecha)
-    rr = 8
-    n = 6
-    free_x = 340
+         P1.polea(cx, cy, R), pesa(cx, cy + R + 16, 44),
+         etiqueta(cx - R - 36, 120, "22", VERDE, 22), etiqueta(cx + R + 36, 120, "22", VERDE, 22),
+         etiqueta(cx, 370, "cada tramo, la mitad: 22", OUT, 18)]
+    # --- polipasto de 14 tramos (derecha)
+    rr = 7
+    n = 7
+    free_x = 330
     UY, LY = 104, 226
     U = [free_x + rr * (1 + 4 * i) for i in range(n)]
     Lw = [free_x + rr * (3 + 4 * i) for i in range(n)]
@@ -207,21 +209,22 @@ def fig_polea_movil():
           f'<line x1="{(U[0]+hook)/2}" y1="46" x2="{(U[0]+hook)/2}" y2="{UY-22}" stroke="{OUT}" stroke-width="5"/>',
           f'<rect x="{U[0]-rr-5}" y="{UY-24}" width="{hook-U[0]+rr+10}" height="14" rx="5" fill="#6c757d" stroke="{OUT}" stroke-width="3"/>',
           f'<rect x="{Lw[0]-rr-5}" y="{LY+5}" width="{Lw[-1]-Lw[0]+2*rr+10}" height="14" rx="5" fill="#6c757d" stroke="{OUT}" stroke-width="3"/>',
-          f'<path d="{rope}" fill="none" stroke="{ROPE}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>']
+          f'<path d="{rope}" fill="none" stroke="{ROPE}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>']
     for x_ in U:
         b.append(P1.polea(x_, UY, rr))
     for x_ in Lw:
         b.append(P1.polea(x_, LY, rr))
     lx = (Lw[0] + Lw[-1]) / 2
-    b += [cuerda(lx, LY + 19, lx, LY + 32), pesa(lx, LY + 32, 132),
-          etiqueta(655, 150, "12 tramos sujetan", OUT, 18), etiqueta(655, 184, "el bloque de abajo", OUT, 18),
-          etiqueta(free_x + 40, 342, "132 ÷ 12 = 11", ROJO, 21)]
-    return lienzo("".join(b), h, "Polea móvil: cada tramo aguanta la mitad. Polipasto de 12 tramos: la duodécima parte")
+    b += [cuerda(lx, LY + 19, lx, LY + 32), pesa(lx, LY + 32, 308),
+          etiqueta(655, 150, "14 tramos sujetan", OUT, 18), etiqueta(655, 184, "el bloque de abajo", OUT, 18),
+          etiqueta(free_x + 50, 342, "308 ÷ 14 = 22", ROJO, 21)]
+    return lienzo("".join(b), h, "Polea móvil: cada tramo aguanta la mitad. Polipasto de catorce tramos: la catorceava parte")
+
 
 def fig_torno():
     h = 400
-    cx, cy, u = 250, 170, 8
-    r1, rN = 9 * u, 12 * u
+    cx, cy, u = 250, 170, 4.5
+    r1, rN = 14 * u, 21 * u
     b = [f'<circle cx="{cx}" cy="{cy}" r="{rN}" fill="#ffcf4d" stroke="{OUT}" stroke-width="3.5"/>',
          f'<circle cx="{cx}" cy="{cy}" r="{r1}" fill="#e2483d" stroke="{OUT}" stroke-width="3.5"/>',
          f'<circle cx="{cx}" cy="{cy}" r="{r1-10}" fill="none" stroke="#b5352c" stroke-width="2.5"/>',
@@ -229,17 +232,18 @@ def fig_torno():
          f'<circle cx="{cx}" cy="{cy}" r="8.5" fill="#fff" stroke="{OUT}" stroke-width="3"/><circle cx="{cx}" cy="{cy}" r="3" fill="{OUT}"/>',
          f'<path d="M{cx},{cy-r1} A{r1},{r1} 0 0 0 {cx-r1},{cy} L{cx-r1},{cy+130}" fill="none" stroke="{ROPE}" stroke-width="3.5"/>',
          f'<path d="M{cx},{cy-rN} A{rN},{rN} 0 0 1 {cx+rN},{cy} L{cx+rN},{cy+100}" fill="none" stroke="{ROPE}" stroke-width="3.5"/>',
-         pesa(cx - r1, cy + 130, 20), pesa(cx + rN, cy + 100, 15),
-         etiqueta(cx - 150, cy + 30, "tambor: radio 9", ROJO, 17), etiqueta(cx + 120, cy - rN - 10, "rueda: radio 12", AZUL, 17),
+         pesa(cx - r1, cy + 130, 36), pesa(cx + rN, cy + 100, 24),
+         etiqueta(cx - 150, cy + 30, "tambor: radio 14", ROJO, 17), etiqueta(cx + 120, cy - rN - 10, "rueda: radio 21", AZUL, 17),
          etiqueta(590, 160, "peso × radio igual", OUT, 19), etiqueta(590, 200, "a los dos lados:", OUT, 19),
-         etiqueta(590, 246, "20 × 9 = 15 × 12", ROJO, 22)]
-    return lienzo("".join(b), h, "Torno con tambor de radio 9 y rueda de radio 12: 20 en el tambor se sujeta con 15 en la rueda")
+         etiqueta(590, 246, "36 × 14 = 24 × 21", ROJO, 22)]
+    return lienzo("".join(b), h, "Torno con tambor de radio 14 y rueda de radio 21: 36 en el tambor se sujeta con 24 en la rueda")
+
 
 def fig_engranajes():
     h = 380
-    u = 5
-    A_c, rA, dA = (150, 160), 12 * u, 9 * u
-    B_c, rB, dB = (150 + 12 * u + 15 * u, 160), 15 * u, 9 * u
+    u = 3
+    A_c, rA, dA = (150, 160), 21 * u, 14 * u
+    B_c, rB, dB = (150 + 21 * u + 28 * u, 160), 28 * u, 14 * u
 
     def gear(c, r, teeth, col, phase):
         pts = []
@@ -251,71 +255,75 @@ def fig_engranajes():
                 pts.append(f"{c[0] + rr*math.cos(a):.1f},{c[1] + rr*math.sin(a):.1f}")
         return f'<polygon points="{" ".join(pts)}" fill="{col}" stroke="{OUT}" stroke-width="3" stroke-linejoin="round"/>'
 
-    b = [gear(B_c, rB, 20, "#5fb7ff", math.pi / 20), gear(A_c, rA, 16, "#ffd23f", 0.0)]
+    b = [gear(B_c, rB, 22, "#5fb7ff", math.pi / 22), gear(A_c, rA, 17, "#ffd23f", 0.0)]
     for (c, r, dr) in ((A_c, rA, dA), (B_c, rB, dB)):
         b.append(f'<circle cx="{c[0]}" cy="{c[1]}" r="{r}" fill="none" stroke="{OUT}" stroke-width="2" stroke-dasharray="5 6" opacity=".55"/>')
         b.append(f'<circle cx="{c[0]}" cy="{c[1]}" r="{dr}" fill="#e63946" stroke="{OUT}" stroke-width="3"/>')
         b.append(f'<circle cx="{c[0]}" cy="{c[1]}" r="8.5" fill="#fff" stroke="{OUT}" stroke-width="3"/><circle cx="{c[0]}" cy="{c[1]}" r="3" fill="{OUT}"/>')
     b += [f'<path d="M{A_c[0]},{A_c[1]-dA} A{dA},{dA} 0 0 0 {A_c[0]-dA},{A_c[1]} L{A_c[0]-dA},{A_c[1]+130}" fill="none" stroke="{ROPE}" stroke-width="3.5"/>',
           f'<path d="M{B_c[0]},{B_c[1]-dB} A{dB},{dB} 0 0 0 {B_c[0]-dB},{B_c[1]} L{B_c[0]-dB},{B_c[1]+130}" fill="none" stroke="{ROPE}" stroke-width="3.5"/>',
-          pesa(A_c[0] - dA, A_c[1] + 130, 20), pesa(B_c[0] - dB, B_c[1] + 130, 25),
-          etiqueta(590, 80, "amarillo: rueda 12, tambor 9", OUT, 17), etiqueta(590, 116, "20 × 9 = F × 12 → F = 15", ROJO, 17),
-          etiqueta(590, 186, "azul: rueda 15, tambor 9", OUT, 17), etiqueta(590, 222, "15 × 15 = 25 × 9", AZUL, 17),
+          pesa(A_c[0] - dA, A_c[1] + 130, 36), pesa(B_c[0] - dB, B_c[1] + 130, 48),
+          etiqueta(590, 80, "amarillo: rueda 21, tambor 14", OUT, 17), etiqueta(590, 116, "36 × 14 = F × 21 → F = 24", ROJO, 17),
+          etiqueta(590, 186, "azul: rueda 28, tambor 14", OUT, 17), etiqueta(590, 222, "24 × 28 = 48 × 14", AZUL, 17),
           etiqueta(590, 280, "F: la fuerza entre los dientes", OUT, 16)]
     return lienzo("".join(b), h, "Engranajes: la fuerza en los dientes es la misma; cada rueda la multiplica por su radio")
 
+
 def fig_acodada():
     h = 380
-    px, py, u = 380, 110, 25
-    grid = "".join(f'<line x1="{px + u*k}" y1="40" x2="{px + u*k}" y2="{h-40}" stroke="#a9cfe0" stroke-width="2" stroke-dasharray="6 6"/>' for k in range(-12, 13))
-    xL, yL, xR, yR = px - 9 * u, py + 80, px + 12 * u, py + 50
+    px, py, k = 380, 110, 10
+    grid = "".join(f'<line x1="{px + 70*j}" y1="40" x2="{px + 70*j}" y2="{h-40}" stroke="#a9cfe0" stroke-width="2" stroke-dasharray="6 6"/>' for j in range(-5, 6))
+    xL, yL, xR, yR = px - 21 * k, py + 80, px + 28 * k, py + 50
     arm = f'M{xL},{yL} L{px},{py} L{xR},{yR}'
     b = [grid,
-         colgar_pesa(xL, yL, 16), colgar_pesa(xR, yR, 12),
+         colgar_pesa(xL, yL, 40), colgar_pesa(xR, yR, 30),
          f'<path d="{arm}" fill="none" stroke="{OUT}" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>'
          f'<path d="{arm}" fill="none" stroke="#f0832a" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>',
          f'<circle cx="{px}" cy="{py}" r="8.5" fill="#fff" stroke="{OUT}" stroke-width="3"/><circle cx="{px}" cy="{py}" r="3" fill="{OUT}"/>',
          f'<circle cx="{xL}" cy="{yL}" r="3.6" fill="{OUT}"/><circle cx="{xR}" cy="{yR}" r="3.6" fill="{OUT}"/>',
-         cota(px, xL, 322, "9"), cota(px, xR, 322, "12"),
-         etiqueta(px, 62, "solo cuenta la distancia horizontal: 16 × 9 = 12 × 12", OUT, 17)]
+         cota(px, xL, 322, "21"), cota(px, xR, 322, "28"),
+         etiqueta(px, 62, "solo cuenta la distancia horizontal: 40 × 21 = 30 × 28", OUT, 17)]
     return lienzo("".join(b), h, "Palanca acodada: las distancias se miden en horizontal")
+
 
 def fig_dinamometro():
     h = 380
-    hx, hy, u = 70, 230, 26
-    xd = hx + 12 * u
-    pegs = [hx + u * k for k in range(1, 13)]
+    hx, hy, k = 70, 230, 11
+    xd = hx + 28 * k
+    xp = hx + 21 * k
     b = [f'<rect x="10" y="40" width="40" height="{h-80}" fill="#bcc6d3" stroke="{OUT}" stroke-width="3"/>',
          f'<rect x="{xd-100}" y="26" width="200" height="20" rx="4" fill="#9c6644" stroke="{OUT}" stroke-width="3"/>',
-         colgar_pesa(hx + 9 * u, hy, 20),
-         P1.viga(hx - 8, xd + 18, hy, pegs, None),
+         colgar_pesa(xp, hy, 44),
+         P1.viga(hx - 8, xd + 18, hy, [xp, xd], None),
          f'<circle cx="{hx}" cy="{hy}" r="13" fill="#ffd166" stroke="{OUT}" stroke-width="3"/><circle cx="{hx}" cy="{hy}" r="4" fill="{OUT}"/>',
          f'<line x1="{xd}" y1="46" x2="{xd}" y2="70" stroke="{OUT}" stroke-width="4"/>',
          f'<rect x="{xd-30}" y="70" width="60" height="100" rx="14" fill="#ffd166" stroke="{OUT}" stroke-width="3.5"/>',
          f'<rect x="{xd-22}" y="80" width="44" height="60" rx="6" fill="#fffaf0" stroke="{OUT}" stroke-width="2.5"/>',
-         text(xd, 111, "15", 30, 900, col=ROJO),
+         text(xd, 111, "33", 30, 900, col=ROJO),
          f'<line x1="{xd}" y1="170" x2="{xd}" y2="{hy-6}" stroke="{OUT}" stroke-width="4"/>',
-         cota(hx, hx + 9 * u, 200, "9"), cota(hx, xd, 64, "12"),
-         etiqueta(600, 150, "gira en la bisagra:", OUT, 19), etiqueta(600, 190, "20 × 9 = 15 × 12", ROJO, 22),
-         etiqueta(600, 236, "el dinamómetro marca 15", AZUL, 18)]
-    return lienzo("".join(b), h, "Palanca con bisagra sostenida por un dinamómetro que marca 15")
+         cota(hx, xp, 200, "21"), cota(hx, xd, 64, "28"),
+         etiqueta(600, 150, "gira en la bisagra:", OUT, 19), etiqueta(600, 190, "44 × 21 = 33 × 28", ROJO, 22),
+         etiqueta(600, 236, "el dinamómetro marca 33", AZUL, 18)]
+    return lienzo("".join(b), h, "Palanca con bisagra sostenida por un dinamómetro que marca 33")
+
 
 def fig_trapecio():
     h = 380
     xl, xr, y = 180, 580, 230
-    u = (xr - xl) / 20
-    pegs = [xl + u * k for k in range(0, 21)]
+    k = (xr - xl) / 40
+    xp = xl + 14 * k
     b = [f'<rect x="{xl-60}" y="26" width="120" height="20" rx="4" fill="#9c6644" stroke="{OUT}" stroke-width="3"/>',
          f'<rect x="{xr-60}" y="26" width="120" height="20" rx="4" fill="#9c6644" stroke="{OUT}" stroke-width="3"/>',
          cuerda(xl, 46, xl, y, 3.5), cuerda(xr, 46, xr, y, 3.5),
-         colgar_pesa(xl + 9 * u, y, 20),
+         colgar_pesa(xp, y, 40),
          f'<rect x="{xl-14}" y="{y-8}" width="{xr-xl+28}" height="16" rx="8" fill="#3b9be0" stroke="{OUT}" stroke-width="3"/>'
-         + "".join(f'<circle cx="{px_:.1f}" cy="{y}" r="2.8" fill="{OUT}"/>' for px_ in pegs),
-         flecha(xl - 44, 200, xl - 44, 120, VERDE, 5), etiqueta(xl - 44, 226, "11", VERDE, 24),
-         flecha(xr + 44, 200, xr + 44, 120, VERDE, 5), etiqueta(xr + 44, 226, "9", VERDE, 24),
-         cota(xl, xl + 9 * u, 196, "9"), cota(xl + 9 * u, xr, 196, "11"),
-         etiqueta(380, 330, "20 × 11 ÷ 20 = 11   ·   20 × 9 ÷ 20 = 9", ROJO, 18)]
+         + "".join(f'<circle cx="{px_:.1f}" cy="{y}" r="3.6" fill="{OUT}"/>' for px_ in (xl, xp, xr)),
+         flecha(xl - 44, 200, xl - 44, 120, VERDE, 5), etiqueta(xl - 44, 226, "26", VERDE, 24),
+         flecha(xr + 44, 200, xr + 44, 120, VERDE, 5), etiqueta(xr + 44, 226, "14", VERDE, 24),
+         cota(xl, xp, 196, "14"), cota(xp, xr, 196, "26"),
+         etiqueta(380, 330, "40 × 26 ÷ 40 = 26   ·   40 × 14 ÷ 40 = 14", ROJO, 18)]
     return lienzo("".join(b), h, "Barra colgada de dos cuerdas: el peso se reparte según la distancia")
+
 
 def fig_compartida():
     h = 380
@@ -331,7 +339,7 @@ def fig_compartida():
          cuerda(xA, pcy, xA, yl), cuerda(xB, pcy, xB, yr),
          f'<path d="M{xA},{pcy} A{R},{R} 0 0 1 {xB},{pcy}" fill="none" stroke="{ROPE}" stroke-width="3.5"/>',
          P1.polea(pcx, pcy, R),
-         colgar_pesa(lp - a, yl, 12), colgar_pesa(rp + a, yr, 12),
+         colgar_pesa(lp - a, yl, 24), colgar_pesa(rp + a, yr, 24),
          f'<rect x="{lp-a-16}" y="{yl-8}" width="{2*a+32}" height="16" rx="8" fill="{"#e3aa60"}" stroke="{OUT}" stroke-width="3"/>',
          f'<rect x="{rp-a-16}" y="{yr-8}" width="{2*a+32}" height="16" rx="8" fill="{"#e3aa60"}" stroke="{OUT}" stroke-width="3"/>',
          f'<circle cx="{lp}" cy="{yl}" r="8.5" fill="#fff" stroke="{OUT}" stroke-width="3"/><circle cx="{lp}" cy="{yl}" r="3" fill="{OUT}"/>',
@@ -345,10 +353,10 @@ def fig_compartida():
 SECCIONES = [
     dict(id="palanca", titulo="La palanca: peso por distancia", fig=fig_palanca,
          texto=["Cada viga gira sobre su eje (el círculo blanco). Un objeto la hace girar más cuanto más pesa y cuanto más lejos del eje está: lo que cuenta es <b>peso × distancia</b>.",
-                "La distancia se mide en puntos: todos los puntos de una viga están igual de separados. Está en equilibrio cuando la suma de un lado es igual a la del otro."],
+                "La distancia se mide desde el eje, en horizontal. En los acertijos se cuenta en puntos, que en cada viga están igual de separados; en estos ejemplos va escrita. Está en equilibrio cuando la suma de un lado es igual a la del otro."],
          regla="Izquierda: suma de peso × distancia = Derecha: suma de peso × distancia"),
     dict(id="colgantes", titulo="Objetos en el eje y vigas colgantes", fig=fig_colgantes,
-         texto=["Lo que cuelga <b>justo del eje</b> está a distancia 0: no inclina esa viga hacia ningún lado.",
+         texto=["Lo que cuelga <b>justo del eje</b> está a distancia cero: no inclina esa viga hacia ningún lado.",
                 "Pero cuando una viga cuelga de otra, la de arriba nota <b>todo su peso</b>, también lo que cuelga de su eje. Por eso se resuelven de abajo arriba: primero el equilibrio de la viga colgante y luego su peso total como un objeto más."],
          regla="Una viga colgante pesa la suma de todo lo que lleva (sumando también lo del eje)"),
     dict(id="globos", titulo="Globos y boyas: pesos que tiran hacia arriba", fig=fig_globos,
@@ -356,7 +364,7 @@ SECCIONES = [
                 "Otra forma de verlo: un tirón hacia arriba en un lado hace lo mismo que un peso en el otro lado, a la misma distancia. Cuando una viga colgante lleva globos, su peso total también resta lo que levantan."],
          regla="Globo = peso negativo · Tirón hacia arriba a un lado = peso al otro lado"),
     dict(id="plano-inclinado", titulo="El plano inclinado", fig=fig_plano,
-         texto=["En una rampa sin rozamiento, un objeto con ruedas no tira con todo su peso: tira con <b>peso × altura ÷ longitud de la cuesta</b>. Aquí la cuesta mide 12 y sube 9, así que la vagoneta de 20 tira con 20 × 9 ÷ 12 = 15.",
+         texto=["En una rampa sin rozamiento, un objeto con ruedas no tira con todo su peso: tira con <b>peso × altura ÷ longitud de la cuesta</b>. Aquí la cuesta mide 28 y sube 21, así que la vagoneta de 40 tira con 40 × 21 ÷ 28 = 30.",
                 "La base de la rampa no hace falta. Si dos objetos están en dos laderas de la misma altura unidos por una cuerda, la ladera más larga aguanta más peso con la misma fuerza."],
          regla="Fuerza en la cuerda = peso × altura ÷ cuesta (la cuerda, paralela a la rampa)"),
     dict(id="polea-fija", titulo="La polea fija", fig=fig_polea_fija,
@@ -369,7 +377,7 @@ SECCIONES = [
          regla="Fuerza en la cuerda = peso ÷ número de tramos que sujetan la carga"),
     dict(id="torno", titulo="El torno: una rueda y su eje", fig=fig_torno,
          texto=["La rueda grande y su eje pequeño giran juntos. Lo que cuenta es <b>peso × radio</b>, como en la palanca: una carga en el eje pequeño se sujeta con menos fuerza en la rueda grande.",
-                "Aquí el tambor tiene radio 9 y la rueda, radio 12: 20 en el tambor se sujeta con 15 en la rueda, porque 20 × 9 = 15 × 12."],
+                "Aquí el tambor tiene radio 14 y la rueda, radio 21: 36 en el tambor se sujeta con 24 en la rueda, porque 36 × 14 = 24 × 21."],
          regla="Peso en el eje × radio del eje = fuerza en la rueda × radio de la rueda"),
     dict(id="engranajes", titulo="Los engranajes", fig=fig_engranajes,
          texto=["Dos engranajes se empujan en sus dientes con <b>la misma fuerza</b>. Cada uno la multiplica por su radio, y su tambor pequeño la convierte en tirón de cuerda.",
@@ -381,11 +389,11 @@ SECCIONES = [
          regla="Distancia = separación horizontal entre el eje y la cuerda del objeto"),
     dict(id="dinamometro", titulo="Bisagra y dinamómetro", fig=fig_dinamometro,
          texto=["Una viga sujeta a la pared con una bisagra gira alrededor de ella, y algo la sostiene al otro lado (un dinamómetro, una cadena…). Las distancias se miden desde la bisagra.",
-                "El dinamómetro marca la fuerza que hace. La bisagra también hace fuerza, pero está a distancia 0 y no hace falta calcularla."],
+                "El dinamómetro marca la fuerza que hace. La bisagra también hace fuerza, pero está a distancia cero y no hace falta calcularla."],
          regla="Peso × distancia a la bisagra = lectura del dinamómetro × su distancia"),
     dict(id="trapecio", titulo="Una barra colgada de dos cuerdas", fig=fig_trapecio,
          texto=["Una barra sin eje, colgada de dos cuerdas, reparte cada peso entre ellas: <b>más carga para la cuerda que está más cerca</b>.",
-                "Con las cuerdas a 20 puntos, una pesa de 20 a 9 puntos de la izquierda manda 11 a la cuerda izquierda y 9 a la derecha. Cada cuerda tira de su viga con su parte."],
+                "Con las cuerdas a 40 de distancia, una pesa de 40 a 14 de la izquierda manda 26 a la cuerda izquierda y 14 a la derecha. Cada cuerda tira de su viga con su parte."],
          regla="Parte de una cuerda = peso × (distancia a la otra cuerda) ÷ (separación entre cuerdas)"),
     dict(id="cuerda-compartida", titulo="Dos vigas con la misma cuerda", fig=fig_compartida,
          texto=["Cuando una sola cuerda une dos vigas pasando por una polea, tira de las dos con <b>la misma fuerza</b>, que no conoces.",
@@ -394,7 +402,7 @@ SECCIONES = [
 ]
 
 METODO = [
-    "Toma un objeto como unidad (el que hay en la caja vale 1) y pon una letra a cada peso desconocido.",
+    "Toma como unidad el objeto que hay en la caja y pon una letra a cada peso desconocido.",
     "Ignora lo que no cuelga de una viga: lo que está en el suelo, lo que vuela o lo que cuelga de algo fijo no cuenta.",
     "Escribe una ecuación por viga: peso × distancia a un lado = peso × distancia al otro.",
     "Sustituye cada mecanismo por la fuerza que hace en su viga (polea móvil, rampa, torno, globo…).",
