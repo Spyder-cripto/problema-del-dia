@@ -213,6 +213,7 @@ Colección de **10 acertijos de balanzas** de dificultad máxima, al estilo de l
 - Los scripts de node son `.cjs` porque `juego/package.json` declara `"type": "module"`.
 - `teoria.py`: textos y figuras de la página de teoría (`SECCIONES`, `METODO`, `TRAMPAS`); las figuras reutilizan los objetos de `p1_puerto.py` y una pesa con su valor escrito. Si se añade un apartado, darle etiqueta en `ETIQUETAS`.
 - `proximamente.cjs`: genera `estado_balanzas_proximamente.png` (raíz, 1080×1920), el estado «Próximamente…» con las diez láminas amontonadas y la del circo encima. La posición de cada lámina está fija en `MONTON`.
+- `descargas.py`: prepara `juego/balanzas/descargas/` con las 13 imágenes de estado renombradas (`imagen_estado_whatsapp_NN_<título>.png`, más teoría, colección y «Próximamente…») y `balanzas_imposibles_enlaces.pdf` (A4, enlaces pulsables, miniatura de cada lámina, sin soluciones). Ejecutarlo después de `generar.py`, `tarjetas.cjs` y `proximamente.cjs`.
 - `render.cjs`: exporta una lámina a PNG (`node render.cjs svg/03-nieve.svg salida.png 2`).
 
 **Añadir una lámina:** copiar un `pN_*.py` como plantilla, añadir su entrada en `datos.py` (con `svg="svg/NN-id.svg"`) y en `MODULOS` de `generar.py`, y la unidad (el objeto que vale 1) en `UNIDADES`. Ejecutar `generar.py`: solo publica si la nueva lámina tiene solución única y todas sus ecuaciones hacen falta.
