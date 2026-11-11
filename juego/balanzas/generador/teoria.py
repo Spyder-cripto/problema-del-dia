@@ -82,14 +82,14 @@ def suelo_poste(x, ytop, h):
 # ---------------------------------------------------------------- figuras
 def fig_palanca():
     h = 380
-    px, y, k = 380, 150, 12
-    xl, xr = px - 24 * k, px + 14 * k
+    px, y, k = 380, 150, 60
+    xl, xr = px - 3 * k, px + 4 * k
     b = [techo(px, y),
-         colgar_pesa(xl, y, 21), colgar_pesa(xr, y, 36),
-         P1.viga(xl - 18, px + 26 * k, y, [xl, xr], px),
-         cota(px, xl, 112, "24"), cota(px, xr, 112, "14"),
-         etiqueta(xl + 60, 300, "21 × 24 = 504"), etiqueta(xr + 20, 300, "36 × 14 = 504")]
-    return lienzo("".join(b), h, "Palanca: una pesa de 21 a 24 del eje equilibra una de 36 a 14")
+         colgar_pesa(xl, y, 28), colgar_pesa(xr, y, 21),
+         P1.viga(xl - 18, xr + 18, y, [xl, xr], px),
+         cota(px, xl, 112, "3"), cota(px, xr, 112, "4"),
+         etiqueta(xl, 300, "28 × 3 = 84"), etiqueta(xr, 300, "21 × 4 = 84")]
+    return lienzo("".join(b), h, "Palanca: una pesa de 28 a 3 del eje equilibra una de 21 a 4")
 
 
 def fig_colgantes():
@@ -114,15 +114,15 @@ def fig_colgantes():
 
 def fig_globos():
     h = 380
-    px, y, k = 420, 190, 12
-    xp, gx, xr = px - 14 * k, px - 22 * k, px + 14 * k
+    px, y, k = 420, 190, 120
+    xp, gx, xr = px - 2 * k, px - k, px + k
     b = [techo(px, y),
-         P1.globo(gx, y, gx - 30, 84),
-         colgar_pesa(xp, y, 44), colgar_pesa(xr, y, 22),
-         P1.viga(gx - 18, px + 22 * k, y, [gx, xp, xr], px),
-         cota(px, gx, 150, "22"), cota(px, xp, 98, "14"), cota(px, xr, 150, "14"),
-         flecha(56, 160, 56, 92, VERDE, 5), etiqueta(110, 236, "tira 14 hacia arriba", VERDE, 16),
-         etiqueta(236, 322, "44 × 14 − 14 × 22 = 308"), etiqueta(600, 322, "22 × 14 = 308")]
+         P1.globo(gx, y, gx, 84),
+         colgar_pesa(xp, y, 22), colgar_pesa(xr, y, 30),
+         P1.viga(xp - 18, xr + 18, y, [xp, gx, xr], px),
+         cota(px, xp, 150, "2", lx=xp + 54), cota(px, gx, 112, "1"), cota(px, xr, 150, "1"),
+         flecha(gx - 50, 134, gx - 50, 66, VERDE, 5), etiqueta(gx + 10, 236, "tira 14 hacia arriba", VERDE, 15),
+         etiqueta(250, 322, "22 × 2 − 14 × 1 = 30"), etiqueta(560, 322, "30 × 1 = 30")]
     return lienzo("".join(b), h, "Globo que tira hacia arriba: resta en su lado de la balanza")
 
 
@@ -215,9 +215,9 @@ def fig_polea_movil():
     for x_ in Lw:
         b.append(P1.polea(x_, LY, rr))
     lx = (Lw[0] + Lw[-1]) / 2
-    b += [cuerda(lx, LY + 19, lx, LY + 32), pesa(lx, LY + 32, 308),
+    b += [cuerda(lx, LY + 19, lx, LY + 32), pesa(lx, LY + 32, 70),
           etiqueta(655, 150, "14 tramos sujetan", OUT, 18), etiqueta(655, 184, "el bloque de abajo", OUT, 18),
-          etiqueta(free_x + 50, 342, "308 ÷ 14 = 22", ROJO, 21)]
+          etiqueta(free_x + 50, 342, "70 ÷ 14 = 5", ROJO, 21)]
     return lienzo("".join(b), h, "Polea móvil: cada tramo aguanta la mitad. Polipasto de catorce tramos: la catorceava parte")
 
 

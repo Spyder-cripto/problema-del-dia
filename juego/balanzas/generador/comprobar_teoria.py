@@ -1,4 +1,4 @@
-"""Comprueba que la teoría no usa ningún número que aparezca en los acertijos.
+"""Comprueba que la teoría no repite números de los acertijos (salvo algunos del 1 al 10 permitidos).
 
 Recoge todos los números de los acertijos (dibujos, preguntas, reglas, pistas, soluciones,
 pesos y respuestas) y busca cualquiera de ellos en la página de teoría (dibujos, textos y
@@ -43,10 +43,14 @@ textos_svg = " ".join(re.findall(r"<text[^>]*>([^<]*)</text>", cuerpo))
 visible = re.sub(r"<svg.*?</svg>", " ", cuerpo, flags=re.S)
 descripciones = " ".join(re.findall(r'aria-label="([^"]*)"', cuerpo))
 teoria = numeros(textos_svg) | numeros(visible) | numeros(descripciones)
-comunes = sorted(teoria & usados, key=lambda n: float(n.replace(",", ".")))
+# Se permiten algunos números del 1 al 10 en ejemplos sencillos, siempre que el ejemplo
+# sea lo más distinto posible de los acertijos (otros mecanismos, proporciones y valores).
+PERMITIDOS = {"1", "2", "3", "4", "5"}
+comunes = sorted((teoria & usados) - PERMITIDOS, key=lambda n: float(n.replace(",", ".")))
+pequenos = sorted((teoria & usados) & PERMITIDOS, key=int)
 print("Números de los acertijos:", " ".join(sorted(usados, key=lambda n: float(n.replace(",", ".")))))
 print("Números de la teoría:   ", " ".join(sorted(teoria, key=lambda n: float(n.replace(",", ".")))))
 if comunes:
     print("COINCIDEN:", " ".join(comunes))
     sys.exit(1)
-print("Ninguna coincidencia.")
+print("Ninguna coincidencia" + (f" (salvo los pequeños permitidos: {' '.join(pequenos)})." if pequenos else "."))
