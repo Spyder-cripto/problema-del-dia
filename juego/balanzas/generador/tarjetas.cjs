@@ -42,7 +42,7 @@ const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
       .q{font-size:54px;line-height:1.15;font-weight:800;margin:0 60px}
       .u{font-size:46px;color:#ffd166;font-weight:800;margin-top:6px;font-family:'Inter Display','Inter','Noto Color Emoji',sans-serif}
     </style></head><body><div class="c"><div class="z"><div class="k">${esc(t.kicker)}</div><h1>${esc(t.titulo)}</h1>
-    <div class="img">${svg}</div><div class="q">${esc(t.pregunta)}</div><div class="u">👇 Enlace para jugar 👇</div></div></div></body></html>`);
+    <div class="img">${svg}</div><div class="q">${esc(t.pregunta)}</div><div class="u">${esc(t.aviso || "👇 Enlace para jugar 👇")}</div></div></div></body></html>`);
     await es.screenshot({ path: path.join(dir, t.estado) });
     console.log('ok', t.preview, t.estado);
   }

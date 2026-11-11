@@ -1,6 +1,6 @@
 """Construye balanzas-imposibles.html a partir de datos.py y los SVG."""
 import json, html, re
-from datos import PUZLES
+from datos import PUZLES, TEORIA
 
 CSS = r"""
 /* Layout: una columna; selector de acertijos arriba, la lámina manda y el resto la sirve. */
@@ -96,6 +96,8 @@ ol.pasos p { margin: 2px 0 0; }
 .eq { display: block; margin: 6px 0 0; padding: 6px 10px; border-radius: 6px; background: var(--bg); font-family: var(--mono); font-size: .88rem; font-variant-numeric: tabular-nums; overflow-x: auto; white-space: nowrap; }
 .final { font-family: var(--display); font-weight: 800; font-size: 1.35rem; color: var(--rope); }
 .trampas { color: var(--muted); font-size: .95rem; }
+.teo-link { margin: 0; max-width: 76ch; font-size: .95rem; color: var(--muted); }
+.teo-link a { color: var(--sea); font-weight: 700; }
 @media (prefers-reduced-motion: no-preference) {
   .panel:not([hidden]) { animation: abre .18s ease-out; }
   @keyframes abre { from { transform: translateY(-4px); } to { transform: none; } }
@@ -176,7 +178,19 @@ def svg_inline(path, pid):
     return s
 
 
-def seccion(p):
+from teoria import ETIQUETAS as TEO_NOMBRES  # noqa: E402
+
+
+def teo_links(pid, base):
+    ids = TEORIA.get(pid, [])
+    if not ids:
+        return ""
+    links = " · ".join(f'<a href="{base}#{i}">{html.escape(TEO_NOMBRES[i])}</a>' for i in ids)
+    return (f'<p class="teo-link">📘 <b>Teoría para resolverlo:</b> {links} · '
+            f'<a href="{base}#metodo">El método</a></p>')
+
+
+def seccion(p, teo_base="https://spyder-cripto.github.io/problema-del-dia/juego/balanzas/teoria/"):
     pid = p["id"]
     reglas = "".join(f'<li class="propia">{html.escape(r)}</li>' for r in p.get("reglas", []))
     pasos = "".join(f"<li><h4>{html.escape(t)}</h4>{c}</li>" for t, c in p["pasos"])
@@ -223,6 +237,7 @@ def seccion(p):
         <ul class="pesos" aria-label="Pesos">{pesos}</ul>
         <p class="trampas">No cuentan: {html.escape(p['distractores'])}.</p>
       </div>
+      {teo_links(pid, teo_base)}
     </div>
   </section>"""
 
@@ -305,7 +320,7 @@ def build(out="balanzas-imposibles.html", web=False):
     <p class="intro">Cada lámina está en equilibrio y tiene una única respuesta. Hay poleas, rampas, tornos y globos, y también objetos que no pintan nada.</p>
   </div>
   <nav class="selector" aria-label="Elige acertijo">{nav}</nav>
-  {"".join(seccion(p) for p in PUZLES)}
+  {"".join(seccion(p, "teoria/" if web else "https://spyder-cripto.github.io/problema-del-dia/juego/balanzas/teoria/") for p in PUZLES)}
 {pie}</main>
 <script>{JS.replace("__DATA__", json.dumps(data, ensure_ascii=False))}</script>
 {cierre}"""
@@ -318,7 +333,7 @@ def build_single(p, out):
     url = f"{URL}{p['id']}/"
     desc = f"{p['pregunta']} Un acertijo de balanzas de dificultad máxima, con pistas y solución paso a paso."
     data = [dict(id=p["id"], r=p["respuesta"], t={str(k): v for k, v in p["trampas"].items()})]
-    sec = seccion(p).replace(" hidden>", ">", 1)
+    sec = seccion(p, "../teoria/").replace(" hidden>", ">", 1)
     sec = sec.replace('<h2 class="titulo"', '<h1 class="titulo"', 1).replace("</h2>", "</h1>", 1)
     sec = sec.replace(f"N.º {p['num']} · Muy difícil", "Acertijo de balanzas · Muy difícil", 1)
     head = head_web(f"{p['titulo']} · El problema del día", desc, url, f"{p['titulo']} · ¿Te atreves?",

@@ -108,5 +108,16 @@
   "url": "spyder-cripto.github.io/problema-del-dia/juego/balanzas/jardin/",
   "preview": "../jardin/preview.jpg",
   "estado": "../jardin/estado.png"
+ },
+ {
+  "svg": "svg/teoria.svg",
+  "titulo": "Cómo se resuelven las balanzas",
+  "kicker": "Teoría con dibujos",
+  "texto": "Palanca, poleas, plano inclinado, torno, engranajes y más, con ejemplos.",
+  "pregunta": "Palanca, poleas, plano inclinado, torno y más",
+  "url": "spyder-cripto.github.io/problema-del-dia/juego/balanzas/teoria/",
+  "preview": "../teoria/preview.jpg",
+  "estado": "../teoria/estado.png",
+  "aviso": "👇 Enlace a la teoría 👇"
  }
 ]
