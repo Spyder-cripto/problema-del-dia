@@ -90,6 +90,9 @@ def main():
         os.makedirs(carpeta, exist_ok=True)
         build_page.build_single(P, os.path.join(carpeta, "index.html"))
     print("páginas individuales:", ", ".join(P["id"] for P in PUZLES))
+    import teoria
+    os.makedirs(os.path.join("..", "teoria"), exist_ok=True)
+    print("teoría:", teoria.build(os.path.join("..", "teoria", "index.html")))
     # lista para tarjetas.cjs (imágenes al compartir)
     base = "spyder-cripto.github.io/problema-del-dia/juego/balanzas/"
     tarjetas = [dict(svg="svg/04-circo.svg", titulo="Balanzas imposibles", kicker="El problema del día",
@@ -100,6 +103,13 @@ def main():
         tarjetas.append(dict(svg=P["svg"], titulo=P["titulo"], kicker="Acertijo de balanzas",
                              texto=P["pregunta"], pregunta=P["pregunta"], url=base + P["id"] + "/",
                              preview=f"../{P['id']}/preview.jpg", estado=f"../{P['id']}/estado.png"))
+    with open(os.path.join("svg", "teoria.svg"), "w", encoding="utf-8") as fh:
+        fh.write(teoria.fig_plano())
+    tarjetas.append(dict(svg="svg/teoria.svg", titulo="Cómo se resuelven las balanzas", kicker="Teoría con dibujos",
+                         texto="Palanca, poleas, plano inclinado, torno, engranajes y más, con ejemplos.",
+                         pregunta="Palanca, poleas, plano inclinado, torno y más", url=base + "teoria/",
+                         preview="../teoria/preview.jpg", estado="../teoria/estado.png",
+                         aviso="👇 Enlace a la teoría 👇"))
     with open("tarjetas.json", "w", encoding="utf-8") as fh:
         json.dump(tarjetas, fh, ensure_ascii=False, indent=1)
 

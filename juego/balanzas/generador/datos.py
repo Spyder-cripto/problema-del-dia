@@ -339,3 +339,17 @@ PUZLES = [
         distractores="el gnomo, la regadera del césped, el caracol, las abejas, las flores y el sol",
     ),
 ]
+
+# Apartados de la página de teoría que sirven para cada lámina (ids de teoria.SECCIONES)
+TEORIA = {
+    "puerto": ["palanca", "colgantes", "globos", "plano-inclinado", "polea-fija", "polea-movil"],
+    "taller": ["palanca", "colgantes", "torno", "polea-movil", "palanca-acodada"],
+    "nieve": ["palanca", "colgantes", "globos", "plano-inclinado", "polea-fija"],
+    "circo": ["palanca", "colgantes", "globos", "trapecio", "polea-fija"],
+    "selva": ["palanca", "colgantes", "polea-fija", "polea-movil", "cuerda-compartida"],
+    "golosinas": ["palanca", "colgantes", "globos", "plano-inclinado", "polea-fija", "dinamometro"],
+    "laboratorio": ["palanca", "colgantes", "globos", "engranajes", "plano-inclinado", "polea-movil"],
+    "castillo": ["palanca", "colgantes", "polea-movil", "polea-fija", "dinamometro"],
+    "mar": ["palanca", "colgantes", "globos", "palanca-acodada", "cuerda-compartida", "polea-fija"],
+    "jardin": ["palanca", "colgantes", "globos", "torno", "polea-movil", "palanca-acodada"],
+}
