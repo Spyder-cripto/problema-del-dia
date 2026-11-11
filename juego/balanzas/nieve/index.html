@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Noche de nieve · El problema del día</title>
+<meta name="description" content="¿Cuántos regalos debe haber en el saco? Un acertijo de balanzas de dificultad máxima, con pistas y solución paso a paso.">
+<meta name="theme-color" content="#0d6f8c">
+<!-- Tarjeta al compartir el enlace (WhatsApp, Telegram, redes) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://spyder-cripto.github.io/problema-del-dia/juego/balanzas/nieve/">
+<meta property="og:site_name" content="El problema del día">
+<meta property="og:title" content="Noche de nieve · ¿Te atreves?">
+<meta property="og:description" content="¿Cuántos regalos debe haber en el saco? Un acertijo de balanzas de dificultad máxima, con pistas y solución paso a paso.">
+<meta property="og:image" content="https://spyder-cripto.github.io/problema-del-dia/juego/balanzas/nieve/preview.jpg?v=1">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Lámina de balanzas «Noche de nieve»: ¿Cuántos regalos debe haber en el saco?">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Noche de nieve · ¿Te atreves?">
+<meta name="twitter:description" content="¿Cuántos regalos debe haber en el saco? Un acertijo de balanzas de dificultad máxima, con pistas y solución paso a paso.">
+<meta name="twitter:image" content="https://spyder-cripto.github.io/problema-del-dia/juego/balanzas/nieve/preview.jpg?v=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: una columna; selector de acertijos arriba, la lámina manda y el resto la sirve. */
+:root {
+  --bg: #eaf1f5; --card: #fbfdfe; --ink: #13233a; --muted: #566a80; --line: #c9d7e2;
+  --sea: #0d6f8c; --sea-soft: #d6ecf3; --rope: #8a5a2b; --rope-soft: #f3e6d6;
+  --good: #2c7a4b; --good-soft: #dcefe3; --bad: #b03d2c; --bad-soft: #f6e0dc;
+  --display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1622; --card: #132132; --ink: #e5edf5; --muted: #98aabd; --line: #284058;
+    --sea: #5cc4dc; --sea-soft: #133848; --rope: #e2ac72; --rope-soft: #33261a;
+    --good: #7fd19f; --good-soft: #17352a; --bad: #f08f7d; --bad-soft: #3d1f1a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1622; --card: #132132; --ink: #e5edf5; --muted: #98aabd; --line: #284058;
+  --sea: #5cc4dc; --sea-soft: #133848; --rope: #e2ac72; --rope-soft: #33261a;
+  --good: #7fd19f; --good-soft: #17352a; --bad: #f08f7d; --bad-soft: #3d1f1a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.6; }
+.wrap {
+  max-width: 980px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 22px;
+}
+.wrap > *, .ayuda > *, .p-sol > *, ol.pasos > li, .puzle > * { min-width: 0; }
+.cabecera { display: grid; gap: 6px; }
+.serie { margin: 0; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--sea); }
+h1 { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(2.1rem, 6vw, 3.3rem); line-height: 1; text-wrap: balance; }
+.intro { margin: 0; color: var(--muted); max-width: 62ch; }
+nav.selector { display: flex; flex-wrap: wrap; gap: 8px; }
+nav.selector a {
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+  padding: 6px 14px 6px 6px; border-radius: 999px; border: 2px solid var(--line);
+  background: var(--card); color: var(--ink); font-weight: 700; font-size: .95rem;
+}
+nav.selector a .n {
+  display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--sea-soft); color: var(--sea); font-family: var(--display); font-weight: 800;
+}
+nav.selector a[aria-current="page"] { border-color: var(--ink); background: var(--ink); color: var(--card); }
+nav.selector a[aria-current="page"] .n { background: var(--card); color: var(--ink); }
+nav.selector a.resuelto .n { background: var(--good); color: var(--card); }
+nav.selector a:focus-visible, .btn:focus-visible, input:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
+.puzle { display: grid; gap: 20px; }
+.puzle header { display: grid; gap: 4px; }
+.eyebrow { margin: 0; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.eyebrow .dots { letter-spacing: .2em; color: var(--bad); }
+.titulo { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; text-wrap: balance; }
+.q { margin: 4px 0 0; font-family: var(--display); font-weight: 700; font-size: clamp(1.25rem, 3.4vw, 1.7rem); line-height: 1.25; text-wrap: balance; }
+figure { margin: 0; display: grid; gap: 8px; }
+.lamina { border: 3px solid var(--ink); border-radius: 10px; overflow-x: auto; overflow-y: hidden; background: #dfeff6; -webkit-overflow-scrolling: touch; }
+.lamina svg { display: block; width: 100%; height: auto; }
+.lamina.ampliada svg { width: 1250px; max-width: none; }
+figcaption { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; font-size: .9rem; color: var(--muted); }
+.btn { font: inherit; font-weight: 700; font-size: .95rem; border-radius: 999px; padding: 8px 16px; cursor: pointer; border: 2px solid var(--ink); background: var(--card); color: var(--ink); }
+.btn:hover { background: var(--sea-soft); }
+.btn.sm { padding: 5px 12px; font-size: .85rem; }
+.reglas { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; }
+h3.sec { margin: 0 0 6px; font-family: var(--display); font-weight: 700; font-size: 1.3rem; }
+.reglas ul { margin: 0; padding-left: 1.1em; display: grid; gap: 2px; max-width: 70ch; }
+.reglas li.propia { color: var(--sea); font-weight: 600; }
+.comprobar { display: grid; gap: 10px; }
+.comprobar form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.comprobar label { font-weight: 700; }
+.comprobar input { font: inherit; font-family: var(--mono); font-weight: 700; font-size: 1.1rem; width: 6.5em; padding: 7px 12px; border: 2px solid var(--ink); border-radius: 8px; background: var(--card); color: var(--ink); }
+.veredicto { margin: 0; padding: 10px 14px; border-radius: 8px; max-width: 70ch; }
+.veredicto.ok { background: var(--good-soft); color: var(--good); font-weight: 700; }
+.veredicto.no { background: var(--bad-soft); color: var(--ink); }
+.ayuda { display: grid; gap: 12px; }
+.botones { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn.pista { border-color: var(--sea); color: var(--sea); }
+.btn.sol { border-color: var(--rope); color: var(--rope); }
+.btn[aria-expanded="true"] { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.panel { border-radius: 10px; padding: 14px 18px; max-width: 76ch; }
+.panel p { margin: 0; }
+.panel.p-pista { background: var(--sea-soft); border-left: 4px solid var(--sea); }
+.panel.p-sol { background: var(--card); border: 2px solid var(--rope); display: grid; gap: 14px; }
+.pesos { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.pesos li { background: var(--rope-soft); border-radius: 999px; padding: 3px 12px; font-size: .92rem; }
+.pesos b { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+ol.pasos { margin: 0; padding-left: 1.3em; display: grid; gap: 12px; }
+ol.pasos li::marker { font-family: var(--display); font-weight: 800; color: var(--rope); }
+ol.pasos h4 { margin: 0; font-size: 1rem; font-weight: 700; }
+ol.pasos p { margin: 2px 0 0; }
+.eq { display: block; margin: 6px 0 0; padding: 6px 10px; border-radius: 6px; background: var(--bg); font-family: var(--mono); font-size: .88rem; font-variant-numeric: tabular-nums; overflow-x: auto; white-space: nowrap; }
+.final { font-family: var(--display); font-weight: 800; font-size: 1.35rem; color: var(--rope); }
+.trampas { color: var(--muted); font-size: .95rem; }
+@media (prefers-reduced-motion: no-preference) {
+  .panel:not([hidden]) { animation: abre .18s ease-out; }
+  @keyframes abre { from { transform: translateY(-4px); } to { transform: none; } }
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+.wrap { padding-top: max(28px, env(safe-area-inset-top, 0px)); padding-bottom: max(56px, env(safe-area-inset-bottom, 0px)); }
+.volver { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .92rem; }
+.volver a { color: var(--sea); font-weight: 700; text-decoration: none; }
+.volver a:hover { text-decoration: underline; }
+.pie { color: var(--muted); font-size: .88rem; border-top: 1px solid var(--line); padding-top: 14px; }
+.pie a { color: var(--sea); }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <nav class="volver" aria-label="Volver"><a href="../../../">← El problema del día</a></nav>
+
+  <section class="puzle" id="nieve" aria-labelledby="t-nieve">
+    <header>
+      <p class="eyebrow">Acertijo de balanzas · Muy difícil <span class="dots" aria-hidden="true">●●●●</span></p>
+      <h1 class="titulo" id="t-nieve">Noche de nieve</h1>
+      <p class="q">¿Cuántos regalos debe haber en el saco?</p>
+    </header>
+    <figure>
+      <div class="lamina" id="lam-nieve"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" role="img" aria-label="¿Cuántos regalos debe haber en el saco?"><defs><linearGradient id="nieve-noche" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14204a"/><stop offset=".7" stop-color="#3a2f78"/><stop offset="1" stop-color="#5b4b9a"/></linearGradient><linearGradient id="nieve-aurora" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3cf2a6" stop-opacity="0"/><stop offset=".4" stop-color="#3cf2a6" stop-opacity=".45"/><stop offset=".8" stop-color="#7bd5ff" stop-opacity=".3"/><stop offset="1" stop-color="#7bd5ff" stop-opacity="0"/></linearGradient></defs><rect width="1400" height="900" fill="url(#nieve-noche)"/><path d="M0,250 C250,140 520,300 820,170 S1260,120 1400,210 L1400,290 C1200,220 1020,300 820,250 S300,250 0,330 Z" fill="url(#nieve-aurora)"/><circle cx="460" cy="104" r="2.2" fill="#fff" opacity="0.52"/><circle cx="1137" cy="76" r="2.2" fill="#fff" opacity="0.53"/><circle cx="710" cy="48" r="1.6" fill="#fff" opacity="0.71"/><circle cx="347" cy="300" r="1.2" fill="#fff" opacity="0.91"/><circle cx="188" cy="139" r="2.2" fill="#fff" opacity="0.79"/><circle cx="104" cy="317" r="1.2" fill="#fff" opacity="0.99"/><circle cx="83" cy="451" r="1.6" fill="#fff" opacity="0.71"/><circle cx="755" cy="310" r="2.2" fill="#fff" opacity="0.91"/><circle cx="266" cy="315" r="2.2" fill="#fff" opacity="0.59"/><circle cx="153" cy="379" r="2.2" fill="#fff" opacity="0.53"/><circle cx="300" cy="363" r="1.6" fill="#fff" opacity="0.89"/><circle cx="653" cy="482" r="1.6" fill="#fff" opacity="0.65"/><circle cx="1100" cy="373" r="1.2" fill="#fff" opacity="0.54"/><circle cx="428" cy="273" r="1.6" fill="#fff" opacity="0.86"/><circle cx="412" cy="510" r="1.2" fill="#fff" opacity="0.76"/><circle cx="244" cy="198" r="1.6" fill="#fff" opacity="0.71"/><circle cx="1328" cy="68" r="2.2" fill="#fff" opacity="0.79"/><circle cx="1211" cy="184" r="2.2" fill="#fff" opacity="0.68"/><circle cx="695" cy="420" r="1.2" fill="#fff" opacity="0.92"/><circle cx="1305" cy="262" r="2.2" fill="#fff" opacity="0.53"/><circle cx="1014" cy="182" r="2.2" fill="#fff" opacity="1.00"/><circle cx="1138" cy="169" r="1.6" fill="#fff" opacity="0.94"/><circle cx="492" cy="491" r="1.6" fill="#fff" opacity="0.58"/><circle cx="179" cy="59" r="1.6" fill="#fff" opacity="0.56"/><circle cx="357" cy="222" r="1.6" fill="#fff" opacity="0.54"/><circle cx="631" cy="299" r="1.2" fill="#fff" opacity="0.91"/><circle cx="1195" cy="166" r="1.6" fill="#fff" opacity="0.99"/><circle cx="949" cy="216" r="1.2" fill="#fff" opacity="0.58"/><circle cx="260" cy="144" r="1.2" fill="#fff" opacity="0.51"/><circle cx="1150" cy="119" r="1.6" fill="#fff" opacity="0.50"/><circle cx="590" cy="211" r="2.2" fill="#fff" opacity="0.66"/><circle cx="191" cy="451" r="2.2" fill="#fff" opacity="0.83"/><circle cx="1026" cy="254" r="2.2" fill="#fff" opacity="0.90"/><circle cx="554" cy="225" r="1.2" fill="#fff" opacity="0.74"/><circle cx="565" cy="123" r="1.2" fill="#fff" opacity="0.72"/><circle cx="170" cy="324" r="1.2" fill="#fff" opacity="0.50"/><circle cx="226" cy="80" r="1.6" fill="#fff" opacity="0.81"/><circle cx="116" cy="132" r="1.6" fill="#fff" opacity="0.57"/><circle cx="363" cy="200" r="1.6" fill="#fff" opacity="0.74"/><circle cx="177" cy="269" r="1.6" fill="#fff" opacity="0.74"/><circle cx="444" cy="101" r="2.2" fill="#fff" opacity="0.67"/><circle cx="380" cy="436" r="1.2" fill="#fff" opacity="0.76"/><circle cx="299" cy="496" r="1.6" fill="#fff" opacity="0.57"/><circle cx="759" cy="43" r="2.2" fill="#fff" opacity="0.65"/><circle cx="894" cy="75" r="1.6" fill="#fff" opacity="0.76"/><circle cx="1255" cy="204" r="1.2" fill="#fff" opacity="0.77"/><circle cx="1080" cy="192" r="1.2" fill="#fff" opacity="0.81"/><circle cx="1092" cy="402" r="1.2" fill="#fff" opacity="0.90"/><circle cx="1133" cy="393" r="1.2" fill="#fff" opacity="0.60"/><circle cx="690" cy="388" r="1.2" fill="#fff" opacity="0.90"/><circle cx="662" cy="125" r="2.2" fill="#fff" opacity="0.98"/><circle cx="628" cy="489" r="1.6" fill="#fff" opacity="0.98"/><circle cx="516" cy="138" r="1.2" fill="#fff" opacity="0.74"/><circle cx="479" cy="267" r="2.2" fill="#fff" opacity="0.92"/><circle cx="672" cy="350" r="2.2" fill="#fff" opacity="0.54"/><circle cx="918" cy="476" r="2.2" fill="#fff" opacity="0.88"/><circle cx="670" cy="117" r="2.2" fill="#fff" opacity="0.67"/><circle cx="1109" cy="506" r="1.6" fill="#fff" opacity="0.73"/><circle cx="1031" cy="72" r="1.2" fill="#fff" opacity="0.59"/><circle cx="193" cy="104" r="1.6" fill="#fff" opacity="0.90"/><circle cx="219" cy="435" r="1.6" fill="#fff" opacity="0.83"/><circle cx="497" cy="299" r="1.2" fill="#fff" opacity="0.51"/><circle cx="1107" cy="386" r="1.2" fill="#fff" opacity="0.76"/><circle cx="1290" cy="243" r="1.2" fill="#fff" opacity="0.91"/><circle cx="307" cy="153" r="1.6" fill="#fff" opacity="0.75"/><circle cx="1059" cy="190" r="2.2" fill="#fff" opacity="0.71"/><circle cx="198" cy="476" r="1.6" fill="#fff" opacity="0.95"/><circle cx="921" cy="429" r="2.2" fill="#fff" opacity="0.71"/><circle cx="1268" cy="276" r="2.2" fill="#fff" opacity="0.58"/><circle cx="714" cy="458" r="1.2" fill="#fff" opacity="0.80"/><circle cx="1260" cy="110" r="52" fill="#fff6c9" stroke="#e8d892" stroke-width="3"/><circle cx="1284" cy="96" r="46" fill="#25306a"/><path d="M0,786 Q200,768 420,788 T860,784 T1400,782 L1400,900 L0,900 Z" fill="#eef6ff" stroke="#b9d3ee" stroke-width="3"/><rect x="60" y="772" width="20" height="26" fill="#7a4a24" stroke="#1f1d1b" stroke-width="3"/><path d="M5.0,776.0 L70,659.0 L135.0,776.0 Z" fill="#1f8a5b" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M11.0,774.0 Q37.5,766.0 70.0,772.0 Q102.5,764.0 129.0,774.0" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><path d="M18.0,705.8 L70,588.8 L122.0,705.8 Z" fill="#1f8a5b" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M24.0,703.8 Q44.0,695.8 70.0,701.8 Q96.0,693.8 116.0,703.8" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><path d="M31.0,647.3 L70,530.3 L109.0,647.3 Z" fill="#1f8a5b" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M37.0,645.3 Q50.5,637.3 70.0,643.3 Q89.5,635.3 103.0,645.3" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><rect x="1330" y="772" width="20" height="26" fill="#7a4a24" stroke="#1f1d1b" stroke-width="3"/><path d="M1285.0,776.0 L1340,677.0 L1395.0,776.0 Z" fill="#1f8a5b" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M1291.0,774.0 Q1312.5,766.0 1340.0,772.0 Q1367.5,764.0 1389.0,774.0" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><path d="M1296.0,716.6 L1340,617.6 L1384.0,716.6 Z" fill="#1f8a5b" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M1302.0,714.6 Q1318.0,706.6 1340.0,712.6 Q1362.0,704.6 1378.0,714.6" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><path d="M1307.0,667.1 L1340,568.1 L1373.0,667.1 Z" fill="#1f8a5b" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M1313.0,665.1 Q1323.5,657.1 1340.0,663.1 Q1356.5,655.1 1367.0,665.1" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/><rect x="178" y="718" width="24" height="16" fill="#26324f" stroke="#1f1d1b" stroke-width="3"/><rect x="173" y="732" width="34" height="6" rx="2" fill="#26324f" stroke="#1f1d1b" stroke-width="3"/><rect x="178" y="727" width="24" height="4" fill="#e63946"/><circle cx="190" cy="768" r="25" fill="#fbfdff" stroke="#1f1d1b" stroke-width="3"/><circle cx="190" cy="751" r="16" fill="#fbfdff" stroke="#1f1d1b" stroke-width="3"/><path d="M176,762 Q190,770 204,762 L206,768 L198,782 L192,780 L194,768 Q190,770 176,768 Z" fill="#2a9d8f" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><circle cx="184" cy="748" r="2.3" fill="#1f1d1b"/><circle cx="196" cy="748" r="2.3" fill="#1f1d1b"/><path d="M190,752 L205,755 L190,756 Z" fill="#ff8c1a" stroke="#1f1d1b" stroke-width="1.6" stroke-linejoin="round"/><circle cx="190" cy="776" r="2.6" fill="#1f1d1b"/><circle cx="190" cy="786" r="2.6" fill="#1f1d1b"/><path d="M722.6,792 L1062,672 L1269.8,792 Z" fill="#cfeaff" stroke="#1f1d1b" stroke-width="3.5" stroke-linejoin="round"/><path d="M762.6,784 L1042,694" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"/><g stroke="#1f1d1b" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="797.3" y1="784.7" x2="1039.7" y2="699.0"/><path d="M804.2,777.0 L797.3,784.7 L807.5,786.3" fill="none"/><path d="M1032.9,706.6 L1039.7,699.0 L1029.6,697.3" fill="none"/></g><text x="905.6" y="769.7" transform="rotate(-19.47 905.6 769.7)" text-anchor="middle" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="800" font-size="26" fill="#1f1d1b" >6</text><g stroke="#1f1d1b" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="1214.8" y1="781.0" x2="1079.0" y2="702.6"/><path d="M1204.5,780.8 L1214.8,781.0 L1209.5,772.2" fill="none"/><path d="M1089.2,702.8 L1079.0,702.6 L1084.3,711.4" fill="none"/></g><text x="1145.9" y="766.6" transform="rotate(30.00 1145.9 766.6)" text-anchor="middle" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="800" font-size="26" fill="#1f1d1b" >4</text><g stroke="#1f1d1b" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 6"><line x1="1062" y1="702" x2="1062" y2="786"/></g><g stroke="#1f1d1b" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1067.0,711.0 L1062.0,702.0 L1057.0,711.0" fill="none"/><path d="M1057.0,777.0 L1062.0,786.0 L1067.0,777.0" fill="none"/></g><text x="1076.0" y="760.0" text-anchor="start" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="800" font-size="26" fill="#1f1d1b" >2</text><rect x="550" y="380" width="20" height="416" fill="#2d3a66" stroke="#1f1d1b" stroke-width="3"/><line x1="555" y1="388" x2="555" y2="790" stroke="#5a6aa6" stroke-width="2"/><rect x="538" y="778" width="44" height="20" rx="4" fill="#2d3a66" stroke="#1f1d1b" stroke-width="3"/><line x1="680" y1="196" x2="680" y2="380" stroke="#f1e3c2" stroke-width="3" stroke-linecap="round"/><line x1="500" y1="380" x2="500" y2="406" stroke="#f1e3c2" stroke-width="3" stroke-linecap="round"/><line x1="630" y1="196" x2="630" y2="270" stroke="#f1e3c2" stroke-width="3" stroke-linecap="round"/><line x1="740" y1="380" x2="740" y2="400" stroke="#f1e3c2" stroke-width="3" stroke-linecap="round"/><line x1="800" y1="380" x2="800" y2="504" stroke="#f1e3c2" stroke-width="3" stroke-linecap="round"/><line x1="350" y1="438" x2="350" y2="508" stroke="#f1e3c2" stroke-width="3" stroke-linecap="round"/><line x1="410" y1="438" x2="410" y2="478" stroke="#f1e3c2" stroke-width="3" stroke-linecap="round"/><line x1="410" y1="468" x2="410" y2="480" stroke="#f1e3c2" stroke-width="3" stroke-linecap="round"/><line x1="410" y1="518" x2="410" y2="530" stroke="#f1e3c2" stroke-width="3" stroke-linecap="round"/><line x1="410" y1="568" x2="410" y2="580" stroke="#f1e3c2" stroke-width="3" stroke-linecap="round"/><line x1="410" y1="474" x2="410" y2="588" stroke="#f1e3c2" stroke-width="3" stroke-linecap="round"/><line x1="380" y1="380" x2="380" y2="406" stroke="#1f1d1b" stroke-width="5"/><path d="M1052,686 L1063.3,657.7 L1072,686" fill="none" stroke="#1f1d1b" stroke-width="5" stroke-linejoin="round"/><circle cx="380" cy="438" r="30" fill="#cfe3f2" stroke="#1f1d1b" stroke-width="3"/><circle cx="380" cy="438" r="24" fill="none" stroke="#7d8a97" stroke-width="2"/><circle cx="380" cy="438" r="4.5" fill="#1f1d1b"/><path d="M350,438 A30,30 0 0 1 410,438" fill="none" stroke="#f1e3c2" stroke-width="3.5"/><path d="M896.2,700.9 L1058.3,643.6 A15,15 0 0 1 1070.8,644.8 L1145.3,687.8" fill="none" stroke="#1f1d1b" stroke-width="3" stroke-linecap="round"/><circle cx="1063.3" cy="657.7" r="15" fill="#cfe3f2" stroke="#1f1d1b" stroke-width="3"/><circle cx="1063.3" cy="657.7" r="9" fill="none" stroke="#7d8a97" stroke-width="2"/><circle cx="1063.3" cy="657.7" r="4.5" fill="#1f1d1b"/><circle cx="350" cy="508" r="4.5" fill="none" stroke="#1f1d1b" stroke-width="3"/><rect x="338" y="512" width="24" height="16" fill="#26324f" stroke="#1f1d1b" stroke-width="3"/><rect x="333" y="526" width="34" height="6" rx="2" fill="#26324f" stroke="#1f1d1b" stroke-width="3"/><rect x="338" y="521" width="24" height="4" fill="#e63946"/><circle cx="350" cy="562" r="25" fill="#fbfdff" stroke="#1f1d1b" stroke-width="3"/><circle cx="350" cy="545" r="16" fill="#fbfdff" stroke="#1f1d1b" stroke-width="3"/><path d="M336,556 Q350,564 364,556 L366,562 L358,576 L352,574 L354,562 Q350,564 336,562 Z" fill="#2a9d8f" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><circle cx="344" cy="542" r="2.3" fill="#1f1d1b"/><circle cx="356" cy="542" r="2.3" fill="#1f1d1b"/><path d="M350,546 L365,549 L350,550 Z" fill="#ff8c1a" stroke="#1f1d1b" stroke-width="1.6" stroke-linejoin="round"/><circle cx="350" cy="570" r="2.6" fill="#1f1d1b"/><circle cx="350" cy="580" r="2.6" fill="#1f1d1b"/><circle cx="410" cy="478" r="4" fill="none" stroke="#ffd23f" stroke-width="2.5"/><rect x="403" y="481" width="14" height="8" rx="2" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.5"/><circle cx="410" cy="504" r="18" fill="#8e44ec" stroke="#1f1d1b" stroke-width="3"/><path d="M393,506 Q410,514 427,506" fill="none" stroke="#f6c1ff" stroke-width="3"/><ellipse cx="403" cy="497" rx="5" ry="7" fill="#fff" opacity=".6" transform="rotate(35 403 497)"/><circle cx="410" cy="528" r="4" fill="none" stroke="#ffd23f" stroke-width="2.5"/><rect x="403" y="531" width="14" height="8" rx="2" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.5"/><circle cx="410" cy="554" r="18" fill="#8e44ec" stroke="#1f1d1b" stroke-width="3"/><path d="M393,556 Q410,564 427,556" fill="none" stroke="#f6c1ff" stroke-width="3"/><ellipse cx="403" cy="547" rx="5" ry="7" fill="#fff" opacity=".6" transform="rotate(35 403 547)"/><path d="M401,584 Q396,570 410,582 Q424,570 419,584" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><rect x="392.0" y="582" width="36" height="34" rx="3" fill="#e63946" stroke="#1f1d1b" stroke-width="3"/><rect x="406" y="582" width="8" height="34" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2"/><rect x="392.0" y="595.0" width="36" height="8" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2"/><path d="M491,410 Q486,396 500,408 Q514,396 509,410" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><rect x="482.0" y="408" width="36" height="34" rx="3" fill="#e63946" stroke="#1f1d1b" stroke-width="3"/><rect x="496" y="408" width="8" height="34" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2"/><rect x="482.0" y="421.0" width="36" height="8" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2"/><circle cx="630" cy="216" r="4" fill="none" stroke="#ffd23f" stroke-width="2.5"/><rect x="623" y="219" width="14" height="8" rx="2" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.5"/><circle cx="630" cy="242" r="18" fill="#8e44ec" stroke="#1f1d1b" stroke-width="3"/><path d="M613,244 Q630,252 647,244" fill="none" stroke="#f6c1ff" stroke-width="3"/><ellipse cx="623" cy="235" rx="5" ry="7" fill="#fff" opacity=".6" transform="rotate(35 623 235)"/><path d="M621,274 Q616,260 630,272 Q644,260 639,274" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><rect x="612.0" y="272" width="36" height="34" rx="3" fill="#e63946" stroke="#1f1d1b" stroke-width="3"/><rect x="626" y="272" width="8" height="34" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2"/><rect x="612.0" y="285.0" width="36" height="8" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2"/><path d="M730,416 Q724,400 740,398 Q756,400 750,416" fill="none" stroke="#1f1d1b" stroke-width="3"/><path d="M728,416 Q694,436 698,472 Q740,488 782,472 Q786,436 752,416 Z" fill="#b5651d" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M726,414 L754,414 L751,422 L729,422 Z" fill="#e63946" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><path d="M714,444 q4,-3 8,0 M758,462 q4,-3 8,0" stroke="#8a4a14" stroke-width="2" fill="none"/><text x="740.0" y="456.0" text-anchor="middle" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="900" font-size="38" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.2" paint-order="stroke">?</text><circle cx="800" cy="504" r="4" fill="none" stroke="#ffd23f" stroke-width="2.5"/><rect x="793" y="507" width="14" height="8" rx="2" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.5"/><circle cx="800" cy="530" r="18" fill="#8e44ec" stroke="#1f1d1b" stroke-width="3"/><path d="M783,532 Q800,540 817,532" fill="none" stroke="#f6c1ff" stroke-width="3"/><ellipse cx="793" cy="523" rx="5" ry="7" fill="#fff" opacity=".6" transform="rotate(35 793 523)"/><g transform="translate(845.2,748.7) rotate(-19.47)"><path d="M-59.0,0 L49.0,0 Q65.0,0 63.0,-14" fill="none" stroke="#1f1d1b" stroke-width="7" stroke-linecap="round"/><path d="M-59.0,0 L49.0,0 Q65.0,0 63.0,-14" fill="none" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/><line x1="-45.0" y1="0" x2="-45.0" y2="-10" stroke="#1f1d1b" stroke-width="4"/><line x1="39.0" y1="0" x2="39.0" y2="-10" stroke="#1f1d1b" stroke-width="4"/><rect x="-57.0" y="-18" width="104" height="9" rx="3" fill="#d9954a" stroke="#1f1d1b" stroke-width="3"/><g transform="translate(0,8)"><g transform="translate(-38,0)"><rect x="-18.0" y="-52" width="36" height="34" rx="3" fill="#e63946" stroke="#1f1d1b" stroke-width="3"/><rect x="-4" y="-52" width="8" height="34" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2"/><rect x="-18.0" y="-39.0" width="36" height="8" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2"/></g><g transform="translate(0,0)"><rect x="-18.0" y="-52" width="36" height="34" rx="3" fill="#e63946" stroke="#1f1d1b" stroke-width="3"/><rect x="-4" y="-52" width="8" height="34" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2"/><rect x="-18.0" y="-39.0" width="36" height="8" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2"/></g><g transform="translate(38,0)"><rect x="-18.0" y="-52" width="36" height="34" rx="3" fill="#e63946" stroke="#1f1d1b" stroke-width="3"/><rect x="-4" y="-52" width="8" height="34" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2"/><rect x="-18.0" y="-39.0" width="36" height="8" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2"/></g></g></g><g transform="translate(1186.7,744.0) rotate(30.00)"><path d="M-59.0,0 L49.0,0 Q65.0,0 63.0,-14" fill="none" stroke="#1f1d1b" stroke-width="7" stroke-linecap="round"/><path d="M-59.0,0 L49.0,0 Q65.0,0 63.0,-14" fill="none" stroke="#c0392b" stroke-width="3.5" stroke-linecap="round"/><line x1="-45.0" y1="0" x2="-45.0" y2="-10" stroke="#1f1d1b" stroke-width="4"/><line x1="39.0" y1="0" x2="39.0" y2="-10" stroke="#1f1d1b" stroke-width="4"/><rect x="-57.0" y="-18" width="104" height="9" rx="3" fill="#d9954a" stroke="#1f1d1b" stroke-width="3"/><g transform="scale(-1,1)"></g><rect x="-12" y="-88" width="24" height="16" fill="#26324f" stroke="#1f1d1b" stroke-width="3"/><rect x="-17" y="-74" width="34" height="6" rx="2" fill="#26324f" stroke="#1f1d1b" stroke-width="3"/><rect x="-12" y="-79" width="24" height="4" fill="#e63946"/><circle cx="0" cy="-38" r="25" fill="#fbfdff" stroke="#1f1d1b" stroke-width="3"/><circle cx="0" cy="-55" r="16" fill="#fbfdff" stroke="#1f1d1b" stroke-width="3"/><path d="M-14,-44 Q0,-36 14,-44 L16,-38 L8,-24 L2,-26 L4,-38 Q0,-36 -14,-38 Z" fill="#2a9d8f" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><circle cx="-6" cy="-58" r="2.3" fill="#1f1d1b"/><circle cx="6" cy="-58" r="2.3" fill="#1f1d1b"/><path d="M0,-54 L15,-51 L0,-50 Z" fill="#ff8c1a" stroke="#1f1d1b" stroke-width="1.6" stroke-linejoin="round"/><circle cx="0" cy="-30" r="2.6" fill="#1f1d1b"/><circle cx="0" cy="-20" r="2.6" fill="#1f1d1b"/></g><circle cx="896.2" cy="700.9" r="3.5" fill="#1f1d1b"/><circle cx="1145.3" cy="687.8" r="3.5" fill="#1f1d1b"/><rect x="510" y="188" width="290" height="16" rx="8.0" fill="#9fd8f5" stroke="#1f1d1b" stroke-width="3"/><line x1="520" y1="194" x2="790" y2="194" stroke="#e6f7ff" stroke-width="2.5" stroke-linecap="round"/><circle cx="530" cy="196" r="3.6" fill="#1f1d1b"/><circle cx="580" cy="196" r="3.6" fill="#1f1d1b"/><circle cx="630" cy="196" r="3.6" fill="#1f1d1b"/><circle cx="730" cy="196" r="3.6" fill="#1f1d1b"/><circle cx="780" cy="196" r="3.6" fill="#1f1d1b"/><rect x="300" y="372" width="520" height="16" rx="8.0" fill="#9fd8f5" stroke="#1f1d1b" stroke-width="3"/><line x1="310" y1="378" x2="810" y2="378" stroke="#e6f7ff" stroke-width="2.5" stroke-linecap="round"/><circle cx="320" cy="380" r="3.6" fill="#1f1d1b"/><circle cx="380" cy="380" r="3.6" fill="#1f1d1b"/><circle cx="440" cy="380" r="3.6" fill="#1f1d1b"/><circle cx="500" cy="380" r="3.6" fill="#1f1d1b"/><circle cx="620" cy="380" r="3.6" fill="#1f1d1b"/><circle cx="680" cy="380" r="3.6" fill="#1f1d1b"/><circle cx="740" cy="380" r="3.6" fill="#1f1d1b"/><circle cx="800" cy="380" r="3.6" fill="#1f1d1b"/><circle cx="680" cy="196" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="680" cy="196" r="3" fill="#1f1d1b"/><circle cx="560" cy="380" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="560" cy="380" r="3" fill="#1f1d1b"/><rect x="556" y="364" width="8" height="12" fill="#2d3a66" stroke="#1f1d1b" stroke-width="2"/><path d="M671,156.0 Q666,142.0 680,154.0 Q694,142.0 689,156.0" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><rect x="662.0" y="154.0" width="36" height="34" rx="3" fill="#e63946" stroke="#1f1d1b" stroke-width="3"/><rect x="676" y="154.0" width="8" height="34" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2"/><rect x="662.0" y="167.0" width="36" height="8" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2"/><polygon points="560.0,324.0 565.8,338.0 580.9,339.2 569.4,349.1 572.9,363.8 560.0,355.9 547.1,363.8 550.6,349.1 539.1,339.2 554.2,338.0" fill="#ffe066" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><circle cx="680" cy="372" r="4" fill="#1f1d1b"/><path d="M530,196 Q533.0,163.0 516,135" fill="none" stroke="#1f1d1b" stroke-width="2"/><path d="M511,137 L516,129 L521,137 Z" fill="#f3c53f" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="516" cy="100" rx="25" ry="30" fill="#f3c53f" stroke="#1f1d1b" stroke-width="3"/><ellipse cx="506" cy="87" rx="6" ry="9" fill="#fff" opacity=".55" transform="rotate(25 506 87)"/><text x="516.0" y="102.0" text-anchor="middle" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="800" font-size="21" fill="#1f1d1b" >He</text><path d="M780,196 Q797.0,163.0 794,135" fill="none" stroke="#1f1d1b" stroke-width="2"/><path d="M789,137 L794,129 L799,137 Z" fill="#f3c53f" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="794" cy="100" rx="25" ry="30" fill="#f3c53f" stroke="#1f1d1b" stroke-width="3"/><ellipse cx="784" cy="87" rx="6" ry="9" fill="#fff" opacity=".55" transform="rotate(25 784 87)"/><text x="794.0" y="102.0" text-anchor="middle" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="800" font-size="21" fill="#1f1d1b" >He</text><path d="M1230.7,667.8 Q1249.7,627.8 1248.7,592.8" fill="none" stroke="#1f1d1b" stroke-width="2"/><path d="M1243.7,594.8 L1248.7,586.8 L1253.7,594.8 Z" fill="#f3c53f" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="1248.7" cy="557.8" rx="25" ry="30" fill="#f3c53f" stroke="#1f1d1b" stroke-width="3"/><ellipse cx="1238.7" cy="544.8" rx="6" ry="9" fill="#fff" opacity=".55" transform="rotate(25 1238.7 544.8)"/><text x="1248.7" y="559.8" text-anchor="middle" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="800" font-size="21" fill="#1f1d1b" >He</text><ellipse cx="662" cy="766" rx="22" ry="30" fill="#1e2433" stroke="#1f1d1b" stroke-width="3"/><ellipse cx="666" cy="770" rx="14" ry="22" fill="#fbfdff"/><circle cx="668" cy="750" r="2.6" fill="#1f1d1b"/><path d="M676,752 L690,756 L676,760 Z" fill="#ff9f1c" stroke="#1f1d1b" stroke-width="2" stroke-linejoin="round"/><path d="M650,797 l10,-6 l4,6 Z M666,797 l10,-6 l4,6 Z" fill="#ff9f1c" stroke="#1f1d1b" stroke-width="2" stroke-linejoin="round"/><path d="M642,760 Q628,776 638,786" fill="#1e2433" stroke="#1f1d1b" stroke-width="3"/><rect x="3" y="3" width="1394" height="894" fill="none" stroke="#1f1d1b" stroke-width="6" rx="4"/></svg></div>
+      <figcaption>
+        <span>Toca «Ampliar» para verlo a tamaño grande en el móvil.</span>
+        <button class="btn sm" type="button" data-zoom="lam-nieve" aria-pressed="false">Ampliar dibujo</button>
+      </figcaption>
+    </figure>
+    <div class="reglas">
+      <h3 class="sec">Reglas</h3>
+      <ul><li>Todo está en equilibrio. Los objetos iguales pesan lo mismo.</li><li>Vigas, cuerdas, poleas y recipientes (cajas, cofres, cestas) no pesan. No hay rozamiento.</li><li>Los puntos de cada viga están a la misma distancia unos de otros.</li><li class="propia">Los globos llevan helio: tiran hacia arriba.</li><li class="propia">La colina es de hielo: los trineos resbalan sin rozamiento y no pesan.</li></ul>
+    </div>
+    <div class="comprobar">
+      <h3 class="sec">Tu respuesta</h3>
+      <form id="form-nieve" autocomplete="off">
+        <label for="resp-nieve">Regalos en el saco:</label>
+        <input id="resp-nieve" name="resp-nieve" type="number" inputmode="numeric" min="0" step="1" required>
+        <button class="btn" type="submit">Comprobar</button>
+      </form>
+      <p class="veredicto" id="ver-nieve" role="status" hidden></p>
+    </div>
+    <div class="ayuda" aria-label="Pistas y solución">
+      <div class="botones"><button class="btn pista" type="button" data-panel="nieve-p1" data-label="pista 1" aria-expanded="false" aria-controls="nieve-p1">Ver pista 1</button><button class="btn pista" type="button" data-panel="nieve-p2" data-label="pista 2" aria-expanded="false" aria-controls="nieve-p2">Ver pista 2</button>
+        <button class="btn sol" type="button" data-panel="nieve-sol" data-label="solución" aria-expanded="false" aria-controls="nieve-sol">Ver solución</button>
+      </div>
+      <div class="panel p-pista" id="nieve-p1" hidden><p>La polea de la izquierda gira libre, así que su cuerda tira igual de los dos lados. Lo mismo pasa con la cuerda de la colina: tira igual de los dos trineos.</p></div><div class="panel p-pista" id="nieve-p2" hidden><p>En una cuesta, un objeto tira de la cuerda con su peso multiplicado por altura/longitud. El globo del trineo le quita peso al muñeco. Y la viga de arriba flota: tira hacia arriba de la principal.</p></div>
+      <div class="panel p-sol" id="nieve-sol" hidden>
+        <ol class="pasos"><li><h4>La polea de la izquierda</h4><p>Toma el regalo como unidad: M muñeco, B bola, G globo. La cuerda tira igual de los dos lados, así que ambos lados pesan lo mismo.</p><span class="eq">M = 2B + 1</span></li><li><h4>La colina</h4><p>Las dos laderas tienen altura 2. Cada trineo tira de la cuerda con su peso por 2/longitud. El globo le quita G al muñeco.</p><span class="eq">3·(2/6) = (M − G)·(2/4) → M − G = 2</span></li><li><h4>La viga flotante</h4><p>Gira alrededor del nudo de su cuerda. Un globo a la izquierda equivale a un peso a la derecha, y al revés.</p><span class="eq">(B + 1)·1 + G·2 = G·3 → G = B + 1</span><span class="eq">2B + 1 − (B + 1) = 2 → B = 2 ; G = 3 ; M = 5</span></li><li><h4>Lo que nota la viga principal</h4><p>La polea cuelga con los dos lados: 2·5 = 10. La viga flotante pesa 2 + 1 + 1 − 3 − 3 = −2: tira 2 hacia arriba. El regalo de encima, justo en el nudo, también cuenta.</p></li><li><h4>La viga del farol</h4><span class="eq">10·3 + 1·1 = −2·2 + x·3 + 2·4 → 31 = 4 + 3x</span></li></ol>
+        <p class="final">En el saco hay 9 regalos.</p>
+        <ul class="pesos" aria-label="Pesos"><li>Regalo <b>1</b></li><li>Bola <b>2</b></li><li>Globo <b>−3</b></li><li>Muñeco <b>5</b></li></ul>
+        <p class="trampas">No cuentan: el muñeco de nieve del suelo, el pingüino, la estrella del farol, los abetos y la luna.</p>
+      </div>
+    </div>
+  </section>
+  <footer class="pie">Un acertijo de <a href="../../../">El problema del día</a>. La respuesta se ha comprobado resolviendo el sistema de ecuaciones de la lámina.</footer>
+</main>
+<script>
+(function () {
+  var DATA = [{"id": "nieve", "r": 9, "t": {"4": "La polea de la izquierda sostiene lo que cuelga a los dos lados de su cuerda, no solo uno."}}];
+  var ids = DATA.map(function (p) { return p.id; });
+  var KEY = 'balanzas-resueltos';
+  function leer() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } }
+  function guardar(a) { try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {} }
+  function marcar() {
+    var r = leer();
+    document.querySelectorAll('nav.selector a').forEach(function (a) {
+      a.classList.toggle('resuelto', r.indexOf(a.dataset.id) >= 0);
+    });
+  }
+  function mostrar() {
+    var h = (location.hash || '').replace('#', '');
+    var id = ids.indexOf(h) >= 0 ? h : ids[0];
+    document.querySelectorAll('section.puzle').forEach(function (s) { s.hidden = s.id !== id; });
+    document.querySelectorAll('nav.selector a').forEach(function (a) {
+      if (a.dataset.id === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+  }
+  window.addEventListener('hashchange', function () { mostrar(); window.scrollTo(0, 0); });
+  mostrar(); marcar();
+
+  document.querySelectorAll('[data-zoom]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var lam = document.getElementById(btn.dataset.zoom);
+      var on = lam.classList.toggle('ampliada');
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.textContent = on ? 'Ajustar a la pantalla' : 'Ampliar dibujo';
+    });
+  });
+  document.querySelectorAll('[data-panel]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var panel = document.getElementById(btn.dataset.panel);
+      var open = panel.hidden;
+      panel.hidden = !open;
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.textContent = (open ? 'Ocultar ' : 'Ver ') + btn.dataset.label;
+    });
+  });
+  DATA.forEach(function (p) {
+    var form = document.getElementById('form-' + p.id);
+    var out = document.getElementById('ver-' + p.id);
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = parseInt(document.getElementById('resp-' + p.id).value, 10);
+      if (isNaN(v)) return;
+      var ok = v === p.r;
+      var msg = ok ? '¡Correcto! Son ' + p.r + '.' : (p.t[v] || ('No es ' + v + '. Prueba con las pistas.'));
+      out.className = 'veredicto ' + (ok ? 'ok' : 'no');
+      out.textContent = msg;
+      out.hidden = false;
+      if (ok) { var r = leer(); if (r.indexOf(p.id) < 0) { r.push(p.id); guardar(r); } marcar(); }
+    });
+  });
+})();
+</script>
+</body>
+</html>

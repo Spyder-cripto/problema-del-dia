@@ -1,0 +1,112 @@
+[
+ {
+  "svg": "svg/04-circo.svg",
+  "titulo": "Balanzas imposibles",
+  "kicker": "El problema del día",
+  "texto": "10 acertijos de equilibrio con poleas, rampas, tornos y globos. Una sola respuesta.",
+  "pregunta": "¿Cuántos bolos debe haber en el baúl?",
+  "url": "spyder-cripto.github.io/problema-del-dia/juego/balanzas/",
+  "preview": "../preview.jpg",
+  "estado": "../../../estado_balanzas.png"
+ },
+ {
+  "svg": "svg/01-puerto.svg",
+  "titulo": "Balanza del puerto",
+  "kicker": "Acertijo de balanzas",
+  "texto": "¿Cuántas balas de cañón debe haber en el cofre?",
+  "pregunta": "¿Cuántas balas de cañón debe haber en el cofre?",
+  "url": "spyder-cripto.github.io/problema-del-dia/juego/balanzas/puerto/",
+  "preview": "../puerto/preview.jpg",
+  "estado": "../puerto/estado.png"
+ },
+ {
+  "svg": "svg/02-taller.svg",
+  "titulo": "El taller del inventor",
+  "kicker": "Acertijo de balanzas",
+  "texto": "¿Cuántas tuercas debe haber en la caja de herramientas?",
+  "pregunta": "¿Cuántas tuercas debe haber en la caja de herramientas?",
+  "url": "spyder-cripto.github.io/problema-del-dia/juego/balanzas/taller/",
+  "preview": "../taller/preview.jpg",
+  "estado": "../taller/estado.png"
+ },
+ {
+  "svg": "svg/03-nieve.svg",
+  "titulo": "Noche de nieve",
+  "kicker": "Acertijo de balanzas",
+  "texto": "¿Cuántos regalos debe haber en el saco?",
+  "pregunta": "¿Cuántos regalos debe haber en el saco?",
+  "url": "spyder-cripto.github.io/problema-del-dia/juego/balanzas/nieve/",
+  "preview": "../nieve/preview.jpg",
+  "estado": "../nieve/estado.png"
+ },
+ {
+  "svg": "svg/04-circo.svg",
+  "titulo": "El gran circo",
+  "kicker": "Acertijo de balanzas",
+  "texto": "¿Cuántos bolos debe haber en el baúl?",
+  "pregunta": "¿Cuántos bolos debe haber en el baúl?",
+  "url": "spyder-cripto.github.io/problema-del-dia/juego/balanzas/circo/",
+  "preview": "../circo/preview.jpg",
+  "estado": "../circo/estado.png"
+ },
+ {
+  "svg": "svg/05-selva.svg",
+  "titulo": "La selva",
+  "kicker": "Acertijo de balanzas",
+  "texto": "¿Cuántos cocos debe haber en la cesta?",
+  "pregunta": "¿Cuántos cocos debe haber en la cesta?",
+  "url": "spyder-cripto.github.io/problema-del-dia/juego/balanzas/selva/",
+  "preview": "../selva/preview.jpg",
+  "estado": "../selva/estado.png"
+ },
+ {
+  "svg": "svg/06-golosinas.svg",
+  "titulo": "La fábrica de golosinas",
+  "kicker": "Acertijo de balanzas",
+  "texto": "¿Cuántos caramelos debe haber en el bote?",
+  "pregunta": "¿Cuántos caramelos debe haber en el bote?",
+  "url": "spyder-cripto.github.io/problema-del-dia/juego/balanzas/golosinas/",
+  "preview": "../golosinas/preview.jpg",
+  "estado": "../golosinas/estado.png"
+ },
+ {
+  "svg": "svg/07-laboratorio.svg",
+  "titulo": "El laboratorio",
+  "kicker": "Acertijo de balanzas",
+  "texto": "¿Cuántos imanes debe haber en el maletín?",
+  "pregunta": "¿Cuántos imanes debe haber en el maletín?",
+  "url": "spyder-cripto.github.io/problema-del-dia/juego/balanzas/laboratorio/",
+  "preview": "../laboratorio/preview.jpg",
+  "estado": "../laboratorio/estado.png"
+ },
+ {
+  "svg": "svg/08-castillo.svg",
+  "titulo": "El castillo",
+  "kicker": "Acertijo de balanzas",
+  "texto": "¿Cuántas coronas debe haber en el caldero?",
+  "pregunta": "¿Cuántas coronas debe haber en el caldero?",
+  "url": "spyder-cripto.github.io/problema-del-dia/juego/balanzas/castillo/",
+  "preview": "../castillo/preview.jpg",
+  "estado": "../castillo/estado.png"
+ },
+ {
+  "svg": "svg/09-mar.svg",
+  "titulo": "El fondo del mar",
+  "kicker": "Acertijo de balanzas",
+  "texto": "¿Cuántas estrellas de mar debe haber en la red?",
+  "pregunta": "¿Cuántas estrellas de mar debe haber en la red?",
+  "url": "spyder-cripto.github.io/problema-del-dia/juego/balanzas/mar/",
+  "preview": "../mar/preview.jpg",
+  "estado": "../mar/estado.png"
+ },
+ {
+  "svg": "svg/10-jardin.svg",
+  "titulo": "El jardín",
+  "kicker": "Acertijo de balanzas",
+  "texto": "¿Cuántas zanahorias debe haber en el cubo?",
+  "pregunta": "¿Cuántas zanahorias debe haber en el cubo?",
+  "url": "spyder-cripto.github.io/problema-del-dia/juego/balanzas/jardin/",
+  "preview": "../jardin/preview.jpg",
+  "estado": "../jardin/estado.png"
+ }
+]

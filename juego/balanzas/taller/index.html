@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El taller del inventor · El problema del día</title>
+<meta name="description" content="¿Cuántas tuercas debe haber en la caja de herramientas? Un acertijo de balanzas de dificultad máxima, con pistas y solución paso a paso.">
+<meta name="theme-color" content="#0d6f8c">
+<!-- Tarjeta al compartir el enlace (WhatsApp, Telegram, redes) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://spyder-cripto.github.io/problema-del-dia/juego/balanzas/taller/">
+<meta property="og:site_name" content="El problema del día">
+<meta property="og:title" content="El taller del inventor · ¿Te atreves?">
+<meta property="og:description" content="¿Cuántas tuercas debe haber en la caja de herramientas? Un acertijo de balanzas de dificultad máxima, con pistas y solución paso a paso.">
+<meta property="og:image" content="https://spyder-cripto.github.io/problema-del-dia/juego/balanzas/taller/preview.jpg?v=1">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Lámina de balanzas «El taller del inventor»: ¿Cuántas tuercas debe haber en la caja de herramientas?">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="El taller del inventor · ¿Te atreves?">
+<meta name="twitter:description" content="¿Cuántas tuercas debe haber en la caja de herramientas? Un acertijo de balanzas de dificultad máxima, con pistas y solución paso a paso.">
+<meta name="twitter:image" content="https://spyder-cripto.github.io/problema-del-dia/juego/balanzas/taller/preview.jpg?v=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: una columna; selector de acertijos arriba, la lámina manda y el resto la sirve. */
+:root {
+  --bg: #eaf1f5; --card: #fbfdfe; --ink: #13233a; --muted: #566a80; --line: #c9d7e2;
+  --sea: #0d6f8c; --sea-soft: #d6ecf3; --rope: #8a5a2b; --rope-soft: #f3e6d6;
+  --good: #2c7a4b; --good-soft: #dcefe3; --bad: #b03d2c; --bad-soft: #f6e0dc;
+  --display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1622; --card: #132132; --ink: #e5edf5; --muted: #98aabd; --line: #284058;
+    --sea: #5cc4dc; --sea-soft: #133848; --rope: #e2ac72; --rope-soft: #33261a;
+    --good: #7fd19f; --good-soft: #17352a; --bad: #f08f7d; --bad-soft: #3d1f1a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1622; --card: #132132; --ink: #e5edf5; --muted: #98aabd; --line: #284058;
+  --sea: #5cc4dc; --sea-soft: #133848; --rope: #e2ac72; --rope-soft: #33261a;
+  --good: #7fd19f; --good-soft: #17352a; --bad: #f08f7d; --bad-soft: #3d1f1a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.6; }
+.wrap {
+  max-width: 980px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 22px;
+}
+.wrap > *, .ayuda > *, .p-sol > *, ol.pasos > li, .puzle > * { min-width: 0; }
+.cabecera { display: grid; gap: 6px; }
+.serie { margin: 0; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--sea); }
+h1 { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(2.1rem, 6vw, 3.3rem); line-height: 1; text-wrap: balance; }
+.intro { margin: 0; color: var(--muted); max-width: 62ch; }
+nav.selector { display: flex; flex-wrap: wrap; gap: 8px; }
+nav.selector a {
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+  padding: 6px 14px 6px 6px; border-radius: 999px; border: 2px solid var(--line);
+  background: var(--card); color: var(--ink); font-weight: 700; font-size: .95rem;
+}
+nav.selector a .n {
+  display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--sea-soft); color: var(--sea); font-family: var(--display); font-weight: 800;
+}
+nav.selector a[aria-current="page"] { border-color: var(--ink); background: var(--ink); color: var(--card); }
+nav.selector a[aria-current="page"] .n { background: var(--card); color: var(--ink); }
+nav.selector a.resuelto .n { background: var(--good); color: var(--card); }
+nav.selector a:focus-visible, .btn:focus-visible, input:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
+.puzle { display: grid; gap: 20px; }
+.puzle header { display: grid; gap: 4px; }
+.eyebrow { margin: 0; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.eyebrow .dots { letter-spacing: .2em; color: var(--bad); }
+.titulo { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; text-wrap: balance; }
+.q { margin: 4px 0 0; font-family: var(--display); font-weight: 700; font-size: clamp(1.25rem, 3.4vw, 1.7rem); line-height: 1.25; text-wrap: balance; }
+figure { margin: 0; display: grid; gap: 8px; }
+.lamina { border: 3px solid var(--ink); border-radius: 10px; overflow-x: auto; overflow-y: hidden; background: #dfeff6; -webkit-overflow-scrolling: touch; }
+.lamina svg { display: block; width: 100%; height: auto; }
+.lamina.ampliada svg { width: 1250px; max-width: none; }
+figcaption { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; font-size: .9rem; color: var(--muted); }
+.btn { font: inherit; font-weight: 700; font-size: .95rem; border-radius: 999px; padding: 8px 16px; cursor: pointer; border: 2px solid var(--ink); background: var(--card); color: var(--ink); }
+.btn:hover { background: var(--sea-soft); }
+.btn.sm { padding: 5px 12px; font-size: .85rem; }
+.reglas { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; }
+h3.sec { margin: 0 0 6px; font-family: var(--display); font-weight: 700; font-size: 1.3rem; }
+.reglas ul { margin: 0; padding-left: 1.1em; display: grid; gap: 2px; max-width: 70ch; }
+.reglas li.propia { color: var(--sea); font-weight: 600; }
+.comprobar { display: grid; gap: 10px; }
+.comprobar form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.comprobar label { font-weight: 700; }
+.comprobar input { font: inherit; font-family: var(--mono); font-weight: 700; font-size: 1.1rem; width: 6.5em; padding: 7px 12px; border: 2px solid var(--ink); border-radius: 8px; background: var(--card); color: var(--ink); }
+.veredicto { margin: 0; padding: 10px 14px; border-radius: 8px; max-width: 70ch; }
+.veredicto.ok { background: var(--good-soft); color: var(--good); font-weight: 700; }
+.veredicto.no { background: var(--bad-soft); color: var(--ink); }
+.ayuda { display: grid; gap: 12px; }
+.botones { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn.pista { border-color: var(--sea); color: var(--sea); }
+.btn.sol { border-color: var(--rope); color: var(--rope); }
+.btn[aria-expanded="true"] { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.panel { border-radius: 10px; padding: 14px 18px; max-width: 76ch; }
+.panel p { margin: 0; }
+.panel.p-pista { background: var(--sea-soft); border-left: 4px solid var(--sea); }
+.panel.p-sol { background: var(--card); border: 2px solid var(--rope); display: grid; gap: 14px; }
+.pesos { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.pesos li { background: var(--rope-soft); border-radius: 999px; padding: 3px 12px; font-size: .92rem; }
+.pesos b { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+ol.pasos { margin: 0; padding-left: 1.3em; display: grid; gap: 12px; }
+ol.pasos li::marker { font-family: var(--display); font-weight: 800; color: var(--rope); }
+ol.pasos h4 { margin: 0; font-size: 1rem; font-weight: 700; }
+ol.pasos p { margin: 2px 0 0; }
+.eq { display: block; margin: 6px 0 0; padding: 6px 10px; border-radius: 6px; background: var(--bg); font-family: var(--mono); font-size: .88rem; font-variant-numeric: tabular-nums; overflow-x: auto; white-space: nowrap; }
+.final { font-family: var(--display); font-weight: 800; font-size: 1.35rem; color: var(--rope); }
+.trampas { color: var(--muted); font-size: .95rem; }
+@media (prefers-reduced-motion: no-preference) {
+  .panel:not([hidden]) { animation: abre .18s ease-out; }
+  @keyframes abre { from { transform: translateY(-4px); } to { transform: none; } }
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+.wrap { padding-top: max(28px, env(safe-area-inset-top, 0px)); padding-bottom: max(56px, env(safe-area-inset-bottom, 0px)); }
+.volver { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .92rem; }
+.volver a { color: var(--sea); font-weight: 700; text-decoration: none; }
+.volver a:hover { text-decoration: underline; }
+.pie { color: var(--muted); font-size: .88rem; border-top: 1px solid var(--line); padding-top: 14px; }
+.pie a { color: var(--sea); }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <nav class="volver" aria-label="Volver"><a href="../../../">← El problema del día</a></nav>
+
+  <section class="puzle" id="taller" aria-labelledby="t-taller">
+    <header>
+      <p class="eyebrow">Acertijo de balanzas · Muy difícil <span class="dots" aria-hidden="true">●●●●</span></p>
+      <h1 class="titulo" id="t-taller">El taller del inventor</h1>
+      <p class="q">¿Cuántas tuercas debe haber en la caja de herramientas?</p>
+    </header>
+    <figure>
+      <div class="lamina" id="lam-taller"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" role="img" aria-label="¿Cuántas tuercas debe haber en la caja de herramientas?"><rect width="1400" height="900" fill="#e4f3f7"/><rect x="140" y="560" width="60" height="60" fill="#ffe08a"/><rect x="320" y="200" width="60" height="60" fill="#ffc9c2"/><rect x="560" y="680" width="60" height="60" fill="#bfeadf"/><rect x="860" y="140" width="60" height="60" fill="#ffe08a"/><rect x="1040" y="620" width="60" height="60" fill="#ffc9c2"/><rect x="1220" y="320" width="60" height="60" fill="#bfeadf"/><rect x="740" y="440" width="60" height="60" fill="#ffe08a"/><rect x="200" y="380" width="60" height="60" fill="#bfeadf"/><rect x="1340" y="560" width="60" height="60" fill="#ffe08a"/><g stroke="#b7d6df" stroke-width="2"><line x1="20" y1="0" x2="20" y2="832" /><line x1="80" y1="0" x2="80" y2="832" /><line x1="140" y1="0" x2="140" y2="832" /><line x1="200" y1="0" x2="200" y2="832" /><line x1="260" y1="0" x2="260" y2="832" /><line x1="320" y1="0" x2="320" y2="832" /><line x1="380" y1="0" x2="380" y2="832" /><line x1="440" y1="0" x2="440" y2="832" /><line x1="500" y1="0" x2="500" y2="832" /><line x1="560" y1="0" x2="560" y2="832" /><line x1="620" y1="0" x2="620" y2="832" /><line x1="680" y1="0" x2="680" y2="832" /><line x1="740" y1="0" x2="740" y2="832" /><line x1="800" y1="0" x2="800" y2="832" /><line x1="860" y1="0" x2="860" y2="832" /><line x1="920" y1="0" x2="920" y2="832" /><line x1="980" y1="0" x2="980" y2="832" /><line x1="1040" y1="0" x2="1040" y2="832" /><line x1="1100" y1="0" x2="1100" y2="832" /><line x1="1160" y1="0" x2="1160" y2="832" /><line x1="1220" y1="0" x2="1220" y2="832" /><line x1="1280" y1="0" x2="1280" y2="832" /><line x1="1340" y1="0" x2="1340" y2="832" /><line x1="1400" y1="0" x2="1400" y2="832" /><line x1="0" y1="20" x2="1400" y2="20" /><line x1="0" y1="80" x2="1400" y2="80" /><line x1="0" y1="140" x2="1400" y2="140" /><line x1="0" y1="200" x2="1400" y2="200" /><line x1="0" y1="260" x2="1400" y2="260" /><line x1="0" y1="320" x2="1400" y2="320" /><line x1="0" y1="380" x2="1400" y2="380" /><line x1="0" y1="440" x2="1400" y2="440" /><line x1="0" y1="500" x2="1400" y2="500" /><line x1="0" y1="560" x2="1400" y2="560" /><line x1="0" y1="620" x2="1400" y2="620" /><line x1="0" y1="680" x2="1400" y2="680" /><line x1="0" y1="740" x2="1400" y2="740" /><line x1="0" y1="800" x2="1400" y2="800" /></g><rect x="0" y="0" width="1400" height="22" fill="#8a5a34" stroke="#1f1d1b" stroke-width="3"/><rect x="-10" y="832" width="1420" height="22" fill="#c98a4b" stroke="#1f1d1b" stroke-width="3"/><rect x="-10" y="854" width="1420" height="60" fill="#9a6232" stroke="#1f1d1b" stroke-width="3"/><line x1="0" y1="840" x2="1400" y2="840" stroke="#e3ab6d" stroke-width="2.5"/><polygon points="1241.7,324.1 1241.7,335.9 1232.1,338.6 1229.1,347.8 1235.2,355.6 1228.4,365.1 1219.0,361.7 1211.2,367.4 1211.5,377.3 1200.4,381.0 1194.9,372.7 1185.1,372.7 1179.6,381.0 1168.5,377.3 1168.8,367.4 1161.0,361.7 1151.6,365.1 1144.8,355.6 1150.9,347.8 1147.9,338.6 1138.3,335.9 1138.3,324.1 1147.9,321.4 1150.9,312.2 1144.8,304.4 1151.6,294.9 1161.0,298.3 1168.8,292.6 1168.5,282.7 1179.6,279.0 1185.1,287.3 1194.9,287.3 1200.4,279.0 1211.5,282.7 1211.2,292.6 1219.0,298.3 1228.4,294.9 1235.2,304.4 1229.1,312.2 1232.1,321.4" fill="#f4a340" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><circle cx="1190" cy="330" r="23.4" fill="#e4f3f7" stroke="#1f1d1b" stroke-width="3"/><circle cx="1190" cy="330" r="6" fill="#1f1d1b"/><polygon points="1301.7,387.2 1301.7,396.8 1292.2,398.2 1289.5,404.7 1295.2,412.4 1288.4,419.2 1280.7,413.5 1274.2,416.2 1272.8,425.7 1263.2,425.7 1261.8,416.2 1255.3,413.5 1247.6,419.2 1240.8,412.4 1246.5,404.7 1243.8,398.2 1234.3,396.8 1234.3,387.2 1243.8,385.8 1246.5,379.3 1240.8,371.6 1247.6,364.8 1255.3,370.5 1261.8,367.8 1263.2,358.3 1272.8,358.3 1274.2,367.8 1280.7,370.5 1288.4,364.8 1295.2,371.6 1289.5,379.3 1292.2,385.8" fill="#9b7fd4" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><circle cx="1268" cy="392" r="15.3" fill="#e4f3f7" stroke="#1f1d1b" stroke-width="3"/><circle cx="1268" cy="392" r="6" fill="#1f1d1b"/><line x1="1330" y1="22" x2="1330" y2="96" stroke="#1f1d1b" stroke-width="2.5" stroke-linecap="round"/><rect x="1321" y="104" width="18" height="16" rx="3" fill="#a3adb7" stroke="#1f1d1b" stroke-width="3"/><line x1="1321" y1="109.5" x2="1339" y2="109.5" stroke="#1f1d1b" stroke-width="1.8"/><line x1="1321" y1="114.5" x2="1339" y2="114.5" stroke="#1f1d1b" stroke-width="1.8"/><path d="M1322,120 C1322,126 1311,128 1311,140 A19,19 0 0 0 1349,140 C1349,128 1338,126 1338,120 Z" fill="#ffd84a" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M1324,124 L1324,136 L1328,142 L1332,136 L1336,142 L1336,124" fill="none" stroke="#c9741a" stroke-width="2"/><ellipse cx="1321" cy="140" rx="4" ry="7" fill="#fff" opacity=".6"/><path d="M1306,120 L1312,96 L1348,96 L1354,120 Z" fill="#2f6f9e" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><rect x="204" y="144" width="52" height="52" rx="8" fill="#7b8794" stroke="#1f1d1b" stroke-width="3"/><rect x="725.0" y="185.0" width="30" height="30" rx="6" fill="#7b8794" stroke="#1f1d1b" stroke-width="3"/><circle cx="731.0" cy="191.0" r="2.6" fill="#1f1d1b"/><circle cx="731.0" cy="209.0" r="2.6" fill="#1f1d1b"/><circle cx="749.0" cy="191.0" r="2.6" fill="#1f1d1b"/><circle cx="749.0" cy="209.0" r="2.6" fill="#1f1d1b"/><rect x="365.0" y="535.0" width="30" height="30" rx="6" fill="#7b8794" stroke="#1f1d1b" stroke-width="3"/><circle cx="371.0" cy="541.0" r="2.6" fill="#1f1d1b"/><circle cx="371.0" cy="559.0" r="2.6" fill="#1f1d1b"/><circle cx="389.0" cy="541.0" r="2.6" fill="#1f1d1b"/><circle cx="389.0" cy="559.0" r="2.6" fill="#1f1d1b"/><rect x="1085.0" y="485.0" width="30" height="30" rx="6" fill="#7b8794" stroke="#1f1d1b" stroke-width="3"/><circle cx="1091.0" cy="491.0" r="2.6" fill="#1f1d1b"/><circle cx="1091.0" cy="509.0" r="2.6" fill="#1f1d1b"/><circle cx="1109.0" cy="491.0" r="2.6" fill="#1f1d1b"/><circle cx="1109.0" cy="509.0" r="2.6" fill="#1f1d1b"/><rect x="24" y="477" width="94" height="16" rx="4" fill="#7b8794" stroke="#1f1d1b" stroke-width="3"/><circle cx="34" cy="485" r="2.6" fill="#1f1d1b"/><circle cx="108" cy="485" r="2.6" fill="#1f1d1b"/><line x1="380" y1="380" x2="380" y2="447" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="440" y1="380" x2="440" y2="408" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="500" y1="380" x2="500" y2="447" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="560" y1="380" x2="560" y2="413" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="500" y1="200" x2="500" y2="366" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="560" y1="200" x2="560" y2="228" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="620" y1="200" x2="620" y2="228" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="800" y1="200" x2="800" y2="233" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="860" y1="200" x2="860" y2="260" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="980" y1="200" x2="980" y2="216" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="440" y1="550" x2="440" y2="566" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="500" y1="550" x2="500" y2="583" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><path d="M104,486 L104,614 A18,18 0 0 0 140,614 L140,550" fill="none" stroke="#5a4128" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M54,486 L54,690 A34,34 0 0 0 122,690 L122,646" fill="none" stroke="#5a4128" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><line x1="980" y1="590" x2="980" y2="618" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="1340" y1="560" x2="1340" y2="653" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><circle cx="500" cy="365" r="5" fill="none" stroke="#1f1d1b" stroke-width="3"/><path d="M112,614 L122,646 L132,614" fill="none" stroke="#1f1d1b" stroke-width="4" stroke-linejoin="round"/><circle cx="122" cy="646" r="4" fill="none" stroke="#1f1d1b" stroke-width="3"/><path d="M78,690 L88,738 L98,690" fill="none" stroke="#1f1d1b" stroke-width="4" stroke-linejoin="round"/><circle cx="88" cy="738" r="4" fill="none" stroke="#1f1d1b" stroke-width="3"/><circle cx="122" cy="614" r="18" fill="#cfd7df" stroke="#1f1d1b" stroke-width="3"/><circle cx="122" cy="614" r="12" fill="none" stroke="#7d8a97" stroke-width="2"/><circle cx="122" cy="614" r="4.5" fill="#1f1d1b"/><circle cx="88" cy="690" r="34" fill="#cfd7df" stroke="#1f1d1b" stroke-width="3"/><circle cx="88" cy="690" r="28" fill="none" stroke="#7d8a97" stroke-width="2"/><circle cx="88" cy="690" r="4.5" fill="#1f1d1b"/><path d="M178,312 Q178,288 200,288 Q222,288 222,312" fill="none" stroke="#1f1d1b" stroke-width="9" stroke-linecap="round"/><path d="M178,312 Q178,288 200,288 Q222,288 222,312" fill="none" stroke="#1b7f73" stroke-width="4" stroke-linecap="round"/><path d="M174,332 Q156,328 154,310 L162,308 Q164,320 176,324 Z" fill="#30b5a2" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M227,320 Q244,322 236,342" fill="none" stroke="#1f1d1b" stroke-width="3"/><ellipse cx="200" cy="330" rx="30" ry="22" fill="#30b5a2" stroke="#1f1d1b" stroke-width="3"/><path d="M183,311 Q200,304 217,311" fill="#ffd84a" stroke="#1f1d1b" stroke-width="3"/><circle cx="200" cy="306" r="4" fill="#ffd84a" stroke="#1f1d1b" stroke-width="2.5"/><path d="M178,334 Q200,342 222,334" fill="none" stroke="#ffd84a" stroke-width="4"/><ellipse cx="186" cy="324" rx="5" ry="8" fill="#fff" opacity=".45" transform="rotate(30 186 324)"/><polygon points="397.0,413.0 388.5,426.3 371.5,426.3 363.0,413.0 371.5,399.7 388.5,399.7" fill="#b9c3cd" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><circle cx="380" cy="413" r="7" fill="#6f7b86" stroke="#1f1d1b" stroke-width="2.5"/><line x1="380" y1="406" x2="380" y2="420" stroke="#5a4128" stroke-width="3"/><path d="M368,405 L376,400" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/><polygon points="397.0,447.0 388.5,460.3 371.5,460.3 363.0,447.0 371.5,433.7 388.5,433.7" fill="#b9c3cd" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><circle cx="380" cy="447" r="7" fill="#6f7b86" stroke="#1f1d1b" stroke-width="2.5"/><line x1="380" y1="440" x2="380" y2="454" stroke="#5a4128" stroke-width="3"/><path d="M368,439 L376,434" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/><rect x="431" y="398" width="18" height="16" rx="3" fill="#a3adb7" stroke="#1f1d1b" stroke-width="3"/><line x1="431" y1="403.5" x2="449" y2="403.5" stroke="#1f1d1b" stroke-width="1.8"/><line x1="431" y1="408.5" x2="449" y2="408.5" stroke="#1f1d1b" stroke-width="1.8"/><path d="M432,414 C432,420 421,422 421,434 A19,19 0 0 0 459,434 C459,422 448,420 448,414 Z" fill="#ffd84a" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M434,418 L434,430 L438,436 L442,430 L446,436 L446,418" fill="none" stroke="#c9741a" stroke-width="2"/><ellipse cx="431" cy="434" rx="4" ry="7" fill="#fff" opacity=".6"/><polygon points="517.0,413.0 508.5,426.3 491.5,426.3 483.0,413.0 491.5,399.7 508.5,399.7" fill="#b9c3cd" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><circle cx="500" cy="413" r="7" fill="#6f7b86" stroke="#1f1d1b" stroke-width="2.5"/><line x1="500" y1="406" x2="500" y2="420" stroke="#5a4128" stroke-width="3"/><path d="M488,405 L496,400" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/><polygon points="517.0,447.0 508.5,460.3 491.5,460.3 483.0,447.0 491.5,433.7 508.5,433.7" fill="#b9c3cd" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><circle cx="500" cy="447" r="7" fill="#6f7b86" stroke="#1f1d1b" stroke-width="2.5"/><line x1="500" y1="440" x2="500" y2="454" stroke="#5a4128" stroke-width="3"/><path d="M488,439 L496,434" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/><polygon points="577.0,413.0 568.5,426.3 551.5,426.3 543.0,413.0 551.5,399.7 568.5,399.7" fill="#b9c3cd" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><circle cx="560" cy="413" r="7" fill="#6f7b86" stroke="#1f1d1b" stroke-width="2.5"/><line x1="560" y1="406" x2="560" y2="420" stroke="#5a4128" stroke-width="3"/><path d="M548,405 L556,400" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/><rect x="551" y="218" width="18" height="16" rx="3" fill="#a3adb7" stroke="#1f1d1b" stroke-width="3"/><line x1="551" y1="223.5" x2="569" y2="223.5" stroke="#1f1d1b" stroke-width="1.8"/><line x1="551" y1="228.5" x2="569" y2="228.5" stroke="#1f1d1b" stroke-width="1.8"/><path d="M552,234 C552,240 541,242 541,254 A19,19 0 0 0 579,254 C579,242 568,240 568,234 Z" fill="#ffd84a" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M554,238 L554,250 L558,256 L562,250 L566,256 L566,238" fill="none" stroke="#c9741a" stroke-width="2"/><ellipse cx="551" cy="254" rx="4" ry="7" fill="#fff" opacity=".6"/><circle cx="620" cy="223" r="5" fill="none" stroke="#1f1d1b" stroke-width="3"/><line x1="620" y1="228" x2="620" y2="234" stroke="#1f1d1b" stroke-width="3"/><path d="M592,241 A11,11 0 0 1 614,241 Z" fill="#ffc63b" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round" transform="rotate(-28 603 241)"/><line x1="606" y1="276" x2="600" y2="284" stroke="#1f1d1b" stroke-width="4" stroke-linecap="round"/><path d="M626,241 A11,11 0 0 1 648,241 Z" fill="#ffc63b" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round" transform="rotate(28 637 241)"/><line x1="634" y1="276" x2="640" y2="284" stroke="#1f1d1b" stroke-width="4" stroke-linecap="round"/><circle cx="620" cy="256" r="25" fill="#ec4b3c" stroke="#1f1d1b" stroke-width="3"/><circle cx="620" cy="256" r="17" fill="#fffaf0" stroke="#1f1d1b" stroke-width="2.5"/><circle cx="633.0" cy="256.0" r="1.6" fill="#1f1d1b"/><circle cx="620.0" cy="269.0" r="1.6" fill="#1f1d1b"/><circle cx="607.0" cy="256.0" r="1.6" fill="#1f1d1b"/><circle cx="620.0" cy="243.0" r="1.6" fill="#1f1d1b"/><path d="M620,256 L620,245 M620,256 L628,260" stroke="#1f1d1b" stroke-width="2.6" stroke-linecap="round"/><polygon points="817.0,233.0 808.5,246.3 791.5,246.3 783.0,233.0 791.5,219.7 808.5,219.7" fill="#b9c3cd" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><circle cx="800" cy="233" r="7" fill="#6f7b86" stroke="#1f1d1b" stroke-width="2.5"/><line x1="800" y1="226" x2="800" y2="240" stroke="#5a4128" stroke-width="3"/><path d="M788,225 L796,220" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/><path d="M838,276 L838,262 Q838,258 842,258 L878,258 Q882,258 882,262 L882,276" fill="none" stroke="#1f1d1b" stroke-width="8" stroke-linejoin="round"/><path d="M838,276 L838,262 Q838,258 842,258 L878,258 Q882,258 882,262 L882,276" fill="none" stroke="#9aa5b0" stroke-width="3.5" stroke-linejoin="round"/><rect x="816.0" y="276" width="88" height="62" rx="6" fill="#e84a3d" stroke="#1f1d1b" stroke-width="3"/><rect x="816.0" y="276" width="88" height="16" rx="6" fill="#c7372c" stroke="#1f1d1b" stroke-width="3"/><rect x="852" y="286" width="16" height="12" rx="2" fill="#ffd84a" stroke="#1f1d1b" stroke-width="2.5"/><text x="860.0" y="318.0" text-anchor="middle" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="900" font-size="36" fill="#fff" stroke="#1f1d1b" stroke-width="2.2" paint-order="stroke">?</text><path d="M958,238 Q958,214 980,214 Q1002,214 1002,238" fill="none" stroke="#1f1d1b" stroke-width="9" stroke-linecap="round"/><path d="M958,238 Q958,214 980,214 Q1002,214 1002,238" fill="none" stroke="#1b7f73" stroke-width="4" stroke-linecap="round"/><path d="M954,258 Q936,254 934,236 L942,234 Q944,246 956,250 Z" fill="#30b5a2" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M1007,246 Q1024,248 1016,268" fill="none" stroke="#1f1d1b" stroke-width="3"/><ellipse cx="980" cy="256" rx="30" ry="22" fill="#30b5a2" stroke="#1f1d1b" stroke-width="3"/><path d="M963,237 Q980,230 997,237" fill="#ffd84a" stroke="#1f1d1b" stroke-width="3"/><circle cx="980" cy="232" r="4" fill="#ffd84a" stroke="#1f1d1b" stroke-width="2.5"/><path d="M958,260 Q980,268 1002,260" fill="none" stroke="#ffd84a" stroke-width="4"/><ellipse cx="966" cy="250" rx="5" ry="8" fill="#fff" opacity=".45" transform="rotate(30 966 250)"/><path d="M418,588 Q418,564 440,564 Q462,564 462,588" fill="none" stroke="#1f1d1b" stroke-width="9" stroke-linecap="round"/><path d="M418,588 Q418,564 440,564 Q462,564 462,588" fill="none" stroke="#1b7f73" stroke-width="4" stroke-linecap="round"/><path d="M414,608 Q396,604 394,586 L402,584 Q404,596 416,600 Z" fill="#30b5a2" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M467,596 Q484,598 476,618" fill="none" stroke="#1f1d1b" stroke-width="3"/><ellipse cx="440" cy="606" rx="30" ry="22" fill="#30b5a2" stroke="#1f1d1b" stroke-width="3"/><path d="M423,587 Q440,580 457,587" fill="#ffd84a" stroke="#1f1d1b" stroke-width="3"/><circle cx="440" cy="582" r="4" fill="#ffd84a" stroke="#1f1d1b" stroke-width="2.5"/><path d="M418,610 Q440,618 462,610" fill="none" stroke="#ffd84a" stroke-width="4"/><ellipse cx="426" cy="600" rx="5" ry="8" fill="#fff" opacity=".45" transform="rotate(30 426 600)"/><polygon points="517.0,583.0 508.5,596.3 491.5,596.3 483.0,583.0 491.5,569.7 508.5,569.7" fill="#b9c3cd" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><circle cx="500" cy="583" r="7" fill="#6f7b86" stroke="#1f1d1b" stroke-width="2.5"/><line x1="500" y1="576" x2="500" y2="590" stroke="#5a4128" stroke-width="3"/><path d="M488,575 L496,570" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/><circle cx="88" cy="743" r="5" fill="none" stroke="#1f1d1b" stroke-width="3"/><line x1="88" y1="748" x2="88" y2="754" stroke="#1f1d1b" stroke-width="3"/><path d="M60,761 A11,11 0 0 1 82,761 Z" fill="#ffc63b" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round" transform="rotate(-28 71 761)"/><line x1="74" y1="796" x2="68" y2="804" stroke="#1f1d1b" stroke-width="4" stroke-linecap="round"/><path d="M94,761 A11,11 0 0 1 116,761 Z" fill="#ffc63b" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round" transform="rotate(28 105 761)"/><line x1="102" y1="796" x2="108" y2="804" stroke="#1f1d1b" stroke-width="4" stroke-linecap="round"/><circle cx="88" cy="776" r="25" fill="#ec4b3c" stroke="#1f1d1b" stroke-width="3"/><circle cx="88" cy="776" r="17" fill="#fffaf0" stroke="#1f1d1b" stroke-width="2.5"/><circle cx="101.0" cy="776.0" r="1.6" fill="#1f1d1b"/><circle cx="88.0" cy="789.0" r="1.6" fill="#1f1d1b"/><circle cx="75.0" cy="776.0" r="1.6" fill="#1f1d1b"/><circle cx="88.0" cy="763.0" r="1.6" fill="#1f1d1b"/><path d="M88,776 L88,765 M88,776 L96,780" stroke="#1f1d1b" stroke-width="2.6" stroke-linecap="round"/><circle cx="980" cy="613" r="5" fill="none" stroke="#1f1d1b" stroke-width="3"/><line x1="980" y1="618" x2="980" y2="624" stroke="#1f1d1b" stroke-width="3"/><path d="M952,631 A11,11 0 0 1 974,631 Z" fill="#ffc63b" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round" transform="rotate(-28 963 631)"/><line x1="966" y1="666" x2="960" y2="674" stroke="#1f1d1b" stroke-width="4" stroke-linecap="round"/><path d="M986,631 A11,11 0 0 1 1008,631 Z" fill="#ffc63b" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round" transform="rotate(28 997 631)"/><line x1="994" y1="666" x2="1000" y2="674" stroke="#1f1d1b" stroke-width="4" stroke-linecap="round"/><circle cx="980" cy="646" r="25" fill="#ec4b3c" stroke="#1f1d1b" stroke-width="3"/><circle cx="980" cy="646" r="17" fill="#fffaf0" stroke="#1f1d1b" stroke-width="2.5"/><circle cx="993.0" cy="646.0" r="1.6" fill="#1f1d1b"/><circle cx="980.0" cy="659.0" r="1.6" fill="#1f1d1b"/><circle cx="967.0" cy="646.0" r="1.6" fill="#1f1d1b"/><circle cx="980.0" cy="633.0" r="1.6" fill="#1f1d1b"/><path d="M980,646 L980,635 M980,646 L988,650" stroke="#1f1d1b" stroke-width="2.6" stroke-linecap="round"/><rect x="1331" y="578" width="18" height="16" rx="3" fill="#a3adb7" stroke="#1f1d1b" stroke-width="3"/><line x1="1331" y1="583.5" x2="1349" y2="583.5" stroke="#1f1d1b" stroke-width="1.8"/><line x1="1331" y1="588.5" x2="1349" y2="588.5" stroke="#1f1d1b" stroke-width="1.8"/><path d="M1332,594 C1332,600 1321,602 1321,614 A19,19 0 0 0 1359,614 C1359,602 1348,600 1348,594 Z" fill="#ffd84a" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M1334,598 L1334,610 L1338,616 L1342,610 L1346,616 L1346,598" fill="none" stroke="#c9741a" stroke-width="2"/><ellipse cx="1331" cy="614" rx="4" ry="7" fill="#fff" opacity=".6"/><polygon points="1357.0,653.0 1348.5,666.3 1331.5,666.3 1323.0,653.0 1331.5,639.7 1348.5,639.7" fill="#b9c3cd" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><circle cx="1340" cy="653" r="7" fill="#6f7b86" stroke="#1f1d1b" stroke-width="2.5"/><line x1="1340" y1="646" x2="1340" y2="660" stroke="#5a4128" stroke-width="3"/><path d="M1328,645 L1336,640" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/><path d="M230,80 A90,90 0 0 1 320,170 L320,380" fill="none" stroke="#5a4128" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="230" cy="170" r="90" fill="#ffcf4d" stroke="#1f1d1b" stroke-width="3.5"/><circle cx="230" cy="170" r="80" fill="none" stroke="#e0a92a" stroke-width="3"/><line x1="230" y1="170" x2="299.3" y2="210.0" stroke="#1f1d1b" stroke-width="7" stroke-linecap="round"/><line x1="230" y1="170" x2="299.3" y2="210.0" stroke="#ffcf4d" stroke-width="3" stroke-linecap="round"/><line x1="230" y1="170" x2="160.7" y2="210.0" stroke="#1f1d1b" stroke-width="7" stroke-linecap="round"/><line x1="230" y1="170" x2="160.7" y2="210.0" stroke="#ffcf4d" stroke-width="3" stroke-linecap="round"/><line x1="230" y1="170" x2="160.7" y2="130.0" stroke="#1f1d1b" stroke-width="7" stroke-linecap="round"/><line x1="230" y1="170" x2="160.7" y2="130.0" stroke="#ffcf4d" stroke-width="3" stroke-linecap="round"/><line x1="230" y1="170" x2="299.3" y2="130.0" stroke="#1f1d1b" stroke-width="7" stroke-linecap="round"/><line x1="230" y1="170" x2="299.3" y2="130.0" stroke="#ffcf4d" stroke-width="3" stroke-linecap="round"/><circle cx="230" cy="170" r="30" fill="#e2483d" stroke="#1f1d1b" stroke-width="3.5"/><circle cx="230" cy="170" r="22" fill="none" stroke="#b5352c" stroke-width="2.5"/><line x1="230" y1="170" x2="230" y2="80" stroke="#1f1d1b" stroke-width="7" stroke-linecap="round"/><line x1="230" y1="170" x2="230" y2="80" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M230,140 A30,30 0 0 0 200,170 L200,288" fill="none" stroke="#5a4128" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="230" cy="140" r="4.2" fill="#1f1d1b"/><circle cx="230" cy="110" r="4.2" fill="#1f1d1b"/><circle cx="230" cy="80" r="4.2" fill="#1f1d1b"/><circle cx="230" cy="170" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="230" cy="170" r="3" fill="#1f1d1b"/><rect x="300" y="372" width="400" height="16" rx="8.0" fill="#3b9be0" stroke="#1f1d1b" stroke-width="3"/><line x1="310" y1="378" x2="690" y2="378" stroke="#9ad0f5" stroke-width="2.5" stroke-linecap="round"/><circle cx="320" cy="380" r="3.6" fill="#1f1d1b"/><circle cx="380" cy="380" r="3.6" fill="#1f1d1b"/><circle cx="440" cy="380" r="3.6" fill="#1f1d1b"/><circle cx="560" cy="380" r="3.6" fill="#1f1d1b"/><circle cx="620" cy="380" r="3.6" fill="#1f1d1b"/><circle cx="680" cy="380" r="3.6" fill="#1f1d1b"/><rect x="480" y="192" width="520" height="16" rx="8.0" fill="#3b9be0" stroke="#1f1d1b" stroke-width="3"/><line x1="490" y1="198" x2="990" y2="198" stroke="#9ad0f5" stroke-width="2.5" stroke-linecap="round"/><circle cx="500" cy="200" r="3.6" fill="#1f1d1b"/><circle cx="560" cy="200" r="3.6" fill="#1f1d1b"/><circle cx="620" cy="200" r="3.6" fill="#1f1d1b"/><circle cx="680" cy="200" r="3.6" fill="#1f1d1b"/><circle cx="800" cy="200" r="3.6" fill="#1f1d1b"/><circle cx="860" cy="200" r="3.6" fill="#1f1d1b"/><circle cx="920" cy="200" r="3.6" fill="#1f1d1b"/><circle cx="980" cy="200" r="3.6" fill="#1f1d1b"/><rect x="126" y="542" width="388" height="16" rx="8.0" fill="#3b9be0" stroke="#1f1d1b" stroke-width="3"/><line x1="136" y1="548" x2="504" y2="548" stroke="#9ad0f5" stroke-width="2.5" stroke-linecap="round"/><circle cx="140" cy="550" r="3.6" fill="#1f1d1b"/><circle cx="200" cy="550" r="3.6" fill="#1f1d1b"/><circle cx="260" cy="550" r="3.6" fill="#1f1d1b"/><circle cx="320" cy="550" r="3.6" fill="#1f1d1b"/><circle cx="440" cy="550" r="3.6" fill="#1f1d1b"/><circle cx="500" cy="550" r="3.6" fill="#1f1d1b"/><path d="M980,590 L1100,500 L1340,560" fill="none" stroke="#1f1d1b" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/><path d="M980,590 L1100,500 L1340,560" fill="none" stroke="#f0832a" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/><circle cx="500" cy="380" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="500" cy="380" r="3" fill="#1f1d1b"/><circle cx="740" cy="200" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="740" cy="200" r="3" fill="#1f1d1b"/><circle cx="380" cy="550" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="380" cy="550" r="3" fill="#1f1d1b"/><circle cx="1100" cy="500" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="1100" cy="500" r="3" fill="#1f1d1b"/><circle cx="980" cy="590" r="3.6" fill="#1f1d1b"/><circle cx="1340" cy="560" r="3.6" fill="#1f1d1b"/><path d="M782,826 q24,-2 30,-16" fill="none" stroke="#1f1d1b" stroke-width="2.5"/><ellipse cx="760" cy="820" rx="24" ry="13" fill="#a9a2b3" stroke="#1f1d1b" stroke-width="3"/><circle cx="744" cy="806" r="8" fill="#e8b4c4" stroke="#1f1d1b" stroke-width="3"/><circle cx="736" cy="822" r="2.2" fill="#1f1d1b"/><circle cx="728" cy="826" r="2.6" fill="#e8798f"/><rect x="980" y="818" width="54" height="14" rx="6" fill="#ffd84a" stroke="#1f1d1b" stroke-width="3"/><rect x="1034" y="823" width="58" height="5" fill="#a3adb7" stroke="#1f1d1b" stroke-width="2"/><rect x="3" y="3" width="1394" height="894" fill="none" stroke="#1f1d1b" stroke-width="6" rx="4"/></svg></div>
+      <figcaption>
+        <span>Toca «Ampliar» para verlo a tamaño grande en el móvil.</span>
+        <button class="btn sm" type="button" data-zoom="lam-taller" aria-pressed="false">Ampliar dibujo</button>
+      </figcaption>
+    </figure>
+    <div class="reglas">
+      <h3 class="sec">Reglas</h3>
+      <ul><li>Todo está en equilibrio. Los objetos iguales pesan lo mismo.</li><li>Vigas, cuerdas, poleas y recipientes (cajas, cofres, cestas) no pesan. No hay rozamiento.</li><li>Los puntos de cada viga están a la misma distancia unos de otros.</li><li class="propia">Los azulejos son cuadrados iguales, del mismo ancho que la separación entre los puntos de las vigas.</li><li class="propia">La rueda amarilla y su eje rojo giran juntos; los puntos de su radio están a la misma distancia.</li></ul>
+    </div>
+    <div class="comprobar">
+      <h3 class="sec">Tu respuesta</h3>
+      <form id="form-taller" autocomplete="off">
+        <label for="resp-taller">Tuercas en la caja:</label>
+        <input id="resp-taller" name="resp-taller" type="number" inputmode="numeric" min="0" step="1" required>
+        <button class="btn" type="submit">Comprobar</button>
+      </form>
+      <p class="veredicto" id="ver-taller" role="status" hidden></p>
+    </div>
+    <div class="ayuda" aria-label="Pistas y solución">
+      <div class="botones"><button class="btn pista" type="button" data-panel="taller-p1" data-label="pista 1" aria-expanded="false" aria-controls="taller-p1">Ver pista 1</button><button class="btn pista" type="button" data-panel="taller-p2" data-label="pista 2" aria-expanded="false" aria-controls="taller-p2">Ver pista 2</button>
+        <button class="btn sol" type="button" data-panel="taller-sol" data-label="solución" aria-expanded="false" aria-controls="taller-sol">Ver solución</button>
+      </div>
+      <div class="panel p-pista" id="taller-p1" hidden><p>Empieza por la palanca naranja, la viga azul de abajo y la viga que cuelga a la izquierda: entre las tres fijan el peso de la bombilla, la tetera y el despertador.</p></div><div class="panel p-pista" id="taller-p2" hidden><p>Torno: la fuerza por el radio debe ser igual a ambos lados. Doble polea: cada polea móvil reparte su carga entre dos tramos. Palanca acodada: solo cuenta la distancia horizontal al eje, y los azulejos la miden.</p></div>
+      <div class="panel p-sol" id="taller-sol" hidden>
+        <ol class="pasos"><li><h4>La palanca acodada</h4><p>Toma la tuerca como unidad: B bombilla, T tetera, D despertador. En una palanca doblada solo importa la distancia horizontal al eje: el despertador está a 2 azulejos y la bombilla con su tuerca a 4.</p><span class="eq">D·2 = (B + 1)·4 → D = 2B + 2</span></li><li><h4>La doble polea</h4><p>El despertador cuelga de una polea móvil: cada tramo aguanta D/2. Uno de esos tramos sostiene la segunda polea móvil, cuyos tramos aguantan D/4. La viga azul de abajo nota D/4 a 4 puntos.</p><span class="eq">(D/4)·4 = T·1 + 1·2 → D = T + 2</span></li><li><h4>El torno y la viga colgante</h4><p>La tetera cuelga del eje (radio 1) y la cuerda de la rueda sale a radio 3, así que tira con T/3. Tira hacia arriba del punto 3 de la viga colgante, como si empujara hacia abajo al otro lado.</p><span class="eq">(T/3)·3 + 1·1 = 2·2 + B·1 → T = B + 3</span><span class="eq">D = T + 2 = B + 5 y D = 2B + 2 → B = 3 ; T = 6 ; D = 8</span></li><li><h4>Peso de la viga colgante</h4><p>Cuentan las 2 tuercas bajo su eje, y la cuerda del torno le quita T/3 = 2.</p><span class="eq">2 + 3 + 2 + 1 − 2 = 6</span></li><li><h4>La viga principal</h4><span class="eq">6·4 + 3·3 + 8·2 = 1·1 + x·2 + 6·4 → 49 = 25 + 2x</span></li></ol>
+        <p class="final">En la caja hay 12 tuercas.</p>
+        <ul class="pesos" aria-label="Pesos"><li>Tuerca <b>1</b></li><li>Bombilla <b>3</b></li><li>Tetera <b>6</b></li><li>Despertador <b>8</b></li></ul>
+        <p class="trampas">No cuentan: la lámpara del techo, los engranajes de la pared, el ratón y el destornillador.</p>
+      </div>
+    </div>
+  </section>
+  <footer class="pie">Un acertijo de <a href="../../../">El problema del día</a>. La respuesta se ha comprobado resolviendo el sistema de ecuaciones de la lámina.</footer>
+</main>
+<script>
+(function () {
+  var DATA = [{"id": "taller", "r": 12, "t": {"8": "Casi. Hay algo colgado justo bajo el eje de una viga colgante: no la inclina, pero pesa para la de arriba.", "16": "La cuerda del torno tira hacia arriba de la viga colgante: le quita peso, no se lo suma."}}];
+  var ids = DATA.map(function (p) { return p.id; });
+  var KEY = 'balanzas-resueltos';
+  function leer() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } }
+  function guardar(a) { try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {} }
+  function marcar() {
+    var r = leer();
+    document.querySelectorAll('nav.selector a').forEach(function (a) {
+      a.classList.toggle('resuelto', r.indexOf(a.dataset.id) >= 0);
+    });
+  }
+  function mostrar() {
+    var h = (location.hash || '').replace('#', '');
+    var id = ids.indexOf(h) >= 0 ? h : ids[0];
+    document.querySelectorAll('section.puzle').forEach(function (s) { s.hidden = s.id !== id; });
+    document.querySelectorAll('nav.selector a').forEach(function (a) {
+      if (a.dataset.id === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+  }
+  window.addEventListener('hashchange', function () { mostrar(); window.scrollTo(0, 0); });
+  mostrar(); marcar();
+
+  document.querySelectorAll('[data-zoom]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var lam = document.getElementById(btn.dataset.zoom);
+      var on = lam.classList.toggle('ampliada');
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.textContent = on ? 'Ajustar a la pantalla' : 'Ampliar dibujo';
+    });
+  });
+  document.querySelectorAll('[data-panel]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var panel = document.getElementById(btn.dataset.panel);
+      var open = panel.hidden;
+      panel.hidden = !open;
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.textContent = (open ? 'Ocultar ' : 'Ver ') + btn.dataset.label;
+    });
+  });
+  DATA.forEach(function (p) {
+    var form = document.getElementById('form-' + p.id);
+    var out = document.getElementById('ver-' + p.id);
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = parseInt(document.getElementById('resp-' + p.id).value, 10);
+      if (isNaN(v)) return;
+      var ok = v === p.r;
+      var msg = ok ? '¡Correcto! Son ' + p.r + '.' : (p.t[v] || ('No es ' + v + '. Prueba con las pistas.'));
+      out.className = 'veredicto ' + (ok ? 'ok' : 'no');
+      out.textContent = msg;
+      out.hidden = false;
+      if (ok) { var r = leer(); if (r.indexOf(p.id) < 0) { r.push(p.id); guardar(r); } marcar(); }
+    });
+  });
+})();
+</script>
+</body>
+</html>

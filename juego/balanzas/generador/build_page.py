@@ -56,7 +56,7 @@ nav.selector a:focus-visible, .btn:focus-visible, input:focus-visible { outline:
 .puzle header { display: grid; gap: 4px; }
 .eyebrow { margin: 0; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .eyebrow .dots { letter-spacing: .2em; color: var(--bad); }
-h2.titulo { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; text-wrap: balance; }
+.titulo { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; text-wrap: balance; }
 .q { margin: 4px 0 0; font-family: var(--display); font-weight: 700; font-size: clamp(1.25rem, 3.4vw, 1.7rem); line-height: 1.25; text-wrap: balance; }
 figure { margin: 0; display: grid; gap: 8px; }
 .lamina { border: 3px solid var(--ink); border-radius: 10px; overflow-x: auto; overflow-y: hidden; background: #dfeff6; -webkit-overflow-scrolling: touch; }
@@ -231,31 +231,40 @@ URL = "https://spyder-cripto.github.io/problema-del-dia/juego/balanzas/"
 DESC = ("Diez acertijos de balanzas de dificultad máxima: poleas, rampas, tornos, engranajes y globos. "
         "Cada lámina tiene una única respuesta, con pistas y solución paso a paso.")
 
-HEAD_WEB = f"""<!doctype html>
+def head_web(title, desc, url, og_title, img_alt):
+    return f"""<!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Balanzas imposibles · El problema del día</title>
-<meta name="description" content="{DESC}">
+<title>{html.escape(title)}</title>
+<meta name="description" content="{html.escape(desc)}">
 <meta name="theme-color" content="#0d6f8c">
 <!-- Tarjeta al compartir el enlace (WhatsApp, Telegram, redes) -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="{URL}">
+<meta property="og:url" content="{url}">
 <meta property="og:site_name" content="El problema del día">
-<meta property="og:title" content="Balanzas imposibles · ¿Te atreves?">
-<meta property="og:description" content="{DESC}">
-<meta property="og:image" content="{URL}preview.jpg?v=1">
+<meta property="og:title" content="{html.escape(og_title)}">
+<meta property="og:description" content="{html.escape(desc)}">
+<meta property="og:image" content="{url}preview.jpg?v=1">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Lámina de balanzas: vigas con objetos colgados, poleas y una caja con interrogación">
+<meta property="og:image:alt" content="{html.escape(img_alt)}">
 <meta property="og:locale" content="es_ES">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Balanzas imposibles · ¿Te atreves?">
-<meta name="twitter:description" content="{DESC}">
-<meta name="twitter:image" content="{URL}preview.jpg?v=1">
+<meta name="twitter:title" content="{html.escape(og_title)}">
+<meta name="twitter:description" content="{html.escape(desc)}">
+<meta name="twitter:image" content="{url}preview.jpg?v=1">
 """
+
+
+HEAD_WEB = head_web("Balanzas imposibles · El problema del día", DESC, URL, "Balanzas imposibles · ¿Te atreves?",
+                    "Lámina de balanzas: vigas con objetos colgados, poleas y una caja con interrogación")
+
+FONTS = """<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&family=JetBrains+Mono:wght@500;700&display=swap">"""
 
 WEB_EXTRA_CSS = """
 html { -webkit-text-size-adjust: 100%; }
@@ -302,6 +311,27 @@ def build(out="balanzas-imposibles.html", web=False):
 {cierre}"""
     open(out, "w", encoding="utf-8").write(page)
     print("página:", out, len(page))
+
+
+def build_single(p, out):
+    """Página web de una sola lámina, sin enlaces a las demás."""
+    url = f"{URL}{p['id']}/"
+    desc = f"{p['pregunta']} Un acertijo de balanzas de dificultad máxima, con pistas y solución paso a paso."
+    data = [dict(id=p["id"], r=p["respuesta"], t={str(k): v for k, v in p["trampas"].items()})]
+    sec = seccion(p).replace(" hidden>", ">", 1)
+    sec = sec.replace('<h2 class="titulo"', '<h1 class="titulo"', 1).replace("</h2>", "</h1>", 1)
+    sec = sec.replace(f"N.º {p['num']} · Muy difícil", "Acertijo de balanzas · Muy difícil", 1)
+    head = head_web(f"{p['titulo']} · El problema del día", desc, url, f"{p['titulo']} · ¿Te atreves?",
+                    f"Lámina de balanzas «{p['titulo']}»: {p['pregunta']}")
+    page = (head + FONTS + f"\n<style>{CSS}{WEB_EXTRA_CSS}</style>\n</head>\n<body>\n<main class=\"wrap\">\n"
+            '  <nav class="volver" aria-label="Volver"><a href="../../../">← El problema del día</a></nav>\n'
+            + sec + "\n"
+            '  <footer class="pie">Un acertijo de <a href="../../../">El problema del día</a>. '
+            'La respuesta se ha comprobado resolviendo el sistema de ecuaciones de la lámina.</footer>\n'
+            f"</main>\n<script>{JS.replace('__DATA__', json.dumps(data, ensure_ascii=False))}</script>\n</body>\n</html>\n")
+    with open(out, "w", encoding="utf-8") as fh:
+        fh.write(page)
+    return out
 
 
 if __name__ == "__main__":

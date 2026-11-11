@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El laboratorio · El problema del día</title>
+<meta name="description" content="¿Cuántos imanes debe haber en el maletín? Un acertijo de balanzas de dificultad máxima, con pistas y solución paso a paso.">
+<meta name="theme-color" content="#0d6f8c">
+<!-- Tarjeta al compartir el enlace (WhatsApp, Telegram, redes) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://spyder-cripto.github.io/problema-del-dia/juego/balanzas/laboratorio/">
+<meta property="og:site_name" content="El problema del día">
+<meta property="og:title" content="El laboratorio · ¿Te atreves?">
+<meta property="og:description" content="¿Cuántos imanes debe haber en el maletín? Un acertijo de balanzas de dificultad máxima, con pistas y solución paso a paso.">
+<meta property="og:image" content="https://spyder-cripto.github.io/problema-del-dia/juego/balanzas/laboratorio/preview.jpg?v=1">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Lámina de balanzas «El laboratorio»: ¿Cuántos imanes debe haber en el maletín?">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="El laboratorio · ¿Te atreves?">
+<meta name="twitter:description" content="¿Cuántos imanes debe haber en el maletín? Un acertijo de balanzas de dificultad máxima, con pistas y solución paso a paso.">
+<meta name="twitter:image" content="https://spyder-cripto.github.io/problema-del-dia/juego/balanzas/laboratorio/preview.jpg?v=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: una columna; selector de acertijos arriba, la lámina manda y el resto la sirve. */
+:root {
+  --bg: #eaf1f5; --card: #fbfdfe; --ink: #13233a; --muted: #566a80; --line: #c9d7e2;
+  --sea: #0d6f8c; --sea-soft: #d6ecf3; --rope: #8a5a2b; --rope-soft: #f3e6d6;
+  --good: #2c7a4b; --good-soft: #dcefe3; --bad: #b03d2c; --bad-soft: #f6e0dc;
+  --display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1622; --card: #132132; --ink: #e5edf5; --muted: #98aabd; --line: #284058;
+    --sea: #5cc4dc; --sea-soft: #133848; --rope: #e2ac72; --rope-soft: #33261a;
+    --good: #7fd19f; --good-soft: #17352a; --bad: #f08f7d; --bad-soft: #3d1f1a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1622; --card: #132132; --ink: #e5edf5; --muted: #98aabd; --line: #284058;
+  --sea: #5cc4dc; --sea-soft: #133848; --rope: #e2ac72; --rope-soft: #33261a;
+  --good: #7fd19f; --good-soft: #17352a; --bad: #f08f7d; --bad-soft: #3d1f1a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.6; }
+.wrap {
+  max-width: 980px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 22px;
+}
+.wrap > *, .ayuda > *, .p-sol > *, ol.pasos > li, .puzle > * { min-width: 0; }
+.cabecera { display: grid; gap: 6px; }
+.serie { margin: 0; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--sea); }
+h1 { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(2.1rem, 6vw, 3.3rem); line-height: 1; text-wrap: balance; }
+.intro { margin: 0; color: var(--muted); max-width: 62ch; }
+nav.selector { display: flex; flex-wrap: wrap; gap: 8px; }
+nav.selector a {
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+  padding: 6px 14px 6px 6px; border-radius: 999px; border: 2px solid var(--line);
+  background: var(--card); color: var(--ink); font-weight: 700; font-size: .95rem;
+}
+nav.selector a .n {
+  display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--sea-soft); color: var(--sea); font-family: var(--display); font-weight: 800;
+}
+nav.selector a[aria-current="page"] { border-color: var(--ink); background: var(--ink); color: var(--card); }
+nav.selector a[aria-current="page"] .n { background: var(--card); color: var(--ink); }
+nav.selector a.resuelto .n { background: var(--good); color: var(--card); }
+nav.selector a:focus-visible, .btn:focus-visible, input:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
+.puzle { display: grid; gap: 20px; }
+.puzle header { display: grid; gap: 4px; }
+.eyebrow { margin: 0; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.eyebrow .dots { letter-spacing: .2em; color: var(--bad); }
+.titulo { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; text-wrap: balance; }
+.q { margin: 4px 0 0; font-family: var(--display); font-weight: 700; font-size: clamp(1.25rem, 3.4vw, 1.7rem); line-height: 1.25; text-wrap: balance; }
+figure { margin: 0; display: grid; gap: 8px; }
+.lamina { border: 3px solid var(--ink); border-radius: 10px; overflow-x: auto; overflow-y: hidden; background: #dfeff6; -webkit-overflow-scrolling: touch; }
+.lamina svg { display: block; width: 100%; height: auto; }
+.lamina.ampliada svg { width: 1250px; max-width: none; }
+figcaption { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; font-size: .9rem; color: var(--muted); }
+.btn { font: inherit; font-weight: 700; font-size: .95rem; border-radius: 999px; padding: 8px 16px; cursor: pointer; border: 2px solid var(--ink); background: var(--card); color: var(--ink); }
+.btn:hover { background: var(--sea-soft); }
+.btn.sm { padding: 5px 12px; font-size: .85rem; }
+.reglas { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; }
+h3.sec { margin: 0 0 6px; font-family: var(--display); font-weight: 700; font-size: 1.3rem; }
+.reglas ul { margin: 0; padding-left: 1.1em; display: grid; gap: 2px; max-width: 70ch; }
+.reglas li.propia { color: var(--sea); font-weight: 600; }
+.comprobar { display: grid; gap: 10px; }
+.comprobar form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.comprobar label { font-weight: 700; }
+.comprobar input { font: inherit; font-family: var(--mono); font-weight: 700; font-size: 1.1rem; width: 6.5em; padding: 7px 12px; border: 2px solid var(--ink); border-radius: 8px; background: var(--card); color: var(--ink); }
+.veredicto { margin: 0; padding: 10px 14px; border-radius: 8px; max-width: 70ch; }
+.veredicto.ok { background: var(--good-soft); color: var(--good); font-weight: 700; }
+.veredicto.no { background: var(--bad-soft); color: var(--ink); }
+.ayuda { display: grid; gap: 12px; }
+.botones { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn.pista { border-color: var(--sea); color: var(--sea); }
+.btn.sol { border-color: var(--rope); color: var(--rope); }
+.btn[aria-expanded="true"] { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.panel { border-radius: 10px; padding: 14px 18px; max-width: 76ch; }
+.panel p { margin: 0; }
+.panel.p-pista { background: var(--sea-soft); border-left: 4px solid var(--sea); }
+.panel.p-sol { background: var(--card); border: 2px solid var(--rope); display: grid; gap: 14px; }
+.pesos { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.pesos li { background: var(--rope-soft); border-radius: 999px; padding: 3px 12px; font-size: .92rem; }
+.pesos b { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+ol.pasos { margin: 0; padding-left: 1.3em; display: grid; gap: 12px; }
+ol.pasos li::marker { font-family: var(--display); font-weight: 800; color: var(--rope); }
+ol.pasos h4 { margin: 0; font-size: 1rem; font-weight: 700; }
+ol.pasos p { margin: 2px 0 0; }
+.eq { display: block; margin: 6px 0 0; padding: 6px 10px; border-radius: 6px; background: var(--bg); font-family: var(--mono); font-size: .88rem; font-variant-numeric: tabular-nums; overflow-x: auto; white-space: nowrap; }
+.final { font-family: var(--display); font-weight: 800; font-size: 1.35rem; color: var(--rope); }
+.trampas { color: var(--muted); font-size: .95rem; }
+@media (prefers-reduced-motion: no-preference) {
+  .panel:not([hidden]) { animation: abre .18s ease-out; }
+  @keyframes abre { from { transform: translateY(-4px); } to { transform: none; } }
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+.wrap { padding-top: max(28px, env(safe-area-inset-top, 0px)); padding-bottom: max(56px, env(safe-area-inset-bottom, 0px)); }
+.volver { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .92rem; }
+.volver a { color: var(--sea); font-weight: 700; text-decoration: none; }
+.volver a:hover { text-decoration: underline; }
+.pie { color: var(--muted); font-size: .88rem; border-top: 1px solid var(--line); padding-top: 14px; }
+.pie a { color: var(--sea); }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <nav class="volver" aria-label="Volver"><a href="../../../">← El problema del día</a></nav>
+
+  <section class="puzle" id="laboratorio" aria-labelledby="t-laboratorio">
+    <header>
+      <p class="eyebrow">Acertijo de balanzas · Muy difícil <span class="dots" aria-hidden="true">●●●●</span></p>
+      <h1 class="titulo" id="t-laboratorio">El laboratorio</h1>
+      <p class="q">¿Cuántos imanes debe haber en el maletín?</p>
+    </header>
+    <figure>
+      <div class="lamina" id="lam-laboratorio"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" role="img" aria-label="¿Cuántos imanes debe haber en el maletín?"><rect width="1400" height="900" fill="#e9e4ff"/><line x1="0" y1="0" x2="1400" y2="0" stroke="#d9d1fb" stroke-width="2"/><line x1="0" y1="56" x2="1400" y2="56" stroke="#d9d1fb" stroke-width="2"/><line x1="0" y1="112" x2="1400" y2="112" stroke="#d9d1fb" stroke-width="2"/><line x1="0" y1="168" x2="1400" y2="168" stroke="#d9d1fb" stroke-width="2"/><line x1="0" y1="224" x2="1400" y2="224" stroke="#d9d1fb" stroke-width="2"/><line x1="0" y1="280" x2="1400" y2="280" stroke="#d9d1fb" stroke-width="2"/><line x1="0" y1="336" x2="1400" y2="336" stroke="#d9d1fb" stroke-width="2"/><line x1="0" y1="392" x2="1400" y2="392" stroke="#d9d1fb" stroke-width="2"/><line x1="0" y1="448" x2="1400" y2="448" stroke="#d9d1fb" stroke-width="2"/><line x1="0" y1="504" x2="1400" y2="504" stroke="#d9d1fb" stroke-width="2"/><line x1="0" y1="560" x2="1400" y2="560" stroke="#d9d1fb" stroke-width="2"/><line x1="0" y1="616" x2="1400" y2="616" stroke="#d9d1fb" stroke-width="2"/><line x1="0" y1="672" x2="1400" y2="672" stroke="#d9d1fb" stroke-width="2"/><line x1="0" y1="728" x2="1400" y2="728" stroke="#d9d1fb" stroke-width="2"/><line x1="0" y1="784" x2="1400" y2="784" stroke="#d9d1fb" stroke-width="2"/><rect x="0" y="800" width="1400" height="100" fill="#4b4f7a"/><line x1="40" y1="800" x2="0" y2="900" stroke="#3c4068" stroke-width="3"/><line x1="130" y1="800" x2="90" y2="900" stroke="#3c4068" stroke-width="3"/><line x1="220" y1="800" x2="180" y2="900" stroke="#3c4068" stroke-width="3"/><line x1="310" y1="800" x2="270" y2="900" stroke="#3c4068" stroke-width="3"/><line x1="400" y1="800" x2="360" y2="900" stroke="#3c4068" stroke-width="3"/><line x1="490" y1="800" x2="450" y2="900" stroke="#3c4068" stroke-width="3"/><line x1="580" y1="800" x2="540" y2="900" stroke="#3c4068" stroke-width="3"/><line x1="670" y1="800" x2="630" y2="900" stroke="#3c4068" stroke-width="3"/><line x1="760" y1="800" x2="720" y2="900" stroke="#3c4068" stroke-width="3"/><line x1="850" y1="800" x2="810" y2="900" stroke="#3c4068" stroke-width="3"/><line x1="940" y1="800" x2="900" y2="900" stroke="#3c4068" stroke-width="3"/><line x1="1030" y1="800" x2="990" y2="900" stroke="#3c4068" stroke-width="3"/><line x1="1120" y1="800" x2="1080" y2="900" stroke="#3c4068" stroke-width="3"/><line x1="1210" y1="800" x2="1170" y2="900" stroke="#3c4068" stroke-width="3"/><line x1="1300" y1="800" x2="1260" y2="900" stroke="#3c4068" stroke-width="3"/><line x1="1390" y1="800" x2="1350" y2="900" stroke="#3c4068" stroke-width="3"/><line x1="0" y1="800" x2="1400" y2="800" stroke="#1f1d1b" stroke-width="3"/><rect x="1150" y="70" width="226" height="170" rx="6" fill="#2f5d50" stroke="#8a5a2b" stroke-width="10"/><ellipse cx="1220" cy="150" rx="40" ry="14" fill="none" stroke="#e8f5e9" stroke-width="2.5"/><ellipse cx="1220" cy="150" rx="40" ry="14" fill="none" stroke="#e8f5e9" stroke-width="2.5" transform="rotate(60 1220 150)"/><ellipse cx="1220" cy="150" rx="40" ry="14" fill="none" stroke="#e8f5e9" stroke-width="2.5" transform="rotate(-60 1220 150)"/><circle cx="1220" cy="150" r="5" fill="#ffd23f"/><text x="1318.0" y="128.0" text-anchor="middle" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="700" font-size="24" fill="#e8f5e9" >E=mc</text><text x="1352.0" y="116.0" text-anchor="middle" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="700" font-size="14" fill="#e8f5e9" >2</text><path d="M1282,190 q12,-18 24,0 t24,0" fill="none" stroke="#e8f5e9" stroke-width="2.5"/><rect x="1160" y="380" width="210" height="14" rx="3" fill="#a0673a" stroke="#1f1d1b" stroke-width="3"/><path d="M1176,394 L1176,420 L1200,394 Z M1350,394 L1350,420 L1326,394 Z" fill="#a0673a" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M1194,328 L1194,342 L1177,374 Q1176,380 1183,380 L1217,380 Q1224,380 1223,374 L1206,342 L1206,328 Z" fill="#eef8ff" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M1185,358 L1215,358 L1222,374 Q1223,378 1217,378 L1183,378 Q1177,378 1178,374 Z" fill="#57e389"/><circle cx="1196" cy="368" r="3" fill="#fff" opacity=".8"/><circle cx="1206" cy="363" r="2" fill="#fff" opacity=".8"/><circle cx="1202" cy="351" r="2.4" fill="#57e389" stroke="#1f1d1b" stroke-width="1.2"/><path d="M1194,328 L1194,342 L1177,374 Q1176,380 1183,380 L1217,380 Q1224,380 1223,374 L1206,342 L1206,328 Z" fill="none" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><rect x="1257" y="330" width="10" height="7" rx="2" fill="#c9cfd6" stroke="#1f1d1b" stroke-width="2.5"/><rect x="1248" y="336" width="28" height="44" rx="5" fill="#2fbf71" stroke="#1f1d1b" stroke-width="3"/><rect x="1248" y="336" width="28" height="13" rx="5" fill="#ffd23f" stroke="#1f1d1b" stroke-width="3"/><path d="M1257,363 L1267,363 M1262,358 L1262,368" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M1318,328 L1318,342 L1301,374 Q1300,380 1307,380 L1341,380 Q1348,380 1347,374 L1330,342 L1330,328 Z" fill="#eef8ff" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M1309,358 L1339,358 L1346,374 Q1347,378 1341,378 L1307,378 Q1301,378 1302,374 Z" fill="#57e389"/><circle cx="1320" cy="368" r="3" fill="#fff" opacity=".8"/><circle cx="1330" cy="363" r="2" fill="#fff" opacity=".8"/><circle cx="1326" cy="351" r="2.4" fill="#57e389" stroke="#1f1d1b" stroke-width="1.2"/><path d="M1318,328 L1318,342 L1301,374 Q1300,380 1307,380 L1341,380 Q1348,380 1347,374 L1330,342 L1330,328 Z" fill="none" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><ellipse cx="520" cy="758" rx="50" ry="44" fill="#bfe9ff" stroke="#1f1d1b" stroke-width="3" opacity=".9"/><path d="M500,756 q14,-14 30,0 q-16,14 -30,0 Z M530,756 l12,-9 l0,18 Z" fill="#ff9f1c" stroke="#1f1d1b" stroke-width="2.4" stroke-linejoin="round"/><circle cx="508" cy="753" r="2" fill="#1f1d1b"/><path d="M1036,800 L1036,680 L1311.0,800 Z" fill="#b8f2e6" stroke="#1f1d1b" stroke-width="3.5" stroke-linejoin="round"/><g stroke="#1f1d1b" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="1244.0" y1="790.4" x2="1060.0" y2="710.1"/><path d="M1233.7,791.3 L1244.0,790.4 L1237.7,782.3" fill="none"/><path d="M1070.2,709.2 L1060.0,710.1 L1066.2,718.2" fill="none"/></g><text x="1143.7" y="770.7" transform="rotate(23.58 1143.7 770.7)" text-anchor="middle" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="800" font-size="26" fill="#1f1d1b" >5</text><g stroke="#1f1d1b" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="1050" y1="708" x2="1050" y2="792"/><path d="M1055.0,717.0 L1050.0,708.0 L1045.0,717.0" fill="none"/><path d="M1045.0,783.0 L1050.0,792.0 L1055.0,783.0" fill="none"/></g><text x="1062.0" y="750.0" text-anchor="start" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="800" font-size="26" fill="#1f1d1b" >2</text><rect x="0" y="0" width="1400" height="36" fill="#6c63c9" stroke="#1f1d1b" stroke-width="3"/><rect x="350" y="470" width="20" height="334" fill="#6c63c9" stroke="#1f1d1b" stroke-width="3"/><line x1="355" y1="478" x2="355" y2="798" stroke="#a59ef0" stroke-width="2"/><rect x="720" y="600" width="20" height="204" fill="#6c63c9" stroke="#1f1d1b" stroke-width="3"/><line x1="725" y1="608" x2="725" y2="798" stroke="#a59ef0" stroke-width="2"/><rect x="944" y="632" width="42" height="14" rx="3" fill="#9aa5b0" stroke="#1f1d1b" stroke-width="3"/><rect x="938" y="610" width="12" height="56" rx="3" fill="#9aa5b0" stroke="#1f1d1b" stroke-width="3"/><line x1="860" y1="36" x2="860" y2="170" stroke="#1f1d1b" stroke-width="5" stroke-linecap="round"/><line x1="195" y1="470" x2="195" y2="546" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="525" y1="470" x2="525" y2="489" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="520" y1="312" x2="520" y2="328" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="620" y1="312" x2="620" y2="328" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="670" y1="312" x2="670" y2="328" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="620" y1="170" x2="620" y2="298" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="680" y1="170" x2="680" y2="186" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="800" y1="170" x2="800" y2="186" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="920" y1="170" x2="920" y2="189" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="1040" y1="170" x2="1040" y2="186" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="620" y1="600" x2="620" y2="616" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="895" y1="600" x2="895" y2="616" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><circle cx="620" cy="297" r="5" fill="none" stroke="#1f1d1b" stroke-width="3"/><path d="M1040,688 L1025.0,661.0" stroke="#1f1d1b" stroke-width="10" stroke-linecap="round"/><path d="M1040,688 L1025.0,661.0" stroke="#6c63c9" stroke-width="5" stroke-linecap="round"/><path d="M1144.4,696.7 L1031.0,647.3 A15,15 0 0 0 1010.0,661.0 L1010.0,708 A18,18 0 0 1 974.0,708 L974.0,640" fill="none" stroke="#1f1d1b" stroke-width="3" stroke-linecap="round"/><circle cx="1025" cy="661" r="15" fill="#ffe8a3" stroke="#1f1d1b" stroke-width="3"/><circle cx="1025" cy="661" r="9" fill="none" stroke="#7d8a97" stroke-width="2"/><circle cx="1025" cy="661" r="4.5" fill="#1f1d1b"/><path d="M983,708 L992,738 L1001,708" fill="none" stroke="#1f1d1b" stroke-width="4" stroke-linejoin="round"/><circle cx="992" cy="708" r="18" fill="#ffe8a3" stroke="#1f1d1b" stroke-width="3"/><circle cx="992" cy="708" r="12" fill="none" stroke="#7d8a97" stroke-width="2"/><circle cx="992" cy="708" r="4.5" fill="#1f1d1b"/><path d="M100,332 L100,342" stroke="#1f1d1b" stroke-width="3"/><rect x="71.0" y="342" width="58" height="36" rx="4" fill="#7b4cc2" stroke="#1f1d1b" stroke-width="3"/><rect x="75.0" y="369" width="52" height="6" fill="#fffaf0" stroke="#1f1d1b" stroke-width="2"/><rect x="71.0" y="342" width="10" height="36" rx="3" fill="#5b2f9c" stroke="#1f1d1b" stroke-width="3"/><line x1="92" y1="354" x2="118" y2="354" stroke="#ffd23f" stroke-width="3"/><path d="M69.0,358.0 L131.0,358.0" stroke="#5a4128" stroke-width="2.5"/><rect x="188" y="484" width="14" height="6" rx="2" fill="#c98a5a" stroke="#1f1d1b" stroke-width="2.5"/><path d="M189,490 L189,504 L172,536 Q171,542 178,542 L212,542 Q219,542 218,536 L201,504 L201,490 Z" fill="#eef8ff" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M180,520 L210,520 L217,536 Q218,540 212,540 L178,540 Q172,540 173,536 Z" fill="#57e389"/><circle cx="191" cy="530" r="3" fill="#fff" opacity=".8"/><circle cx="201" cy="525" r="2" fill="#fff" opacity=".8"/><circle cx="197" cy="513" r="2.4" fill="#57e389" stroke="#1f1d1b" stroke-width="1.2"/><path d="M189,490 L189,504 L172,536 Q171,542 178,542 L212,542 Q219,542 218,536 L201,504 L201,490 Z" fill="none" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><rect x="190" y="544" width="10" height="7" rx="2" fill="#c9cfd6" stroke="#1f1d1b" stroke-width="2.5"/><rect x="181" y="550" width="28" height="44" rx="5" fill="#2fbf71" stroke="#1f1d1b" stroke-width="3"/><rect x="181" y="550" width="28" height="13" rx="5" fill="#ffd23f" stroke="#1f1d1b" stroke-width="3"/><path d="M190,577 L200,577 M195,572 L195,582" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="525" cy="489" r="3.5" fill="none" stroke="#1f1d1b" stroke-width="2.5"/><path d="M507,530 L507,508 A18,16 0 0 1 543,508 L543,530 L533,530 L533,508 A8,7 0 0 0 517,508 L517,530 Z" fill="#e63946" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><rect x="507" y="522" width="10" height="9" fill="#d7dde3" stroke="#1f1d1b" stroke-width="2.5"/><rect x="533" y="522" width="10" height="9" fill="#d7dde3" stroke="#1f1d1b" stroke-width="2.5"/><path d="M520,326 L520,336" stroke="#1f1d1b" stroke-width="3"/><rect x="491.0" y="336" width="58" height="36" rx="4" fill="#7b4cc2" stroke="#1f1d1b" stroke-width="3"/><rect x="495.0" y="363" width="52" height="6" fill="#fffaf0" stroke="#1f1d1b" stroke-width="2"/><rect x="491.0" y="336" width="10" height="36" rx="3" fill="#5b2f9c" stroke="#1f1d1b" stroke-width="3"/><line x1="512" y1="348" x2="538" y2="348" stroke="#ffd23f" stroke-width="3"/><path d="M489.0,352.0 L551.0,352.0" stroke="#5a4128" stroke-width="2.5"/><rect x="615" y="326" width="10" height="7" rx="2" fill="#c9cfd6" stroke="#1f1d1b" stroke-width="2.5"/><rect x="606" y="332" width="28" height="44" rx="5" fill="#2fbf71" stroke="#1f1d1b" stroke-width="3"/><rect x="606" y="332" width="28" height="13" rx="5" fill="#ffd23f" stroke="#1f1d1b" stroke-width="3"/><path d="M615,359 L625,359 M620,354 L620,364" stroke="#fff" stroke-width="3" stroke-linecap="round"/><rect x="663" y="326" width="14" height="6" rx="2" fill="#c98a5a" stroke="#1f1d1b" stroke-width="2.5"/><path d="M664,332 L664,346 L647,378 Q646,384 653,384 L687,384 Q694,384 693,378 L676,346 L676,332 Z" fill="#eef8ff" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M655,362 L685,362 L692,378 Q693,382 687,382 L653,382 Q647,382 648,378 Z" fill="#57e389"/><circle cx="666" cy="372" r="3" fill="#fff" opacity=".8"/><circle cx="676" cy="367" r="2" fill="#fff" opacity=".8"/><circle cx="672" cy="355" r="2.4" fill="#57e389" stroke="#1f1d1b" stroke-width="1.2"/><path d="M664,332 L664,346 L647,378 Q646,384 653,384 L687,384 Q694,384 693,378 L676,346 L676,332 Z" fill="none" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M680,184 L680,194" stroke="#1f1d1b" stroke-width="3"/><rect x="651.0" y="194" width="58" height="36" rx="4" fill="#7b4cc2" stroke="#1f1d1b" stroke-width="3"/><rect x="655.0" y="221" width="52" height="6" fill="#fffaf0" stroke="#1f1d1b" stroke-width="2"/><rect x="651.0" y="194" width="10" height="36" rx="3" fill="#5b2f9c" stroke="#1f1d1b" stroke-width="3"/><line x1="672" y1="206" x2="698" y2="206" stroke="#ffd23f" stroke-width="3"/><path d="M649.0,210.0 L711.0,210.0" stroke="#5a4128" stroke-width="2.5"/><rect x="793" y="184" width="14" height="6" rx="2" fill="#c98a5a" stroke="#1f1d1b" stroke-width="2.5"/><path d="M794,190 L794,204 L777,236 Q776,242 783,242 L817,242 Q824,242 823,236 L806,204 L806,190 Z" fill="#eef8ff" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M785,220 L815,220 L822,236 Q823,240 817,240 L783,240 Q777,240 778,236 Z" fill="#57e389"/><circle cx="796" cy="230" r="3" fill="#fff" opacity=".8"/><circle cx="806" cy="225" r="2" fill="#fff" opacity=".8"/><circle cx="802" cy="213" r="2.4" fill="#57e389" stroke="#1f1d1b" stroke-width="1.2"/><path d="M794,190 L794,204 L777,236 Q776,242 783,242 L817,242 Q824,242 823,236 L806,204 L806,190 Z" fill="none" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><circle cx="920" cy="189" r="3.5" fill="none" stroke="#1f1d1b" stroke-width="2.5"/><path d="M902,230 L902,208 A18,16 0 0 1 938,208 L938,230 L928,230 L928,208 A8,7 0 0 0 912,208 L912,230 Z" fill="#e63946" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><rect x="902" y="222" width="10" height="9" fill="#d7dde3" stroke="#1f1d1b" stroke-width="2.5"/><rect x="928" y="222" width="10" height="9" fill="#d7dde3" stroke="#1f1d1b" stroke-width="2.5"/><path d="M1024,202 L1024,188 Q1024,184 1028,184 L1052,184 Q1056,184 1056,188 L1056,202" fill="none" stroke="#1f1d1b" stroke-width="7"/><path d="M1024,202 L1024,188 Q1024,184 1028,184 L1052,184 Q1056,184 1056,188 L1056,202" fill="none" stroke="#9aa5b0" stroke-width="3"/><rect x="994.0" y="202" width="92" height="60" rx="8" fill="#3d7dd8" stroke="#1f1d1b" stroke-width="3"/><line x1="994.0" y1="220" x2="1086.0" y2="220" stroke="#1f1d1b" stroke-width="3"/><rect x="1004.0" y="214" width="12" height="12" rx="2" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.5"/><rect x="1064.0" y="214" width="12" height="12" rx="2" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.5"/><text x="1040.0" y="242.0" text-anchor="middle" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="900" font-size="34" fill="#fff" stroke="#1f1d1b" stroke-width="2.2" paint-order="stroke">?</text><rect x="613" y="614" width="14" height="6" rx="2" fill="#c98a5a" stroke="#1f1d1b" stroke-width="2.5"/><path d="M614,620 L614,634 L597,666 Q596,672 603,672 L637,672 Q644,672 643,666 L626,634 L626,620 Z" fill="#eef8ff" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M605,650 L635,650 L642,666 Q643,670 637,670 L603,670 Q597,670 598,666 Z" fill="#57e389"/><circle cx="616" cy="660" r="3" fill="#fff" opacity=".8"/><circle cx="626" cy="655" r="2" fill="#fff" opacity=".8"/><circle cx="622" cy="643" r="2.4" fill="#57e389" stroke="#1f1d1b" stroke-width="1.2"/><path d="M614,620 L614,634 L597,666 Q596,672 603,672 L637,672 Q644,672 643,666 L626,634 L626,620 Z" fill="none" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><rect x="890" y="614" width="10" height="7" rx="2" fill="#c9cfd6" stroke="#1f1d1b" stroke-width="2.5"/><rect x="881" y="620" width="28" height="44" rx="5" fill="#2fbf71" stroke="#1f1d1b" stroke-width="3"/><rect x="881" y="620" width="28" height="13" rx="5" fill="#ffd23f" stroke="#1f1d1b" stroke-width="3"/><path d="M890,647 L900,647 M895,642 L895,652" stroke="#fff" stroke-width="3" stroke-linecap="round"/><g transform="translate(1173.5,740.0) rotate(23.578)"><rect x="-40" y="-30" width="80" height="22" rx="4" fill="#ff8fab" stroke="#1f1d1b" stroke-width="3"/><circle cx="-24" cy="-7" r="8" fill="#4b4f7a" stroke="#1f1d1b" stroke-width="3"/><circle cx="24" cy="-7" r="8" fill="#4b4f7a" stroke="#1f1d1b" stroke-width="3"/><rect x="-23" y="-86" width="14" height="6" rx="2" fill="#c98a5a" stroke="#1f1d1b" stroke-width="2.5"/><path d="M-22,-80 L-22,-66 L-39,-34 Q-40,-28 -33,-28 L1,-28 Q8,-28 7,-34 L-10,-66 L-10,-80 Z" fill="#eef8ff" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M-31,-50 L-1,-50 L6,-34 Q7,-30 1,-30 L-33,-30 Q-39,-30 -38,-34 Z" fill="#57e389"/><circle cx="-20" cy="-40" r="3" fill="#fff" opacity=".8"/><circle cx="-10" cy="-45" r="2" fill="#fff" opacity=".8"/><circle cx="-14" cy="-57" r="2.4" fill="#57e389" stroke="#1f1d1b" stroke-width="1.2"/><path d="M-22,-80 L-22,-66 L-39,-34 Q-40,-28 -33,-28 L1,-28 Q8,-28 7,-34 L-10,-66 L-10,-80 Z" fill="none" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><rect x="15" y="-78" width="10" height="7" rx="2" fill="#c9cfd6" stroke="#1f1d1b" stroke-width="2.5"/><rect x="6" y="-72" width="28" height="44" rx="5" fill="#2fbf71" stroke="#1f1d1b" stroke-width="3"/><rect x="6" y="-72" width="28" height="13" rx="5" fill="#ffd23f" stroke="#1f1d1b" stroke-width="3"/><path d="M15,-45 L25,-45 M20,-50 L20,-40" stroke="#fff" stroke-width="3" stroke-linecap="round"/></g><path d="M992,736 L992,746" stroke="#1f1d1b" stroke-width="3"/><rect x="963.0" y="746" width="58" height="36" rx="4" fill="#7b4cc2" stroke="#1f1d1b" stroke-width="3"/><rect x="967.0" y="773" width="52" height="6" fill="#fffaf0" stroke="#1f1d1b" stroke-width="2"/><rect x="963.0" y="746" width="10" height="36" rx="3" fill="#5b2f9c" stroke="#1f1d1b" stroke-width="3"/><line x1="984" y1="758" x2="1010" y2="758" stroke="#ffd23f" stroke-width="3"/><path d="M961.0,762.0 L1023.0,762.0" stroke="#5a4128" stroke-width="2.5"/><polygon points="361.7,210.4 360.7,215.5 373.4,222.1 370.9,229.8 356.7,227.6 351.9,237.5 351.9,237.5 349.1,241.9 358.9,252.5 353.9,258.9 341.3,252.0 333.4,259.6 333.4,259.6 329.3,262.8 334.8,276.0 327.9,280.3 318.5,269.6 308.4,274.0 308.4,274.0 303.4,275.6 304.1,290.0 296.2,291.6 291.0,278.3 280.0,279.0 280.0,279.0 274.8,278.8 270.5,292.5 262.5,291.4 262.2,277.1 251.6,274.0 251.6,274.0 246.8,272.1 238.1,283.5 230.9,279.7 235.5,266.1 226.6,259.6 226.6,259.6 222.8,256.1 210.7,263.9 205.3,257.8 214.2,246.6 208.1,237.5 208.1,237.5 205.7,232.9 191.7,236.1 188.6,228.5 200.9,221.1 198.3,210.4 198.3,210.4 197.5,205.3 183.3,203.4 183.0,195.3 197.1,192.5 198.3,181.6 198.3,181.6 199.3,176.5 186.6,169.9 189.1,162.2 203.3,164.4 208.1,154.5 208.1,154.5 210.9,150.1 201.1,139.5 206.1,133.1 218.7,140.0 226.6,132.4 226.6,132.4 230.7,129.2 225.2,116.0 232.1,111.7 241.5,122.4 251.6,118.0 251.6,118.0 256.6,116.4 255.9,102.0 263.8,100.4 269.0,113.7 280.0,113.0 280.0,113.0 285.2,113.2 289.5,99.5 297.5,100.6 297.8,114.9 308.4,118.0 308.4,118.0 313.2,119.9 321.9,108.5 329.1,112.3 324.5,125.9 333.4,132.4 333.4,132.4 337.2,135.9 349.3,128.1 354.7,134.2 345.8,145.4 351.9,154.5 351.9,154.5 354.3,159.1 368.3,155.9 371.4,163.5 359.1,170.9 361.7,181.6 361.7,181.6 362.5,186.7 376.7,188.6 377.0,196.7 362.9,199.5 361.7,210.4" fill="#5fb7ff" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><polygon points="183.0,196.0 182.8,201.0 196.3,205.8 194.5,214.0 180.2,212.9 175.9,222.5 175.9,222.5 173.2,226.7 182.5,237.6 176.9,243.9 165.0,235.8 156.5,241.9 156.5,241.9 152.1,244.2 154.7,258.3 146.7,260.9 140.5,248.0 130.0,249.0 130.0,249.0 125.0,248.8 120.2,262.3 112.0,260.5 113.1,246.2 103.5,241.9 103.5,241.9 99.3,239.2 88.4,248.5 82.1,242.9 90.2,231.0 84.1,222.5 84.1,222.5 81.8,218.1 67.7,220.7 65.1,212.7 78.0,206.5 77.0,196.0 77.0,196.0 77.2,191.0 63.7,186.2 65.5,178.0 79.8,179.1 84.1,169.5 84.1,169.5 86.8,165.3 77.5,154.4 83.1,148.1 95.0,156.2 103.5,150.1 103.5,150.1 107.9,147.8 105.3,133.7 113.3,131.1 119.5,144.0 130.0,143.0 130.0,143.0 135.0,143.2 139.8,129.7 148.0,131.5 146.9,145.8 156.5,150.1 156.5,150.1 160.7,152.8 171.6,143.5 177.9,149.1 169.8,161.0 175.9,169.5 175.9,169.5 178.2,173.9 192.3,171.3 194.9,179.3 182.0,185.5 183.0,196.0" fill="#ffd23f" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><circle cx="130" cy="196" r="60" fill="none" stroke="#1f1d1b" stroke-width="2" stroke-dasharray="5 6" opacity=".55"/><circle cx="280" cy="196" r="90" fill="none" stroke="#1f1d1b" stroke-width="2" stroke-dasharray="5 6" opacity=".55"/><circle cx="130" cy="196" r="30" fill="#e63946" stroke="#1f1d1b" stroke-width="3"/><circle cx="280" cy="196" r="30" fill="#e63946" stroke="#1f1d1b" stroke-width="3"/><line x1="130" y1="196" x2="130" y2="136" stroke="#1f1d1b" stroke-width="7" stroke-linecap="round"/><line x1="130" y1="196" x2="130" y2="136" stroke="#fff" stroke-width="3" stroke-linecap="round"/><line x1="280" y1="196" x2="280" y2="106" stroke="#1f1d1b" stroke-width="7" stroke-linecap="round"/><line x1="280" y1="196" x2="280" y2="106" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M130,166 A30,30 0 0 0 100,196 L100,336" fill="none" stroke="#5a4128" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M280,166 A30,30 0 0 0 250,196 L250,470" fill="none" stroke="#5a4128" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="130" cy="166" r="4.2" fill="#1f1d1b"/><circle cx="130" cy="136" r="4.2" fill="#1f1d1b"/><circle cx="130" cy="196" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="130" cy="196" r="3" fill="#1f1d1b"/><circle cx="280" cy="166" r="4.2" fill="#1f1d1b"/><circle cx="280" cy="136" r="4.2" fill="#1f1d1b"/><circle cx="280" cy="106" r="4.2" fill="#1f1d1b"/><circle cx="280" cy="196" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="280" cy="196" r="3" fill="#1f1d1b"/><rect x="175" y="462" width="370" height="16" rx="8.0" fill="#f4a340" stroke="#1f1d1b" stroke-width="3"/><line x1="185" y1="468" x2="535" y2="468" stroke="#ffd59a" stroke-width="2.5" stroke-linecap="round"/><circle cx="195" cy="470" r="3.6" fill="#1f1d1b"/><circle cx="250" cy="470" r="3.6" fill="#1f1d1b"/><circle cx="305" cy="470" r="3.6" fill="#1f1d1b"/><circle cx="415" cy="470" r="3.6" fill="#1f1d1b"/><circle cx="470" cy="470" r="3.6" fill="#1f1d1b"/><circle cx="525" cy="470" r="3.6" fill="#1f1d1b"/><rect x="450" y="304" width="340" height="16" rx="8.0" fill="#f4a340" stroke="#1f1d1b" stroke-width="3"/><line x1="460" y1="310" x2="780" y2="310" stroke="#ffd59a" stroke-width="2.5" stroke-linecap="round"/><circle cx="470" cy="312" r="3.6" fill="#1f1d1b"/><circle cx="520" cy="312" r="3.6" fill="#1f1d1b"/><circle cx="570" cy="312" r="3.6" fill="#1f1d1b"/><circle cx="670" cy="312" r="3.6" fill="#1f1d1b"/><circle cx="720" cy="312" r="3.6" fill="#1f1d1b"/><circle cx="770" cy="312" r="3.6" fill="#1f1d1b"/><rect x="600" y="162" width="520" height="16" rx="8.0" fill="#f4a340" stroke="#1f1d1b" stroke-width="3"/><line x1="610" y1="168" x2="1110" y2="168" stroke="#ffd59a" stroke-width="2.5" stroke-linecap="round"/><circle cx="620" cy="170" r="3.6" fill="#1f1d1b"/><circle cx="680" cy="170" r="3.6" fill="#1f1d1b"/><circle cx="740" cy="170" r="3.6" fill="#1f1d1b"/><circle cx="800" cy="170" r="3.6" fill="#1f1d1b"/><circle cx="920" cy="170" r="3.6" fill="#1f1d1b"/><circle cx="980" cy="170" r="3.6" fill="#1f1d1b"/><circle cx="1040" cy="170" r="3.6" fill="#1f1d1b"/><circle cx="1100" cy="170" r="3.6" fill="#1f1d1b"/><rect x="545" y="592" width="370" height="16" rx="8.0" fill="#f4a340" stroke="#1f1d1b" stroke-width="3"/><line x1="555" y1="598" x2="905" y2="598" stroke="#ffd59a" stroke-width="2.5" stroke-linecap="round"/><circle cx="565" cy="600" r="3.6" fill="#1f1d1b"/><circle cx="620" cy="600" r="3.6" fill="#1f1d1b"/><circle cx="675" cy="600" r="3.6" fill="#1f1d1b"/><circle cx="785" cy="600" r="3.6" fill="#1f1d1b"/><circle cx="840" cy="600" r="3.6" fill="#1f1d1b"/><circle cx="895" cy="600" r="3.6" fill="#1f1d1b"/><circle cx="360" cy="470" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="360" cy="470" r="3" fill="#1f1d1b"/><circle cx="620" cy="312" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="620" cy="312" r="3" fill="#1f1d1b"/><circle cx="860" cy="170" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="860" cy="170" r="3" fill="#1f1d1b"/><circle cx="730" cy="600" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="730" cy="600" r="3" fill="#1f1d1b"/><path d="M570,312 Q569.0,279.0 548,251" fill="none" stroke="#1f1d1b" stroke-width="2"/><path d="M543,253 L548,245 L553,253 Z" fill="#ff8fab" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="548" cy="216" rx="25" ry="30" fill="#ff8fab" stroke="#1f1d1b" stroke-width="3"/><ellipse cx="538" cy="203" rx="6" ry="9" fill="#fff" opacity=".55" transform="rotate(25 538 203)"/><text x="548.0" y="218.0" text-anchor="middle" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="800" font-size="21" fill="#1f1d1b" >He</text><rect x="3" y="3" width="1394" height="894" fill="none" stroke="#1f1d1b" stroke-width="6" rx="4"/></svg></div>
+      <figcaption>
+        <span>Toca «Ampliar» para verlo a tamaño grande en el móvil.</span>
+        <button class="btn sm" type="button" data-zoom="lam-laboratorio" aria-pressed="false">Ampliar dibujo</button>
+      </figcaption>
+    </figure>
+    <div class="reglas">
+      <h3 class="sec">Reglas</h3>
+      <ul><li>Todo está en equilibrio. Los objetos iguales pesan lo mismo.</li><li>Vigas, cuerdas, poleas y recipientes (cajas, cofres, cestas) no pesan. No hay rozamiento.</li><li>Los puntos de cada viga están a la misma distancia unos de otros.</li><li class="propia">Cada engranaje gira con su tambor rojo sobre un eje fijo. Los puntos de cada radio están a la misma distancia; la línea discontinua marca dónde engranan los dientes.</li><li class="propia">Los globos llevan helio: tiran hacia arriba.</li><li class="propia">La vagoneta no pesa y la rampa no tiene rozamiento.</li></ul>
+    </div>
+    <div class="comprobar">
+      <h3 class="sec">Tu respuesta</h3>
+      <form id="form-laboratorio" autocomplete="off">
+        <label for="resp-laboratorio">Imanes en el maletín:</label>
+        <input id="resp-laboratorio" name="resp-laboratorio" type="number" inputmode="numeric" min="0" step="1" required>
+        <button class="btn" type="submit">Comprobar</button>
+      </form>
+      <p class="veredicto" id="ver-laboratorio" role="status" hidden></p>
+    </div>
+    <div class="ayuda" aria-label="Pistas y solución">
+      <div class="botones"><button class="btn pista" type="button" data-panel="laboratorio-p1" data-label="pista 1" aria-expanded="false" aria-controls="laboratorio-p1">Ver pista 1</button><button class="btn pista" type="button" data-panel="laboratorio-p2" data-label="pista 2" aria-expanded="false" aria-controls="laboratorio-p2">Ver pista 2</button>
+        <button class="btn sol" type="button" data-panel="laboratorio-sol" data-label="solución" aria-expanded="false" aria-controls="laboratorio-sol">Ver solución</button>
+      </div>
+      <div class="panel p-pista" id="laboratorio-p1" hidden><p>Dos engranajes se empujan en sus dientes con la misma fuerza; lo que cambia es el radio. Y la polea de la que cuelga el libro, junto a la rampa, es móvil.</p></div><div class="panel p-pista" id="laboratorio-p2" hidden><p>La rampa sube 2 en 5 de cuesta. Junta la rampa con la viga del engranaje y saldrá el peso del libro; la viga de abajo reparte el resto entre matraz y pila.</p></div>
+      <div class="panel p-sol" id="laboratorio-sol" hidden>
+        <ol class="pasos"><li><h4>La rampa y la polea móvil</h4><p>Toma el imán como unidad: Pi pila, Ma matraz, Li libro, G globo. La polea móvil reparte el libro entre dos tramos: la cuerda tira con Li/2. La vagoneta (matraz + pila) tira con 2/5 de su peso.</p><span class="eq">(Ma + Pi)·2/5 = Li/2 → 4·(Ma + Pi) = 5·Li</span></li><li><h4>Los engranajes</h4><p>El libro cuelga del tambor amarillo a radio 1, y los dientes empujan a radio 2: fuerza Li/2. En el engranaje azul esa fuerza actúa a radio 3 y su tambor tira a radio 1.</p><span class="eq">T = (Li/2)·3 = 1,5·Li  (tira hacia arriba de la viga)</span></li><li><h4>La viga del engranaje</h4><p>El tirón hacia arriba a 2 puntos a la izquierda equivale a un peso a la derecha.</p><span class="eq">(Ma + Pi)·3 = 1,5·Li·2 + 1·3 → Ma + Pi = Li + 1</span><span class="eq">4·(Li + 1) = 5·Li → Li = 4 ; Ma + Pi = 5</span></li><li><h4>La viga de abajo</h4><span class="eq">Ma·2 = Pi·3 → Ma = 3 ; Pi = 2</span></li><li><h4>La viga colgante</h4><p>La pila de su eje no la inclina; el globo está a la izquierda y tira hacia arriba.</p><span class="eq">Li·2 = G·1 + Ma·1 → G = 5</span><p>Pesa 4 + 2 + 3 − 5 = 4 (aquí sí cuenta la pila del eje).</p></li><li><h4>La viga del techo</h4><span class="eq">4·4 + 4·3 + 3·1 = 1·1 + x·3 → 31 = 1 + 3x</span></li></ol>
+        <p class="final">En el maletín hay 10 imanes.</p>
+        <ul class="pesos" aria-label="Pesos"><li>Imán <b>1</b></li><li>Pila <b>2</b></li><li>Matraz <b>3</b></li><li>Libro <b>4</b></li><li>Globo <b>−5</b></li></ul>
+        <p class="trampas">No cuentan: la pecera, la estantería con matraces y pila, y la pizarra.</p>
+      </div>
+    </div>
+  </section>
+  <footer class="pie">Un acertijo de <a href="../../../">El problema del día</a>. La respuesta se ha comprobado resolviendo el sistema de ecuaciones de la lámina.</footer>
+</main>
+<script>
+(function () {
+  var DATA = [{"id": "laboratorio", "r": 10, "t": {}}];
+  var ids = DATA.map(function (p) { return p.id; });
+  var KEY = 'balanzas-resueltos';
+  function leer() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } }
+  function guardar(a) { try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {} }
+  function marcar() {
+    var r = leer();
+    document.querySelectorAll('nav.selector a').forEach(function (a) {
+      a.classList.toggle('resuelto', r.indexOf(a.dataset.id) >= 0);
+    });
+  }
+  function mostrar() {
+    var h = (location.hash || '').replace('#', '');
+    var id = ids.indexOf(h) >= 0 ? h : ids[0];
+    document.querySelectorAll('section.puzle').forEach(function (s) { s.hidden = s.id !== id; });
+    document.querySelectorAll('nav.selector a').forEach(function (a) {
+      if (a.dataset.id === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+  }
+  window.addEventListener('hashchange', function () { mostrar(); window.scrollTo(0, 0); });
+  mostrar(); marcar();
+
+  document.querySelectorAll('[data-zoom]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var lam = document.getElementById(btn.dataset.zoom);
+      var on = lam.classList.toggle('ampliada');
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.textContent = on ? 'Ajustar a la pantalla' : 'Ampliar dibujo';
+    });
+  });
+  document.querySelectorAll('[data-panel]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var panel = document.getElementById(btn.dataset.panel);
+      var open = panel.hidden;
+      panel.hidden = !open;
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.textContent = (open ? 'Ocultar ' : 'Ver ') + btn.dataset.label;
+    });
+  });
+  DATA.forEach(function (p) {
+    var form = document.getElementById('form-' + p.id);
+    var out = document.getElementById('ver-' + p.id);
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = parseInt(document.getElementById('resp-' + p.id).value, 10);
+      if (isNaN(v)) return;
+      var ok = v === p.r;
+      var msg = ok ? '¡Correcto! Son ' + p.r + '.' : (p.t[v] || ('No es ' + v + '. Prueba con las pistas.'));
+      out.className = 'veredicto ' + (ok ? 'ok' : 'no');
+      out.textContent = msg;
+      out.hidden = false;
+      if (ok) { var r = leer(); if (r.indexOf(p.id) < 0) { r.push(p.id); guardar(r); } marcar(); }
+    });
+  });
+})();
+</script>
+</body>
+</html>
