@@ -212,6 +212,7 @@ Colección de **10 acertijos de balanzas** de dificultad máxima, al estilo de l
 - `tarjetas.cjs` (Playwright): lee `tarjetas.json` y regenera todas las imágenes para compartir: `juego/balanzas/preview.jpg` y `estado_balanzas.png` (raíz, también 1080×1920) de la colección, y `preview.jpg` + `estado.png` de cada lámina. Uso: `node juego/balanzas/generador/tarjetas.cjs` (después de `generar.py`). Si se cambia una `preview.jpg` ya compartida, subir el `?v=` de `og:image` en `build_page.py` para que WhatsApp no use la copia vieja.
 - Los scripts de node son `.cjs` porque `juego/package.json` declara `"type": "module"`.
 - `teoria.py`: textos y figuras de la página de teoría (`SECCIONES`, `METODO`, `TRAMPAS`); las figuras reutilizan los objetos de `p1_puerto.py` y una pesa con su valor escrito. Si se añade un apartado, darle etiqueta en `ETIQUETAS`.
+- `proximamente.cjs`: genera `estado_balanzas_proximamente.png` (raíz, 1080×1920), el estado «Próximamente…» con las diez láminas amontonadas y la del circo encima. La posición de cada lámina está fija en `MONTON`.
 - `render.cjs`: exporta una lámina a PNG (`node render.cjs svg/03-nieve.svg salida.png 2`).
 
 **Añadir una lámina:** copiar un `pN_*.py` como plantilla, añadir su entrada en `datos.py` (con `svg="svg/NN-id.svg"`) y en `MODULOS` de `generar.py`, y la unidad (el objeto que vale 1) en `UNIDADES`. Ejecutar `generar.py`: solo publica si la nueva lámina tiene solución única y todas sus ecuaciones hacen falta.
