@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El gran circo · El problema del día</title>
+<meta name="description" content="¿Cuántos bolos debe haber en el baúl? Un acertijo de balanzas de dificultad máxima, con pistas y solución paso a paso.">
+<meta name="theme-color" content="#0d6f8c">
+<!-- Tarjeta al compartir el enlace (WhatsApp, Telegram, redes) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://spyder-cripto.github.io/problema-del-dia/juego/balanzas/circo/">
+<meta property="og:site_name" content="El problema del día">
+<meta property="og:title" content="El gran circo · ¿Te atreves?">
+<meta property="og:description" content="¿Cuántos bolos debe haber en el baúl? Un acertijo de balanzas de dificultad máxima, con pistas y solución paso a paso.">
+<meta property="og:image" content="https://spyder-cripto.github.io/problema-del-dia/juego/balanzas/circo/preview.jpg?v=1">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Lámina de balanzas «El gran circo»: ¿Cuántos bolos debe haber en el baúl?">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="El gran circo · ¿Te atreves?">
+<meta name="twitter:description" content="¿Cuántos bolos debe haber en el baúl? Un acertijo de balanzas de dificultad máxima, con pistas y solución paso a paso.">
+<meta name="twitter:image" content="https://spyder-cripto.github.io/problema-del-dia/juego/balanzas/circo/preview.jpg?v=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: una columna; selector de acertijos arriba, la lámina manda y el resto la sirve. */
+:root {
+  --bg: #eaf1f5; --card: #fbfdfe; --ink: #13233a; --muted: #566a80; --line: #c9d7e2;
+  --sea: #0d6f8c; --sea-soft: #d6ecf3; --rope: #8a5a2b; --rope-soft: #f3e6d6;
+  --good: #2c7a4b; --good-soft: #dcefe3; --bad: #b03d2c; --bad-soft: #f6e0dc;
+  --display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1622; --card: #132132; --ink: #e5edf5; --muted: #98aabd; --line: #284058;
+    --sea: #5cc4dc; --sea-soft: #133848; --rope: #e2ac72; --rope-soft: #33261a;
+    --good: #7fd19f; --good-soft: #17352a; --bad: #f08f7d; --bad-soft: #3d1f1a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1622; --card: #132132; --ink: #e5edf5; --muted: #98aabd; --line: #284058;
+  --sea: #5cc4dc; --sea-soft: #133848; --rope: #e2ac72; --rope-soft: #33261a;
+  --good: #7fd19f; --good-soft: #17352a; --bad: #f08f7d; --bad-soft: #3d1f1a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 1.0625rem; line-height: 1.6; }
+.wrap {
+  max-width: 980px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 22px;
+}
+.wrap > *, .ayuda > *, .p-sol > *, ol.pasos > li, .puzle > * { min-width: 0; }
+.cabecera { display: grid; gap: 6px; }
+.serie { margin: 0; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--sea); }
+h1 { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(2.1rem, 6vw, 3.3rem); line-height: 1; text-wrap: balance; }
+.intro { margin: 0; color: var(--muted); max-width: 62ch; }
+nav.selector { display: flex; flex-wrap: wrap; gap: 8px; }
+nav.selector a {
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+  padding: 6px 14px 6px 6px; border-radius: 999px; border: 2px solid var(--line);
+  background: var(--card); color: var(--ink); font-weight: 700; font-size: .95rem;
+}
+nav.selector a .n {
+  display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--sea-soft); color: var(--sea); font-family: var(--display); font-weight: 800;
+}
+nav.selector a[aria-current="page"] { border-color: var(--ink); background: var(--ink); color: var(--card); }
+nav.selector a[aria-current="page"] .n { background: var(--card); color: var(--ink); }
+nav.selector a.resuelto .n { background: var(--good); color: var(--card); }
+nav.selector a:focus-visible, .btn:focus-visible, input:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
+.puzle { display: grid; gap: 20px; }
+.puzle header { display: grid; gap: 4px; }
+.eyebrow { margin: 0; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.eyebrow .dots { letter-spacing: .2em; color: var(--bad); }
+.titulo { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; text-wrap: balance; }
+.q { margin: 4px 0 0; font-family: var(--display); font-weight: 700; font-size: clamp(1.25rem, 3.4vw, 1.7rem); line-height: 1.25; text-wrap: balance; }
+figure { margin: 0; display: grid; gap: 8px; }
+.lamina { border: 3px solid var(--ink); border-radius: 10px; overflow-x: auto; overflow-y: hidden; background: #dfeff6; -webkit-overflow-scrolling: touch; }
+.lamina svg { display: block; width: 100%; height: auto; }
+.lamina.ampliada svg { width: 1250px; max-width: none; }
+figcaption { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; font-size: .9rem; color: var(--muted); }
+.btn { font: inherit; font-weight: 700; font-size: .95rem; border-radius: 999px; padding: 8px 16px; cursor: pointer; border: 2px solid var(--ink); background: var(--card); color: var(--ink); }
+.btn:hover { background: var(--sea-soft); }
+.btn.sm { padding: 5px 12px; font-size: .85rem; }
+.reglas { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; }
+h3.sec { margin: 0 0 6px; font-family: var(--display); font-weight: 700; font-size: 1.3rem; }
+.reglas ul { margin: 0; padding-left: 1.1em; display: grid; gap: 2px; max-width: 70ch; }
+.reglas li.propia { color: var(--sea); font-weight: 600; }
+.comprobar { display: grid; gap: 10px; }
+.comprobar form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.comprobar label { font-weight: 700; }
+.comprobar input { font: inherit; font-family: var(--mono); font-weight: 700; font-size: 1.1rem; width: 6.5em; padding: 7px 12px; border: 2px solid var(--ink); border-radius: 8px; background: var(--card); color: var(--ink); }
+.veredicto { margin: 0; padding: 10px 14px; border-radius: 8px; max-width: 70ch; }
+.veredicto.ok { background: var(--good-soft); color: var(--good); font-weight: 700; }
+.veredicto.no { background: var(--bad-soft); color: var(--ink); }
+.ayuda { display: grid; gap: 12px; }
+.botones { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn.pista { border-color: var(--sea); color: var(--sea); }
+.btn.sol { border-color: var(--rope); color: var(--rope); }
+.btn[aria-expanded="true"] { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.panel { border-radius: 10px; padding: 14px 18px; max-width: 76ch; }
+.panel p { margin: 0; }
+.panel.p-pista { background: var(--sea-soft); border-left: 4px solid var(--sea); }
+.panel.p-sol { background: var(--card); border: 2px solid var(--rope); display: grid; gap: 14px; }
+.pesos { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.pesos li { background: var(--rope-soft); border-radius: 999px; padding: 3px 12px; font-size: .92rem; }
+.pesos b { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+ol.pasos { margin: 0; padding-left: 1.3em; display: grid; gap: 12px; }
+ol.pasos li::marker { font-family: var(--display); font-weight: 800; color: var(--rope); }
+ol.pasos h4 { margin: 0; font-size: 1rem; font-weight: 700; }
+ol.pasos p { margin: 2px 0 0; }
+.eq { display: block; margin: 6px 0 0; padding: 6px 10px; border-radius: 6px; background: var(--bg); font-family: var(--mono); font-size: .88rem; font-variant-numeric: tabular-nums; overflow-x: auto; white-space: nowrap; }
+.final { font-family: var(--display); font-weight: 800; font-size: 1.35rem; color: var(--rope); }
+.trampas { color: var(--muted); font-size: .95rem; }
+@media (prefers-reduced-motion: no-preference) {
+  .panel:not([hidden]) { animation: abre .18s ease-out; }
+  @keyframes abre { from { transform: translateY(-4px); } to { transform: none; } }
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+.wrap { padding-top: max(28px, env(safe-area-inset-top, 0px)); padding-bottom: max(56px, env(safe-area-inset-bottom, 0px)); }
+.volver { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .92rem; }
+.volver a { color: var(--sea); font-weight: 700; text-decoration: none; }
+.volver a:hover { text-decoration: underline; }
+.pie { color: var(--muted); font-size: .88rem; border-top: 1px solid var(--line); padding-top: 14px; }
+.pie a { color: var(--sea); }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <nav class="volver" aria-label="Volver"><a href="../../../">← El problema del día</a></nav>
+
+  <section class="puzle" id="circo" aria-labelledby="t-circo">
+    <header>
+      <p class="eyebrow">Acertijo de balanzas · Muy difícil <span class="dots" aria-hidden="true">●●●●</span></p>
+      <h1 class="titulo" id="t-circo">El gran circo</h1>
+      <p class="q">¿Cuántos bolos debe haber en el baúl?</p>
+    </header>
+    <figure>
+      <div class="lamina" id="lam-circo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" role="img" aria-label="¿Cuántos bolos debe haber en el baúl?"><rect width="1400" height="900" fill="#fff1d6"/><path d="M700,-60 L-972,800 L-763,800 Z" fill="#e8434f" opacity=".85"/><path d="M700,-60 L-554,800 L-345,800 Z" fill="#e8434f" opacity=".85"/><path d="M700,-60 L-136,800 L73,800 Z" fill="#e8434f" opacity=".85"/><path d="M700,-60 L282,800 L491,800 Z" fill="#e8434f" opacity=".85"/><path d="M700,-60 L700,800 L909,800 Z" fill="#e8434f" opacity=".85"/><path d="M700,-60 L1118,800 L1327,800 Z" fill="#e8434f" opacity=".85"/><path d="M700,-60 L1536,800 L1745,800 Z" fill="#e8434f" opacity=".85"/><path d="M700,-60 L1954,800 L2163,800 Z" fill="#e8434f" opacity=".85"/><path d="M700,-60 L2372,800 L2581,800 Z" fill="#e8434f" opacity=".85"/><rect x="0" y="0" width="1400" height="900" fill="#3b1d5a" opacity=".08"/><path d="M8,38.0 L48,40.0 L28,78.0 Z" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><path d="M108,46.414709848078964 L148,48.414709848078964 L128,86.41470984807897 Z" fill="#1d7fd8" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><path d="M208,47.09297426825682 L248,49.09297426825682 L228,87.09297426825682 Z" fill="#2bb673" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><path d="M308,39.411200080598675 L348,41.411200080598675 L328,79.41120008059868 Z" fill="#e63946" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><path d="M408,30.43197504692072 L448,32.43197504692072 L428,70.43197504692071 Z" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><path d="M508,28.410757253368615 L548,30.410757253368615 L528,68.41075725336862 Z" fill="#1d7fd8" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><path d="M608,35.20584501801074 L648,37.20584501801074 L628,75.20584501801073 Z" fill="#2bb673" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><path d="M708,44.56986598718789 L748,46.56986598718789 L728,84.5698659871879 Z" fill="#e63946" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><path d="M808,47.893582466233816 L848,49.893582466233816 L828,87.89358246623382 Z" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><path d="M908,42.121184852417564 L948,44.121184852417564 L928,82.12118485241757 Z" fill="#1d7fd8" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><path d="M1008,32.5597888911063 L1048,34.5597888911063 L1028,72.55978889110631 Z" fill="#2bb673" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><path d="M1108,28.000097934492963 L1148,30.000097934492963 L1128,68.00009793449297 Z" fill="#e63946" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><path d="M1208,32.63427081999565 L1248,34.63427081999565 L1228,72.63427081999565 Z" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><path d="M1308,42.201670368266406 L1348,44.201670368266406 L1328,82.2016703682664 Z" fill="#1d7fd8" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><path d="M1408,47.906073556948705 L1448,49.906073556948705 L1428,87.9060735569487 Z" fill="#2bb673" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><path d="M0,36 L50,40.0 L150,48.414709848078964 L250,49.09297426825682 L350,41.411200080598675 L450,32.43197504692072 L550,30.410757253368615 L650,37.20584501801074 L750,46.56986598718789 L850,49.893582466233816 L950,44.121184852417564 L1050,34.5597888911063 L1150,30.000097934492963 L1250,34.63427081999565 L1350,44.201670368266406 L1450,49.906073556948705" fill="none" stroke="{OUT}" stroke-width="2.5"/><rect x="0" y="800" width="1400" height="100" fill="#f6a03c"/><ellipse cx="700" cy="870" rx="760" ry="70" fill="#f8b65e"/><path d="M-20,812 Q700,772 1420,812" fill="none" stroke="#c0283a" stroke-width="18"/><path d="M-20,812 Q700,772 1420,812" fill="none" stroke="#ffd23f" stroke-width="5" stroke-dasharray="14 18"/><path d="M1202,810 Q1190,780 1220,770 Q1244,750 1258,714 Q1266,698 1280,706 Q1290,714 1278,726 Q1266,760 1280,810 Z" fill="#5d6b7a" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><circle cx="1272" cy="710" r="2.6" fill="#1f1d1b"/><circle cx="1288" cy="714" r="3.4" fill="#1f1d1b"/><path d="M1256,770 q14,6 10,22" fill="none" stroke="#1f1d1b" stroke-width="3"/><circle cx="1286" cy="686" r="20" fill="#ffd23f" stroke="#1f1d1b" stroke-width="3"/><path d="M1286,666 Q1270,686 1286,706 Q1260,686 1286,666 Z" fill="#e63946"/><path d="M1286,666 Q1302,686 1286,706 Q1312,686 1286,666 Z" fill="#1d7fd8"/><circle cx="1286" cy="686" r="20" fill="none" stroke="#1f1d1b" stroke-width="3"/><ellipse cx="1278" cy="677" rx="4" ry="6" fill="#fff" opacity=".7" transform="rotate(35 1278 677)"/><g transform="rotate(84 392 794)"><circle cx="392" cy="770" r="4" fill="none" stroke="#1f1d1b" stroke-width="2.5"/><path d="M388,774 L396,774 L397,788 C407,796 406,818 392,822 C378,818 377,796 387,788 Z" fill="#fffaf2" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M387,782 L397,782" stroke="#e63946" stroke-width="5"/><path d="M383,794 L401,794" stroke="#e63946" stroke-width="5"/><ellipse cx="387" cy="806" rx="3" ry="7" fill="#fff" opacity=".9"/></g><g transform="rotate(100 430 794)"><circle cx="430" cy="770" r="4" fill="none" stroke="#1f1d1b" stroke-width="2.5"/><path d="M426,774 L434,774 L435,788 C445,796 444,818 430,822 C416,818 415,796 425,788 Z" fill="#fffaf2" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M425,782 L435,782" stroke="#e63946" stroke-width="5"/><path d="M421,794 L439,794" stroke="#e63946" stroke-width="5"/><ellipse cx="425" cy="806" rx="3" ry="7" fill="#fff" opacity=".9"/></g><rect x="289" y="500" width="22" height="306" fill="#c0283a" stroke="#1f1d1b" stroke-width="3"/><line x1="294" y1="508" x2="294" y2="800" stroke="#f07a85" stroke-width="2"/><rect x="1089" y="500" width="22" height="306" fill="#c0283a" stroke="#1f1d1b" stroke-width="3"/><line x1="1094" y1="508" x2="1094" y2="800" stroke="#f07a85" stroke-width="2"/><polygon points="300.0,748.0 303.2,755.6 311.4,756.3 305.1,761.7 307.1,769.7 300.0,765.4 292.9,769.7 294.9,761.7 288.6,756.3 296.8,755.6" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><polygon points="1100.0,748.0 1103.2,755.6 1111.4,756.3 1105.1,761.7 1107.1,769.7 1100.0,765.4 1092.9,769.7 1094.9,761.7 1088.6,756.3 1096.8,755.6" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><rect x="82" y="92" width="120" height="16" rx="4" fill="#7b4a2a" stroke="#1f1d1b" stroke-width="3"/><line x1="142" y1="108" x2="142" y2="150" stroke="#1f1d1b" stroke-width="5"/><line x1="700" y1="0" x2="700" y2="180" stroke="#1f1d1b" stroke-width="5" stroke-linecap="round"/><line x1="480" y1="500" x2="480" y2="650" stroke="#5a4128" stroke-width="3.5" stroke-linecap="round"/><line x1="920" y1="500" x2="920" y2="650" stroke="#5a4128" stroke-width="3.5" stroke-linecap="round"/><line x1="1180" y1="0" x2="1180" y2="300" stroke="#1f1d1b" stroke-width="4" stroke-linecap="round"/><line x1="270" y1="320" x2="270" y2="341" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="420" y1="320" x2="420" y2="402" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="570" y1="320" x2="570" y2="342" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="420" y1="180" x2="420" y2="306" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="490" y1="180" x2="490" y2="196" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="840" y1="180" x2="840" y2="198" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="980" y1="180" x2="980" y2="201" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="590" y1="650" x2="590" y2="672" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="810" y1="650" x2="810" y2="671" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><path d="M120,500 L120,150 A22,22 0 0 1 164,150 L164,234" fill="none" stroke="#5a4128" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="180" y1="500" x2="180" y2="590" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="60" y1="500" x2="60" y2="582" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="1280" y1="500" x2="1280" y2="522" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="1070" y1="300" x2="1070" y2="316" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><line x1="1345" y1="300" x2="1345" y2="322" stroke="#5a4128" stroke-width="3" stroke-linecap="round"/><circle cx="420" cy="305" r="5" fill="none" stroke="#1f1d1b" stroke-width="3"/><circle cx="142" cy="150" r="22" fill="#e9dcc4" stroke="#1f1d1b" stroke-width="3"/><circle cx="142" cy="150" r="16" fill="none" stroke="#7d8a97" stroke-width="2"/><circle cx="142" cy="150" r="4.5" fill="#1f1d1b"/><circle cx="270" cy="341" r="3.5" fill="none" stroke="#1f1d1b" stroke-width="2.5"/><circle cx="270" cy="364" r="20" fill="#ffd23f" stroke="#1f1d1b" stroke-width="3"/><path d="M270,344 Q254,364 270,384 Q244,364 270,344 Z" fill="#e63946"/><path d="M270,344 Q286,364 270,384 Q296,364 270,344 Z" fill="#1d7fd8"/><circle cx="270" cy="364" r="20" fill="none" stroke="#1f1d1b" stroke-width="3"/><ellipse cx="262" cy="355" rx="4" ry="6" fill="#fff" opacity=".7" transform="rotate(35 262 355)"/><circle cx="420" cy="342" r="4" fill="none" stroke="#1f1d1b" stroke-width="2.5"/><path d="M416,346 L424,346 L425,360 C435,368 434,390 420,394 C406,390 405,368 415,360 Z" fill="#fffaf2" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M415,354 L425,354" stroke="#e63946" stroke-width="5"/><path d="M411,366 L429,366" stroke="#e63946" stroke-width="5"/><ellipse cx="415" cy="378" rx="3" ry="7" fill="#fff" opacity=".9"/><circle cx="420" cy="402" r="4" fill="none" stroke="#1f1d1b" stroke-width="2.5"/><path d="M416,406 L424,406 L425,420 C435,428 434,450 420,454 C406,450 405,428 415,420 Z" fill="#fffaf2" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M415,414 L425,414" stroke="#e63946" stroke-width="5"/><path d="M411,426 L429,426" stroke="#e63946" stroke-width="5"/><ellipse cx="415" cy="438" rx="3" ry="7" fill="#fff" opacity=".9"/><circle cx="570" cy="342" r="4" fill="none" stroke="#1f1d1b" stroke-width="2.5"/><path d="M566,346 L574,346 L575,360 C585,368 584,390 570,394 C556,390 555,368 565,360 Z" fill="#fffaf2" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M565,354 L575,354" stroke="#e63946" stroke-width="5"/><path d="M561,366 L579,366" stroke="#e63946" stroke-width="5"/><ellipse cx="565" cy="378" rx="3" ry="7" fill="#fff" opacity=".9"/><path d="M490,194 L490,216" stroke="#1f1d1b" stroke-width="3"/><rect x="464" y="212" width="52" height="8" rx="3" fill="#9aa5b0" stroke="#1f1d1b" stroke-width="3"/><rect x="451" y="194" width="18" height="44" rx="6" fill="#2b2d33" stroke="#1f1d1b" stroke-width="3"/><rect x="455" y="199" width="5" height="22" rx="2" fill="#fff" opacity=".35"/><rect x="511" y="194" width="18" height="44" rx="6" fill="#2b2d33" stroke="#1f1d1b" stroke-width="3"/><rect x="515" y="199" width="5" height="22" rx="2" fill="#fff" opacity=".35"/><path d="M828,212 Q840,188 852,212" fill="none" stroke="#1f1d1b" stroke-width="3"/><rect x="794.0" y="210" width="92" height="60" rx="6" fill="#3a56c5" stroke="#1f1d1b" stroke-width="3"/><rect x="794.0" y="210" width="92" height="16" rx="6" fill="#2c44a6" stroke="#1f1d1b" stroke-width="3"/><rect x="802.0" y="210" width="8" height="60" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2"/><rect x="870.0" y="210" width="8" height="60" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2"/><text x="840.0" y="248.0" text-anchor="middle" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="900" font-size="36" fill="#ffd23f" stroke="#1f1d1b" stroke-width="2.2" paint-order="stroke">?</text><circle cx="980" cy="201" r="3.5" fill="none" stroke="#1f1d1b" stroke-width="2.5"/><circle cx="980" cy="224" r="20" fill="#ffd23f" stroke="#1f1d1b" stroke-width="3"/><path d="M980,204 Q964,224 980,244 Q954,224 980,204 Z" fill="#e63946"/><path d="M980,204 Q996,224 980,244 Q1006,224 980,204 Z" fill="#1d7fd8"/><circle cx="980" cy="224" r="20" fill="none" stroke="#1f1d1b" stroke-width="3"/><ellipse cx="972" cy="215" rx="4" ry="6" fill="#fff" opacity=".7" transform="rotate(35 972 215)"/><path d="M578.0,682 Q590.0,662 602.0,682" fill="none" stroke="#1f1d1b" stroke-width="3"/><path d="M562.0,680 L562.0,724 A28.0,8 0 0 0 618.0,724 L618.0,680 Z" fill="#e63946" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M562.0,684 L562.0,684 L571.3,724 L580.7,684 L590.0,724 L599.3,684 L608.7,724 L618.0,684" fill="none" stroke="#ffd23f" stroke-width="3" stroke-linejoin="round"/><ellipse cx="590.0" cy="680" rx="28.0" ry="8" fill="#fffaf2" stroke="#1f1d1b" stroke-width="3"/><rect x="560.0" y="720" width="60" height="6" rx="3" fill="#1d7fd8" stroke="#1f1d1b" stroke-width="2.5"/><circle cx="810.0" cy="671" r="3.5" fill="none" stroke="#1f1d1b" stroke-width="2.5"/><circle cx="810.0" cy="694" r="20" fill="#ffd23f" stroke="#1f1d1b" stroke-width="3"/><path d="M810.0,674 Q794.0,694 810.0,714 Q784.0,694 810.0,674 Z" fill="#e63946"/><path d="M810.0,674 Q826.0,694 810.0,714 Q836.0,694 810.0,674 Z" fill="#1d7fd8"/><circle cx="810.0" cy="694" r="20" fill="none" stroke="#1f1d1b" stroke-width="3"/><ellipse cx="802.0" cy="685" rx="4" ry="6" fill="#fff" opacity=".7" transform="rotate(35 802.0 685)"/><path d="M164,230 L164,252" stroke="#1f1d1b" stroke-width="3"/><rect x="138" y="248" width="52" height="8" rx="3" fill="#9aa5b0" stroke="#1f1d1b" stroke-width="3"/><rect x="125" y="230" width="18" height="44" rx="6" fill="#2b2d33" stroke="#1f1d1b" stroke-width="3"/><rect x="129" y="235" width="5" height="22" rx="2" fill="#fff" opacity=".35"/><rect x="185" y="230" width="18" height="44" rx="6" fill="#2b2d33" stroke="#1f1d1b" stroke-width="3"/><rect x="189" y="235" width="5" height="22" rx="2" fill="#fff" opacity=".35"/><path d="M168,532 Q180,512 192,532" fill="none" stroke="#1f1d1b" stroke-width="3"/><path d="M152.0,530 L152.0,574 A28.0,8 0 0 0 208.0,574 L208.0,530 Z" fill="#e63946" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M152.0,534 L152.0,534 L161.3,574 L170.7,534 L180.0,574 L189.3,534 L198.7,574 L208.0,534" fill="none" stroke="#ffd23f" stroke-width="3" stroke-linejoin="round"/><ellipse cx="180" cy="530" rx="28.0" ry="8" fill="#fffaf2" stroke="#1f1d1b" stroke-width="3"/><rect x="150.0" y="570" width="60" height="6" rx="3" fill="#1d7fd8" stroke="#1f1d1b" stroke-width="2.5"/><path d="M168,600 Q180,580 192,600" fill="none" stroke="#1f1d1b" stroke-width="3"/><path d="M152.0,598 L152.0,642 A28.0,8 0 0 0 208.0,642 L208.0,598 Z" fill="#e63946" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M152.0,602 L152.0,602 L161.3,642 L170.7,602 L180.0,642 L189.3,602 L198.7,642 L208.0,602" fill="none" stroke="#ffd23f" stroke-width="3" stroke-linejoin="round"/><ellipse cx="180" cy="598" rx="28.0" ry="8" fill="#fffaf2" stroke="#1f1d1b" stroke-width="3"/><rect x="150.0" y="638" width="60" height="6" rx="3" fill="#1d7fd8" stroke="#1f1d1b" stroke-width="2.5"/><circle cx="60" cy="522" r="4" fill="none" stroke="#1f1d1b" stroke-width="2.5"/><path d="M56,526 L64,526 L65,540 C75,548 74,570 60,574 C46,570 45,548 55,540 Z" fill="#fffaf2" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M55,534 L65,534" stroke="#e63946" stroke-width="5"/><path d="M51,546 L69,546" stroke="#e63946" stroke-width="5"/><ellipse cx="55" cy="558" rx="3" ry="7" fill="#fff" opacity=".9"/><circle cx="60" cy="582" r="4" fill="none" stroke="#1f1d1b" stroke-width="2.5"/><path d="M56,586 L64,586 L65,600 C75,608 74,630 60,634 C46,630 45,608 55,600 Z" fill="#fffaf2" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M55,594 L65,594" stroke="#e63946" stroke-width="5"/><path d="M51,606 L69,606" stroke="#e63946" stroke-width="5"/><ellipse cx="55" cy="618" rx="3" ry="7" fill="#fff" opacity=".9"/><circle cx="1280" cy="522" r="4" fill="none" stroke="#1f1d1b" stroke-width="2.5"/><path d="M1276,526 L1284,526 L1285,540 C1295,548 1294,570 1280,574 C1266,570 1265,548 1275,540 Z" fill="#fffaf2" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M1275,534 L1285,534" stroke="#e63946" stroke-width="5"/><path d="M1271,546 L1289,546" stroke="#e63946" stroke-width="5"/><ellipse cx="1275" cy="558" rx="3" ry="7" fill="#fff" opacity=".9"/><path d="M1070,314 L1070,336" stroke="#1f1d1b" stroke-width="3"/><rect x="1044" y="332" width="52" height="8" rx="3" fill="#9aa5b0" stroke="#1f1d1b" stroke-width="3"/><rect x="1031" y="314" width="18" height="44" rx="6" fill="#2b2d33" stroke="#1f1d1b" stroke-width="3"/><rect x="1035" y="319" width="5" height="22" rx="2" fill="#fff" opacity=".35"/><rect x="1091" y="314" width="18" height="44" rx="6" fill="#2b2d33" stroke="#1f1d1b" stroke-width="3"/><rect x="1095" y="319" width="5" height="22" rx="2" fill="#fff" opacity=".35"/><path d="M1333,332 Q1345,312 1357,332" fill="none" stroke="#1f1d1b" stroke-width="3"/><path d="M1317.0,330 L1317.0,374 A28.0,8 0 0 0 1373.0,374 L1373.0,330 Z" fill="#e63946" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M1317.0,334 L1317.0,334 L1326.3,374 L1335.7,334 L1345.0,374 L1354.3,334 L1363.7,374 L1373.0,334" fill="none" stroke="#ffd23f" stroke-width="3" stroke-linejoin="round"/><ellipse cx="1345" cy="330" rx="28.0" ry="8" fill="#fffaf2" stroke="#1f1d1b" stroke-width="3"/><rect x="1315.0" y="370" width="60" height="6" rx="3" fill="#1d7fd8" stroke="#1f1d1b" stroke-width="2.5"/><rect x="250" y="312" width="340" height="16" rx="8.0" fill="#ffd23f" stroke="#1f1d1b" stroke-width="3"/><line x1="260" y1="318" x2="580" y2="318" stroke="#fff3b0" stroke-width="2.5" stroke-linecap="round"/><circle cx="270" cy="320" r="3.6" fill="#1f1d1b"/><circle cx="320" cy="320" r="3.6" fill="#1f1d1b"/><circle cx="370" cy="320" r="3.6" fill="#1f1d1b"/><circle cx="470" cy="320" r="3.6" fill="#1f1d1b"/><circle cx="520" cy="320" r="3.6" fill="#1f1d1b"/><circle cx="570" cy="320" r="3.6" fill="#1f1d1b"/><rect x="400" y="172" width="600" height="16" rx="8.0" fill="#ffd23f" stroke="#1f1d1b" stroke-width="3"/><line x1="410" y1="178" x2="990" y2="178" stroke="#fff3b0" stroke-width="2.5" stroke-linecap="round"/><circle cx="420" cy="180" r="3.6" fill="#1f1d1b"/><circle cx="490" cy="180" r="3.6" fill="#1f1d1b"/><circle cx="560" cy="180" r="3.6" fill="#1f1d1b"/><circle cx="630" cy="180" r="3.6" fill="#1f1d1b"/><circle cx="770" cy="180" r="3.6" fill="#1f1d1b"/><circle cx="840" cy="180" r="3.6" fill="#1f1d1b"/><circle cx="910" cy="180" r="3.6" fill="#1f1d1b"/><circle cx="980" cy="180" r="3.6" fill="#1f1d1b"/><rect x="468" y="642" width="464" height="16" rx="8.0" fill="#1d7fd8" stroke="#1f1d1b" stroke-width="3"/><line x1="478" y1="648" x2="922" y2="648" stroke="#7fb8f0" stroke-width="2.5" stroke-linecap="round"/><circle cx="480" cy="650" r="3.6" fill="#1f1d1b"/><circle cx="590" cy="650" r="3.6" fill="#1f1d1b"/><circle cx="700" cy="650" r="3.6" fill="#1f1d1b"/><circle cx="810" cy="650" r="3.6" fill="#1f1d1b"/><circle cx="920" cy="650" r="3.6" fill="#1f1d1b"/><rect x="40" y="492" width="460" height="16" rx="8.0" fill="#ffd23f" stroke="#1f1d1b" stroke-width="3"/><line x1="50" y1="498" x2="490" y2="498" stroke="#fff3b0" stroke-width="2.5" stroke-linecap="round"/><circle cx="60" cy="500" r="3.6" fill="#1f1d1b"/><circle cx="120" cy="500" r="3.6" fill="#1f1d1b"/><circle cx="180" cy="500" r="3.6" fill="#1f1d1b"/><circle cx="240" cy="500" r="3.6" fill="#1f1d1b"/><circle cx="360" cy="500" r="3.6" fill="#1f1d1b"/><circle cx="420" cy="500" r="3.6" fill="#1f1d1b"/><circle cx="480" cy="500" r="3.6" fill="#1f1d1b"/><rect x="900" y="492" width="460" height="16" rx="8.0" fill="#ffd23f" stroke="#1f1d1b" stroke-width="3"/><line x1="910" y1="498" x2="1350" y2="498" stroke="#fff3b0" stroke-width="2.5" stroke-linecap="round"/><circle cx="920" cy="500" r="3.6" fill="#1f1d1b"/><circle cx="980" cy="500" r="3.6" fill="#1f1d1b"/><circle cx="1040" cy="500" r="3.6" fill="#1f1d1b"/><circle cx="1160" cy="500" r="3.6" fill="#1f1d1b"/><circle cx="1220" cy="500" r="3.6" fill="#1f1d1b"/><circle cx="1280" cy="500" r="3.6" fill="#1f1d1b"/><circle cx="1340" cy="500" r="3.6" fill="#1f1d1b"/><rect x="1050" y="292" width="315" height="16" rx="8.0" fill="#2bb673" stroke="#1f1d1b" stroke-width="3"/><line x1="1060" y1="298" x2="1355" y2="298" stroke="#8fe0b6" stroke-width="2.5" stroke-linecap="round"/><circle cx="1070" cy="300" r="3.6" fill="#1f1d1b"/><circle cx="1125" cy="300" r="3.6" fill="#1f1d1b"/><circle cx="1235" cy="300" r="3.6" fill="#1f1d1b"/><circle cx="1290" cy="300" r="3.6" fill="#1f1d1b"/><circle cx="1345" cy="300" r="3.6" fill="#1f1d1b"/><circle cx="700" cy="166" r="6" fill="none" stroke="#1f1d1b" stroke-width="3"/><circle cx="420" cy="320" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="420" cy="320" r="3" fill="#1f1d1b"/><circle cx="700" cy="180" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="700" cy="180" r="3" fill="#1f1d1b"/><circle cx="300" cy="500" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="300" cy="500" r="3" fill="#1f1d1b"/><circle cx="1100" cy="500" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="1100" cy="500" r="3" fill="#1f1d1b"/><circle cx="1180" cy="300" r="8.5" fill="#fff" stroke="#1f1d1b" stroke-width="3"/><circle cx="1180" cy="300" r="3" fill="#1f1d1b"/><path d="M532.0,118.0 L532.0,162.0 A28.0,8 0 0 0 588.0,162.0 L588.0,118.0 Z" fill="#e63946" stroke="#1f1d1b" stroke-width="3" stroke-linejoin="round"/><path d="M532.0,122.0 L532.0,122.0 L541.3,162.0 L550.7,122.0 L560.0,162.0 L569.3,122.0 L578.7,162.0 L588.0,122.0" fill="none" stroke="#ffd23f" stroke-width="3" stroke-linejoin="round"/><ellipse cx="560" cy="118.0" rx="28.0" ry="8" fill="#fffaf2" stroke="#1f1d1b" stroke-width="3"/><rect x="530.0" y="158.0" width="60" height="6" rx="3" fill="#1d7fd8" stroke="#1f1d1b" stroke-width="2.5"/><path d="M370,320 Q369.0,287.0 348,259" fill="none" stroke="#1f1d1b" stroke-width="2"/><path d="M343,261 L348,253 L353,261 Z" fill="#2bb673" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="348" cy="224" rx="25" ry="30" fill="#2bb673" stroke="#1f1d1b" stroke-width="3"/><ellipse cx="338" cy="211" rx="6" ry="9" fill="#fff" opacity=".55" transform="rotate(25 338 211)"/><text x="348.0" y="226.0" text-anchor="middle" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="800" font-size="21" fill="#1f1d1b" >He</text><path d="M700,650 Q718.0,610.0 716,575" fill="none" stroke="#1f1d1b" stroke-width="2"/><path d="M711,577 L716,569 L721,577 Z" fill="#2bb673" stroke="#1f1d1b" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="716" cy="540" rx="25" ry="30" fill="#2bb673" stroke="#1f1d1b" stroke-width="3"/><ellipse cx="706" cy="527" rx="6" ry="9" fill="#fff" opacity=".55" transform="rotate(25 706 527)"/><text x="716.0" y="542.0" text-anchor="middle" dominant-baseline="middle" font-family="'Baloo 2', Inter, Arial, sans-serif" font-weight="800" font-size="21" fill="#1f1d1b" >He</text><rect x="3" y="3" width="1394" height="894" fill="none" stroke="#1f1d1b" stroke-width="6" rx="4"/></svg></div>
+      <figcaption>
+        <span>Toca «Ampliar» para verlo a tamaño grande en el móvil.</span>
+        <button class="btn sm" type="button" data-zoom="lam-circo" aria-pressed="false">Ampliar dibujo</button>
+      </figcaption>
+    </figure>
+    <div class="reglas">
+      <h3 class="sec">Reglas</h3>
+      <ul><li>Todo está en equilibrio. Los objetos iguales pesan lo mismo.</li><li>Vigas, cuerdas, poleas y recipientes (cajas, cofres, cestas) no pesan. No hay rozamiento.</li><li>Los puntos de cada viga están a la misma distancia unos de otros.</li><li class="propia">Los globos llevan helio: tiran hacia arriba.</li><li class="propia">La barra azul (el trapecio) no tiene eje: cuelga solo de sus dos cuerdas.</li></ul>
+    </div>
+    <div class="comprobar">
+      <h3 class="sec">Tu respuesta</h3>
+      <form id="form-circo" autocomplete="off">
+        <label for="resp-circo">Bolos en el baúl:</label>
+        <input id="resp-circo" name="resp-circo" type="number" inputmode="numeric" min="0" step="1" required>
+        <button class="btn" type="submit">Comprobar</button>
+      </form>
+      <p class="veredicto" id="ver-circo" role="status" hidden></p>
+    </div>
+    <div class="ayuda" aria-label="Pistas y solución">
+      <div class="botones"><button class="btn pista" type="button" data-panel="circo-p1" data-label="pista 1" aria-expanded="false" aria-controls="circo-p1">Ver pista 1</button><button class="btn pista" type="button" data-panel="circo-p2" data-label="pista 2" aria-expanded="false" aria-controls="circo-p2">Ver pista 2</button>
+        <button class="btn sol" type="button" data-panel="circo-sol" data-label="solución" aria-expanded="false" aria-controls="circo-sol">Ver solución</button>
+      </div>
+      <div class="panel p-pista" id="circo-p1" hidden><p>La barra azul cuelga de dos cuerdas: cada peso se reparte entre ellas según lo cerca que esté de cada una. Y la pesa de arriba a la izquierda tira hacia arriba de su viga a través de la polea.</p></div><div class="panel p-pista" id="circo-p2" hidden><p>La viga verde, la colgante de la izquierda y las dos vigas de los postes dan cuatro ecuaciones con pelota, tambor, pesa y globo. Ninguna se resuelve sola: hay que combinarlas.</p></div>
+      <div class="panel p-sol" id="circo-sol" hidden>
+        <ol class="pasos"><li><h4>La viga verde</h4><p>Toma el bolo como unidad: Pe pelota, Ta tambor, Ps pesa, G globo.</p><span class="eq">Ps·2 = Ta·3 → Ps = 1,5·Ta</span></li><li><h4>La viga colgante de la izquierda</h4><p>Los 2 bolos de su eje no la inclinan. El globo tira hacia arriba a 1 punto, como un peso al otro lado.</p><span class="eq">Pe·3 = G·1 + 1·3 → G = 3·Pe − 3</span></li><li><h4>El trapecio reparte su carga</h4><p>Sus cuerdas están a 4 puntos. Un peso a d puntos de la cuerda izquierda manda (4 − d)/4 a esa cuerda y d/4 a la otra.</p><span class="eq">Cuerda izquierda: (3·Ta − 2·G + Pe)/4</span><span class="eq">Cuerda derecha: (Ta − 2·G + 3·Pe)/4</span></li><li><h4>Las vigas de los postes</h4><p>Derecha: la cuerda del trapecio a 3 contra un bolo a 3, así que esa cuerda carga 1.</p><span class="eq">Ta − 2·G + 3·Pe = 4 → Ta = 3·Pe − 2</span><p>Izquierda: la pesa del contrapeso tira hacia arriba a 3, como un peso al otro lado.</p><span class="eq">2·Ta·2 + 2·4 = Ps·3 + 3·(3·Ta − 2·G + Pe)/4</span><span class="eq">Sustituyendo: 18·Pe − 4 = 32 → Pe = 2 ; Ta = 4 ; Ps = 6 ; G = 3</span></li><li><h4>La viga de arriba</h4><p>La viga colgante pesa 2 + 2 + 1 − 3 = 2 (cuentan los bolos del eje).</p><span class="eq">2·4 + 4·2 + 6·3 = x·2 + 2·4 → 34 = 2x + 8</span></li></ol>
+        <p class="final">En el baúl hay 13 bolos.</p>
+        <ul class="pesos" aria-label="Pesos"><li>Bolo <b>1</b></li><li>Pelota <b>2</b></li><li>Globo <b>−3</b></li><li>Tambor <b>4</b></li><li>Pesa <b>6</b></li></ul>
+        <p class="trampas">No cuentan: la foca y su pelota, los bolos tirados en la pista, los banderines y las estrellas de los postes.</p>
+      </div>
+    </div>
+  </section>
+  <footer class="pie">Un acertijo de <a href="../../../">El problema del día</a>. La respuesta se ha comprobado resolviendo el sistema de ecuaciones de la lámina.</footer>
+</main>
+<script>
+(function () {
+  var DATA = [{"id": "circo", "r": 13, "t": {"9": "Casi. Hay algo colgado justo bajo el eje de la viga colgante de la izquierda: no la inclina, pero pesa para la de arriba."}}];
+  var ids = DATA.map(function (p) { return p.id; });
+  var KEY = 'balanzas-resueltos';
+  function leer() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } }
+  function guardar(a) { try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {} }
+  function marcar() {
+    var r = leer();
+    document.querySelectorAll('nav.selector a').forEach(function (a) {
+      a.classList.toggle('resuelto', r.indexOf(a.dataset.id) >= 0);
+    });
+  }
+  function mostrar() {
+    var h = (location.hash || '').replace('#', '');
+    var id = ids.indexOf(h) >= 0 ? h : ids[0];
+    document.querySelectorAll('section.puzle').forEach(function (s) { s.hidden = s.id !== id; });
+    document.querySelectorAll('nav.selector a').forEach(function (a) {
+      if (a.dataset.id === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+  }
+  window.addEventListener('hashchange', function () { mostrar(); window.scrollTo(0, 0); });
+  mostrar(); marcar();
+
+  document.querySelectorAll('[data-zoom]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var lam = document.getElementById(btn.dataset.zoom);
+      var on = lam.classList.toggle('ampliada');
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.textContent = on ? 'Ajustar a la pantalla' : 'Ampliar dibujo';
+    });
+  });
+  document.querySelectorAll('[data-panel]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var panel = document.getElementById(btn.dataset.panel);
+      var open = panel.hidden;
+      panel.hidden = !open;
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.textContent = (open ? 'Ocultar ' : 'Ver ') + btn.dataset.label;
+    });
+  });
+  DATA.forEach(function (p) {
+    var form = document.getElementById('form-' + p.id);
+    var out = document.getElementById('ver-' + p.id);
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = parseInt(document.getElementById('resp-' + p.id).value, 10);
+      if (isNaN(v)) return;
+      var ok = v === p.r;
+      var msg = ok ? '¡Correcto! Son ' + p.r + '.' : (p.t[v] || ('No es ' + v + '. Prueba con las pistas.'));
+      out.className = 'veredicto ' + (ok ? 'ok' : 'no');
+      out.textContent = msg;
+      out.hidden = false;
+      if (ok) { var r = leer(); if (r.indexOf(p.id) < 0) { r.push(p.id); guardar(r); } marcar(); }
+    });
+  });
+})();
+</script>
+</body>
+</html>

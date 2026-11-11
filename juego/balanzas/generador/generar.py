@@ -8,9 +8,12 @@ Requiere sympy (pip install sympy). Para cada lámina:
   2. Saca las ecuaciones del mismo código que dibuja (cada viga registra sus cargas)
      y comprueba que la solución es única, positiva y que coincide con la respuesta de datos.py.
   3. Comprueba que no sobra ninguna ecuación: si se quita cualquiera, deja de haber solución única.
-Si todo cuadra, escribe juego/balanzas/index.html. Si algo falla, no toca la página.
+Si todo cuadra, escribe juego/balanzas/index.html (la colección) y una página por lámina
+(juego/balanzas/<id>/index.html), más tarjetas.json para regenerar las imágenes con tarjetas.cjs.
+Si algo falla, no toca ninguna página.
 """
 import importlib
+import json
 import os
 import sys
 
@@ -81,6 +84,24 @@ def main():
         print("\nNo se ha regenerado la página: revisa", ", ".join(errores))
         sys.exit(1)
     build_page.build(os.path.join("..", "index.html"), web=True)
+    # una página por lámina, para compartirlas por separado
+    for P in PUZLES:
+        carpeta = os.path.join("..", P["id"])
+        os.makedirs(carpeta, exist_ok=True)
+        build_page.build_single(P, os.path.join(carpeta, "index.html"))
+    print("páginas individuales:", ", ".join(P["id"] for P in PUZLES))
+    # lista para tarjetas.cjs (imágenes al compartir)
+    base = "spyder-cripto.github.io/problema-del-dia/juego/balanzas/"
+    tarjetas = [dict(svg="svg/04-circo.svg", titulo="Balanzas imposibles", kicker="El problema del día",
+                     texto="10 acertijos de equilibrio con poleas, rampas, tornos y globos. Una sola respuesta.",
+                     pregunta="¿Cuántos bolos debe haber en el baúl?", url=base,
+                     preview="../preview.jpg", estado="../../../estado_balanzas.png")]
+    for P in PUZLES:
+        tarjetas.append(dict(svg=P["svg"], titulo=P["titulo"], kicker="Acertijo de balanzas",
+                             texto=P["pregunta"], pregunta=P["pregunta"], url=base + P["id"] + "/",
+                             preview=f"../{P['id']}/preview.jpg", estado=f"../{P['id']}/estado.png"))
+    with open("tarjetas.json", "w", encoding="utf-8") as fh:
+        json.dump(tarjetas, fh, ensure_ascii=False, indent=1)
 
 
 if __name__ == "__main__":
