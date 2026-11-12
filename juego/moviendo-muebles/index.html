@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Moviendo muebles</title>
-<meta name="description" content="Seis mudanzas en casas diminutas: solo cabe un mueble por habitación.">
+<meta name="description" content="Cinco mudanzas en casas diminutas: solo cabe un mueble por habitación.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Moviendo muebles">
 <meta property="og:description" content="Solo cabe un mueble por habitación. ¿En cuántos movimientos lo logras?">
@@ -13,7 +13,7 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="description" content="Seis mudanzas en casas diminutas: solo cabe un mueble por habitación.">
+<meta name="description" content="Cinco mudanzas en casas diminutas: solo cabe un mueble por habitación.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,700;1,400&family=Alegreya+SC:wght@700&family=Grenze+Gotisch:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -127,7 +127,7 @@ main{max-width:660px;margin:0 auto;padding:6px 14px 20px}
 <section class="portada" id="portada">
   <div class="marca">
     <h1>Moviendo muebles</h1>
-    <p class="lema">Seis mudanzas en casas diminutas: solo cabe un mueble por habitación. ¿Lo harás con el mínimo de movimientos?</p>
+    <p class="lema">Cinco mudanzas en casas diminutas: solo cabe un mueble por habitación. ¿Lo harás con el mínimo de movimientos?</p>
   </div>
   <div class="casos" id="casos"></div>
   <div class="como">
@@ -181,32 +181,27 @@ var NIVELES = [
            4:['Despacho','moquetaVerde','#f4c6a8',{ii:'lampara'}], 5:['Comedor','hidraulica',null,{id:'planta'}], 6:['Biblioteca','tarima','#c9b6ea',{id:'gato'}] },
     muebles: [['armario',1],['piano',3],['cajonera',4],['ropero',5],['libreria',6]],
     objetivo: { piano: 6, libreria: 3 }, minimo: 17 },
-  { id: 2, titulo: 'La casa del anillo', dificultad: 'Difícil', resumen: 'Nueve habitaciones en círculo y un desván al fondo.',
-    filas: 3, cols: 3, puertas: [[1,2],[1,4],[2,5],[3,6],[4,7],[5,6],[6,9],[7,8],[8,9]],
-    hab: CASA_ANILLO(),
-    muebles: [['libreria',1],['ropero',2],['baul',3],['cajonera',6],['piano',7],['armario',8]],
-    objetivo: { piano: 1, libreria: 7 }, minimo: 40 },
-  { id: 3, titulo: 'La biblioteca equivocada', dificultad: 'Muy difícil', resumen: 'La pareja más difícil de colocar en la casa del anillo.',
+  { id: 2, titulo: 'La biblioteca equivocada', dificultad: 'Muy difícil', resumen: 'Nueve habitaciones en círculo y un desván al fondo. Solo dos muebles deben cambiar de sitio.',
     filas: 3, cols: 3, puertas: [[1,2],[1,4],[2,5],[3,6],[4,7],[5,6],[6,9],[7,8],[8,9]],
     hab: CASA_ANILLO(),
     muebles: [['libreria',1],['ropero',2],['baul',3],['cajonera',6],['piano',7],['armario',8]],
     objetivo: { piano: 1, libreria: 4 }, minimo: 42 },
-  { id: 4, titulo: 'Todo en su sitio', dificultad: 'Experto', resumen: 'La misma casa, pero ahora cada mueble tiene su sitio.',
+  { id: 3, titulo: 'Todo en su sitio', dificultad: 'Experto', resumen: 'La misma casa, pero ahora cada mueble tiene su sitio.',
     filas: 3, cols: 3, puertas: [[1,2],[1,4],[2,5],[3,6],[4,7],[5,6],[6,9],[7,8],[8,9]],
     hab: CASA_ANILLO(),
     muebles: [['libreria',1],['ropero',2],['baul',3],['cajonera',6],['piano',7],['armario',8]],
     objetivo: { piano: 1, libreria: 7, armario: 8, cajonera: 6, ropero: 2, baul: 3 }, total: true, minimo: 50 },
-  { id: 5, titulo: 'Siete muebles y dos huecos', dificultad: 'Gran reto', resumen: 'Siete muebles y solo dos habitaciones libres.',
+  { id: 4, titulo: 'Siete muebles y dos huecos', dificultad: 'Gran reto', resumen: 'Siete muebles y solo dos habitaciones libres.',
     filas: 3, cols: 3, puertas: [[1,2],[2,3],[1,4],[3,6],[4,7],[5,6],[6,9],[7,8],[8,9]],
     hab: { 1:['Recibidor','marmol',null,{ii:'perchero'}], 2:['Salón','parque','#e9a47c',{sd:'lampara'}], 3:['Comedor','hidraulica',null,{id:'planta'}],
            4:['Biblioteca','tarima','#c9b6ea',{ii:'lampara'}], 5:['Trastero','losas',null,{ii:'jarron'}], 6:['Cocina','ajedrez',null,{id:'planta'}],
            7:['Dormitorio','moqueta','#b9d4ef',{ii:'gato'}], 8:['Baño','azulejo','#f0a5c0',{id:'planta'}], 9:['Despacho','moquetaVerde','#f4c6a8',{id:'lampara'}] },
     muebles: [['baul',5],['cajonera',6],['piano',4],['armario',9],['ropero',8],['comoda',3],['libreria',7]],
     objetivo: { piano: 7, libreria: 1 }, minimo: 57 },
-  { id: 6, titulo: 'El gran desorden', dificultad: 'Maestro', resumen: 'La casa del anillo patas arriba: devuelve cada mueble a su sitio.',
+  { id: 5, titulo: 'El gran desorden', dificultad: 'Maestro', resumen: 'La casa patas arriba: devuelve cada mueble a su sitio.',
     filas: 3, cols: 3, puertas: [[1,2],[1,4],[2,5],[3,6],[4,7],[5,6],[6,9],[7,8],[8,9]],
     hab: CASA_ANILLO(),
-    // uno de los 7 estados más alejados del orden de la casa del anillo
+    // uno de los 7 estados más alejados del orden de la casa
     muebles: [['piano',1],['libreria',4],['armario',2],['cajonera',5],['ropero',8],['baul',3]],
     objetivo: { piano: 7, libreria: 1, armario: 8, cajonera: 6, ropero: 2, baul: 3 }, total: true, ordenar: true, minimo: 74 }
 ];
@@ -491,7 +486,7 @@ function dibujar(svg, nv, pos, mini) {
 function icono(k) { return '<svg class="ico" viewBox="0 0 100 100" aria-hidden="true">' + ARTE[k](MUEBLES[k]) + '</svg>'; }
 
 // ---------- estado, almacenamiento y sonido ----------
-var CLAVE = 'moviendo-muebles-v3', guardado = { mejor: {}, verMin: false, sonido: false };
+var CLAVE = 'moviendo-muebles-v4', guardado = { mejor: {}, verMin: false, sonido: false };
 try { var g0 = JSON.parse(localStorage.getItem(CLAVE) || 'null'); if (g0) guardado = Object.assign(guardado, g0); } catch (e) {}
 function guardar() { try { localStorage.setItem(CLAVE, JSON.stringify(guardado)); } catch (e) {} }
 
