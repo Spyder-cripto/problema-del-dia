@@ -501,13 +501,13 @@ var SON = {
   elegir: function () { if (guardado.sonido) tono(660, 0, .08, 'sine', .08); },
   arrastre: function () {
     if (!guardado.sonido || !audio) return;
-    var dur = .5, n = Math.floor(audio.sampleRate * dur), b = audio.createBuffer(1, n, audio.sampleRate), d = b.getChannelData(0), ult = 0;
-    for (var i = 0; i < n; i++) { ult = ult * .95 + (Math.random() * 2 - 1) * .05; d[i] = ult * 9; }
+    var dur = .4, n = Math.floor(audio.sampleRate * dur), b = audio.createBuffer(1, n, audio.sampleRate), d = b.getChannelData(0), ult = 0;
+    for (var i = 0; i < n; i++) { ult = ult * .96 + (Math.random() * 2 - 1) * .04; d[i] = ult * 9; }
     var src = audio.createBufferSource(), f = audio.createBiquadFilter(), g = audio.createGain(), t = audio.currentTime;
     f.type = 'bandpass'; f.Q.value = .9; f.frequency.setValueAtTime(180, t); f.frequency.linearRampToValueAtTime(340, t + dur);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.085, t + .15); g.gain.linearRampToValueAtTime(.06, t + .36); g.gain.linearRampToValueAtTime(0, t + dur);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.055, t + .12); g.gain.linearRampToValueAtTime(.04, t + .29); g.gain.linearRampToValueAtTime(0, t + dur);
     src.buffer = b; src.connect(f); f.connect(g); g.connect(audio.destination); src.start(t);
-    tono(70, 0, dur, 'sine', .025);
+    tono(70, 0, dur, 'sine', .015);
   },
   asiento: function () { if (guardado.sonido) { tono(110, 0, .12, 'sine', .25); tono(220, 0, .06, 'triangle', .06); } },
   error: function () { if (guardado.sonido) tono(160, 0, .15, 'square', .05); },
@@ -647,7 +647,7 @@ function marcas() {
 // ---------- movimiento ----------
 function ease(t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
 function animar(g, de, a, fin) {
-  var rm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches, dur = rm ? 1 : 500, t0 = null;
+  var rm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches, dur = rm ? 1 : 400, t0 = null;
   animando = true; SON.arrastre();
   g.parentNode.appendChild(g); // encima de los demás
   function paso(ts) {
