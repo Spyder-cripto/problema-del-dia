@@ -503,6 +503,27 @@ var SON = {
   arrastre: function () { if (guardado.sonido) ruido(.35, .22); },
   asiento: function () { if (guardado.sonido) { tono(110, 0, .12, 'sine', .25); tono(220, 0, .06, 'triangle', .06); } },
   error: function () { if (guardado.sonido) tono(160, 0, .15, 'square', .05); },
+  fanfarriaGrande: function () {
+    if (!guardado.sonido) return;
+    function nota(f, t, d, v) { tono(f, t, d, 'triangle', v || .13); tono(f, t, d * .8, 'square', .03); tono(f * 2, t, d * .5, 'sine', .04); }
+    function bombo(t) { tono(98, t, .3, 'sine', .3); tono(65, t, .35, 'sine', .25); }
+    // redoble de timbales
+    [0, .12, .24, .36, .48, .6].forEach(bombo);
+    // gran tema en Do mayor
+    [[392, .8, .14], [392, .96, .14], [392, 1.12, .14], [523, 1.28, .55], [659, 1.9, .14], [587, 2.06, .14], [659, 2.22, .14], [784, 2.38, .6]].forEach(function (n) { nota(n[0], n[1], n[2]); });
+    // arpegios ascendentes
+    [523, 659, 784, 1047, 1319, 1568, 2093].forEach(function (f, i) { nota(f, 3.15 + i * .08, .25, .1); });
+    // cambio de tono: Re mayor, más brillante
+    [[587, 3.85, .14], [587, 4.01, .14], [587, 4.17, .14], [740, 4.33, .5], [880, 4.9, .14], [784, 5.06, .14], [880, 5.22, .14], [1175, 5.38, .7]].forEach(function (n) { nota(n[0], n[1], n[2], .14); });
+    bombo(4.33); bombo(5.38);
+    // escala final
+    [587, 740, 880, 1175, 1480, 1760, 2349].forEach(function (f, i) { nota(f, 6.1 + i * .08, .25, .1); });
+    // acorde final enorme
+    [293, 370, 440, 587, 740, 880, 1175].forEach(function (f) { tono(f, 6.8, 2.4, 'triangle', .1); tono(f, 6.8, .6, 'square', .025); });
+    tono(73, 6.8, 2.4, 'triangle', .25); tono(147, 6.8, 2.4, 'sine', .12); bombo(6.8);
+    // destellos
+    [2349, 1760, 2349, 2960, 2349, 3136, 2349, 3520].forEach(function (f, i) { tono(f, 7.1 + i * .13, .35, 'sine', .05); });
+  },
   fanfarria: function () {
     if (!guardado.sonido) return;
     function nota(f, t, d) { tono(f, t, d, 'triangle', .13); tono(f, t, d * .8, 'square', .03); }
@@ -743,7 +764,8 @@ function estrella(llena) { return '<svg viewBox="0 0 40 40"><path d="M20 3l5 11 
 function victoria() {
   var n = nv, mv = ptr, est = mv === n.minimo ? 3 : !pistas ? 2 : 1, val = ['', 'Resuelto', '¡Bien, sin pistas!', '¡Óptimo!'][est];
   var antes = guardado.mejor[n.id]; if (!antes || mv < antes) { guardado.mejor[n.id] = mv; guardar(); }
-  SON.fanfarria(); confeti();
+  var ultimo = n.id === NIVELES.length;
+  if (ultimo) { SON.fanfarriaGrande(); confeti(); setTimeout(confeti, 1200); setTimeout(confeti, 2600); } else { SON.fanfarria(); confeti(); }
   var sig = NIVELES[n.id] ? '<button class="boton principal" id="bSig">Siguiente nivel</button>' : '<button class="boton principal" id="bFin">Volver a los niveles</button>';
   dialogo('<div class="victoria"><h2>¡Mudanza completada!</h2><svg class="trofeo" viewBox="0 0 100 100">' + fig('M18 52V30L50 8l32 22v22', '#f6c4ac') + fig('M22 50h56v40H22z', '#fbf8f2') + caja(42, 64, 16, 26, 2, '#dcaa72', 2.6) + caja(28, 58, 10, 10, 1, '#d6f0fa', 2.2) + caja(62, 58, 10, 10, 1, '#d6f0fa', 2.2) + caja(64, 14, 9, 16, 1, '#eb9f7f', 2.4) + circ(55, 78, 1.8, '#2c2531', 1) + '</svg>' +
     '<div class="estrellas">' + estrella(est >= 1) + estrella(est >= 2) + estrella(est >= 3) + '</div><p class="val">' + val + '</p>' +
