@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Moviendo muebles</title>
-<meta name="description" content="Cinco mudanzas en casas diminutas: solo cabe un mueble por habitación.">
+<meta name="description" content="Seis mudanzas en casas diminutas: solo cabe un mueble por habitación.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Moviendo muebles">
 <meta property="og:description" content="Solo cabe un mueble por habitación. ¿En cuántos movimientos lo logras?">
@@ -126,7 +126,7 @@ main{max-width:660px;margin:0 auto;padding:6px 14px 20px}
 <section class="portada" id="portada">
   <div class="marca">
     <h1>Moviendo muebles</h1>
-    <p class="lema">Cinco mudanzas en casas diminutas: solo cabe un mueble por habitación. ¿Lo harás con el mínimo de movimientos?</p>
+    <p class="lema">Seis mudanzas en casas diminutas: solo cabe un mueble por habitación. ¿Lo harás con el mínimo de movimientos?</p>
   </div>
   <div class="casos" id="casos"></div>
   <div class="como">
@@ -195,13 +195,19 @@ var NIVELES = [
     hab: CASA_ANILLO(),
     muebles: [['libreria',1],['ropero',2],['baul',3],['cajonera',6],['piano',7],['armario',8]],
     objetivo: { piano: 1, libreria: 4 }, minimo: 42 },
-  { id: 5, titulo: 'El caserón', dificultad: 'Jefe final', resumen: 'Siete muebles y solo dos habitaciones libres.',
+  { id: 5, titulo: 'El caserón', dificultad: 'Gran reto', resumen: 'Siete muebles y solo dos habitaciones libres.',
     filas: 3, cols: 3, puertas: [[1,2],[2,3],[1,4],[3,6],[4,7],[5,6],[6,9],[7,8],[8,9]],
     hab: { 1:['Recibidor','marmol',null,{ii:'perchero'}], 2:['Salón','parque','#e9a47c',{sd:'lampara'}], 3:['Comedor','hidraulica',null,{id:'planta'}],
            4:['Biblioteca','tarima','#c9b6ea',{ii:'lampara'}], 5:['Trastero','losas',null,{ii:'jarron'}], 6:['Cocina','ajedrez',null,{id:'planta'}],
            7:['Dormitorio','moqueta','#b9d4ef',{ii:'gato'}], 8:['Baño','azulejo','#f0a5c0',{id:'planta'}], 9:['Despacho','moquetaVerde','#f4c6a8',{id:'lampara'}] },
     muebles: [['baul',5],['cajonera',6],['piano',4],['armario',9],['ropero',8],['comoda',3],['libreria',7]],
-    objetivo: { piano: 7, libreria: 1 }, minimo: 57 }
+    objetivo: { piano: 7, libreria: 1 }, minimo: 57 },
+  { id: 6, titulo: 'El gran desorden', dificultad: 'Maestro', resumen: 'La casa del anillo patas arriba: devuelve cada mueble a su sitio.',
+    filas: 3, cols: 3, puertas: [[1,2],[1,4],[2,5],[3,6],[4,7],[5,6],[6,9],[7,8],[8,9]],
+    hab: CASA_ANILLO(),
+    // uno de los 7 estados más alejados del orden de la casa del anillo
+    muebles: [['piano',1],['libreria',4],['armario',2],['cajonera',5],['ropero',8],['baul',3]],
+    objetivo: { piano: 7, libreria: 1, armario: 8, cajonera: 6, ropero: 2, baul: 3 }, total: true, ordenar: true, minimo: 74 }
 ];
 function CASA_ANILLO() {
   return { 1:['Salón','parque','#e9a47c',{ii:'lampara'}], 2:['Comedor','hidraulica',null,{sd:'planta'}], 3:['Desván','losas',null,{id:'jarron'}],
@@ -523,7 +529,7 @@ function portada() {
   var cont = $('casos'); cont.innerHTML = '';
   NIVELES.forEach(function (n) {
     var b = document.createElement('button'), mejor = guardado.mejor[n.id];
-    b.className = 'caso' + (n.id === 5 ? ' jefe' : '');
+    b.className = 'caso' + (n.id >= 5 ? ' jefe' : '');
     b.innerHTML = '<span class="mini"><svg></svg></span><span class="nivel"><span>Nivel ' + n.id + '</span><span>' + n.dificultad + '</span></span><span class="tit">' + n.titulo + '</span><span class="mundo">' + n.resumen + '</span>' +
       '<span class="estado' + (mejor ? ' hecho' : '') + '">' + (mejor ? (mejor === n.minimo ? '★ Resuelto con el mínimo' : '✓ Resuelto · se puede mejorar') : (guardado.verMin ? 'Mínimo: ' + n.minimo + ' movimientos' : 'Sin resolver')) + '</span>';
     dibujar(b.querySelector('svg'), n, n.inicio, true);
@@ -542,8 +548,8 @@ function empezar(n) {
   $('capitulo').textContent = 'Nivel ' + n.id + ' · ' + n.dificultad;
   $('titulo').textContent = n.titulo;
   var obj = Object.keys(n.objetivo), principales = obj.filter(function (k) { return k === 'piano' || k === 'libreria'; });
-  var frase = 'Lleva ' + principales.map(function (k) { return icono(k) + MUEBLES[k].art + ' a la habitación <b>' + n.objetivo[k] + '</b>'; }).join(' y ') + '.';
-  frase += n.total ? '<span class="nota">Y los otros cuatro muebles deben volver a su habitación de ahora.</span>' : '<span class="nota">Los demás muebles pueden acabar donde sea.</span>';
+  var frase = n.ordenar ? 'Ordena la casa: lleva <b>cada mueble</b> a la silueta de su color.<span class="nota">Es el peor desorden posible de esta casa.</span>' : 'Lleva ' + principales.map(function (k) { return icono(k) + MUEBLES[k].art + ' a la habitación <b>' + n.objetivo[k] + '</b>'; }).join(' y ') + '.';
+  if (!n.ordenar) frase += n.total ? '<span class="nota">Y los otros cuatro muebles deben volver a su habitación de ahora.</span>' : '<span class="nota">Los demás muebles pueden acabar donde sea.</span>';
   $('objetivo').innerHTML = frase;
   grupos = dibujar($('tablero'), n, pos, false);
   location.hash = 'nivel-' + n.id;
@@ -788,7 +794,7 @@ document.addEventListener('keydown', function (e) {
   if ($('partida').hidden || !$('velo').hidden) return;
   if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); e.shiftKey ? rehacer() : deshacer(); }
 });
-function rutaHash() { var m = /^#nivel-(\d)$/.exec(location.hash), n = m && NIVELES[+m[1] - 1]; if (n) { if (nv !== n || $('partida').hidden) empezar(n); } else if (!$('partida').hidden || !nv) portada(); }
+function rutaHash() { var m = /^#nivel-(\d+)$/.exec(location.hash), n = m && NIVELES[+m[1] - 1]; if (n) { if (nv !== n || $('partida').hidden) empezar(n); } else if (!$('partida').hidden || !nv) portada(); }
 window.addEventListener('hashchange', rutaHash);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (!$('partida').hidden && nv) { grupos = dibujar($('tablero'), nv, pos, false); actualizar(); } });
 rutaHash();
