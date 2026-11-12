@@ -5,14 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Moviendo muebles</title>
 <meta name="description" content="Seis mudanzas en casas diminutas: solo cabe un mueble por habitación.">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Moviendo muebles">
-<meta property="og:description" content="Solo cabe un mueble por habitación. ¿En cuántos movimientos lo logras?">
-<meta property="og:url" content="https://spyder-cripto.github.io/problema-del-dia/juego/moviendo-muebles/">
-<meta property="og:image" content="https://spyder-cripto.github.io/problema-del-dia/juego/moviendo-muebles/preview.jpg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,700;1,400&family=Alegreya+SC:wght@700&family=Grenze+Gotisch:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -511,7 +503,21 @@ var SON = {
   arrastre: function () { if (guardado.sonido) ruido(.35, .22); },
   asiento: function () { if (guardado.sonido) { tono(110, 0, .12, 'sine', .25); tono(220, 0, .06, 'triangle', .06); } },
   error: function () { if (guardado.sonido) tono(160, 0, .15, 'square', .05); },
-  fanfarria: function () { if (guardado.sonido) [523, 659, 784, 1047].forEach(function (f, i) { tono(f, i * .12, .35, 'triangle', .12); }); }
+  fanfarria: function () {
+    if (!guardado.sonido) return;
+    function nota(f, t, d) { tono(f, t, d, 'triangle', .13); tono(f, t, d * .8, 'square', .03); }
+    // frase 1: tres notas rápidas y una larga
+    [[392, 0, .13], [392, .15, .13], [392, .30, .13], [523, .45, .5]].forEach(function (n) { nota(n[0], n[1], n[2]); });
+    // frase 2: respuesta más alta
+    [[659, 1.0, .15], [587, 1.17, .15], [659, 1.34, .15], [784, 1.51, .55]].forEach(function (n) { nota(n[0], n[1], n[2]); });
+    // escala ascendente brillante
+    [523, 659, 784, 1047, 1319, 1568].forEach(function (f, i) { nota(f, 2.2 + i * .09, .22); });
+    // acorde final sostenido con bajo
+    [523, 659, 784, 1047].forEach(function (f) { tono(f, 2.85, 1.6, 'triangle', .11); tono(f, 2.85, .5, 'square', .025); });
+    tono(131, 2.85, 1.6, 'triangle', .2); tono(262, 2.85, 1.6, 'sine', .1);
+    // destellos finales
+    [2093, 1568, 2093, 2637].forEach(function (f, i) { tono(f, 3.1 + i * .14, .3, 'sine', .06); });
+  }
 };
 function activarAudio() { try { if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)(); if (audio.state === 'suspended') audio.resume(); } catch (e) { audio = null; } }
 
