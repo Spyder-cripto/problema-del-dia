@@ -45,6 +45,7 @@ button{font-family:inherit;color:inherit;font-variant-ligatures:inherit}
 .caso .estado{font-size:14px;font-weight:700}
 .caso .estado.hecho{color:var(--verde)}
 .caso.jefe{border-width:3px;background:#fff6e0}
+.caso.trampa{border-style:dashed;background:#fdeceb}
 .como{margin:22px auto 0;max-width:760px;background:var(--blanco);border:2px solid var(--tinta);border-radius:14px;padding:12px 16px}
 .como h2{margin:0 0 6px;font-size:22px}
 .como p{margin:5px 0}
@@ -193,7 +194,7 @@ var NIVELES = [
            7:['Dormitorio','moqueta','#b9d4ef',{ii:'gato'}], 8:['Baño','azulejo','#f0a5c0',{id:'planta'}], 9:['Despacho','moquetaVerde','#f4c6a8',{id:'lampara'}] },
     muebles: [['baul',5],['cajonera',6],['piano',4],['armario',9],['ropero',8],['comoda',3],['libreria',7]],
     objetivo: { piano: 7, libreria: 1 }, minimo: 57 },
-  { id: 4, titulo: 'El gran desorden', dificultad: 'Maestro', resumen: 'La casa patas arriba: devuelve cada mueble a su sitio.',
+  { id: 4, final: true, titulo: 'El gran desorden', dificultad: 'Maestro', resumen: 'La casa patas arriba: devuelve cada mueble a su sitio.',
     filas: 3, cols: 3, puertas: [[1,2],[1,4],[2,5],[3,6],[4,7],[5,6],[6,9],[7,8],[8,9]],
     hab: CASA_ANILLO(),
     // uno de los 7 estados más alejados del orden de la casa
@@ -258,6 +259,11 @@ function siguienteOptima(nv, pos) {
   for (var k = 0; k < js.length; k++) { var j = js[k]; if (dist[c + (j[2] - j[1]) * nv.pot[j[0]]] === d - 1) return j; }
   return null;
 }
+// Nivel extra: una mudanza imposible (intercambiar dos muebles con un solo hueco rompe la paridad)
+NIVELES.push({ id: 5, imposible: true, titulo: 'La mudanza imposible', dificultad: '¿Imposible?', resumen: 'Intercambia el piano y la cajonera. Todo lo demás, en su sitio.',
+  filas: NIVELES[0].filas, cols: NIVELES[0].cols, puertas: NIVELES[0].puertas, hab: NIVELES[0].hab,
+  muebles: [['armario',1],['piano',3],['cajonera',4],['ropero',5],['libreria',6]],
+  objetivo: { armario: 1, piano: 4, cajonera: 3, ropero: 5, libreria: 6 }, total: true, minimo: null });
 NIVELES.forEach(preparar);
 /*FIN NUCLEO*/
 </script>
@@ -511,6 +517,10 @@ var SON = {
   },
   asiento: function () { if (guardado.sonido) { tono(110, 0, .12, 'sine', .25); tono(220, 0, .06, 'triangle', .06); } },
   error: function () { if (guardado.sonido) tono(160, 0, .15, 'square', .05); },
+  trombon: function () {
+    if (!guardado.sonido) return;
+    [[311, 0, .3], [293, .32, .3], [277, .64, .3], [261, .96, .9]].forEach(function (n, i) { tono(n[0], n[1], n[2], 'sawtooth', .07); tono(n[0] / 2, n[1], n[2], 'triangle', .08); });
+  },
   fanfarriaGrande: function () {
     if (!guardado.sonido) return;
     function nota(f, t, d, v) { tono(f, t, d, 'triangle', v || .13); tono(f, t, d * .8, 'square', .03); tono(f * 2, t, d * .5, 'sine', .04); }
@@ -564,9 +574,9 @@ function portada() {
   var cont = $('casos'); cont.innerHTML = '';
   NIVELES.forEach(function (n) {
     var b = document.createElement('button'), mejor = guardado.mejor[n.id];
-    b.className = 'caso' + (n.id >= 5 ? ' jefe' : '');
+    b.className = 'caso' + (n.final ? ' jefe' : '') + (n.imposible ? ' trampa' : '');
     b.innerHTML = '<span class="mini"><svg></svg></span><span class="nivel"><span>Nivel ' + n.id + '</span><span>' + n.dificultad + '</span></span><span class="tit">' + n.titulo + '</span><span class="mundo">' + n.resumen + '</span>' +
-      '<span class="estado' + (mejor ? ' hecho' : '') + '">' + (mejor ? (mejor === n.minimo ? '★ Resuelto con el mínimo' : '✓ Resuelto · se puede mejorar') : (guardado.verMin ? 'Mínimo: ' + n.minimo + ' movimientos' : 'Sin resolver')) + '</span>';
+      '<span class="estado' + (mejor ? ' hecho' : '') + '">' + (n.imposible ? (mejor ? '★ Trampa descubierta' : (guardado.verMin ? 'Mínimo: no existe' : 'Sin resolver')) : mejor ? (mejor === n.minimo ? '★ Resuelto con el mínimo' : '✓ Resuelto · se puede mejorar') : (guardado.verMin ? 'Mínimo: ' + n.minimo + ' movimientos' : 'Sin resolver')) + '</span>';
     dibujar(b.querySelector('svg'), n, n.inicio, true);
     b.addEventListener('click', function () { empezar(n); });
     cont.appendChild(b);
@@ -585,6 +595,7 @@ function empezar(n) {
   var obj = Object.keys(n.objetivo), principales = obj.filter(function (k) { return k === 'piano' || k === 'libreria'; });
   var frase = n.ordenar ? 'Ordena la casa: lleva <b>cada mueble</b> a la silueta de su color.<span class="nota">Es el peor desorden posible de esta casa.</span>' : 'Lleva ' + principales.map(function (k) { return icono(k) + MUEBLES[k].art + ' a la habitación <b>' + n.objetivo[k] + '</b>'; }).join(' y ') + '.';
   if (!n.ordenar) frase += n.total ? '<span class="nota">Y los otros cuatro muebles deben volver a su habitación de ahora.</span>' : '<span class="nota">Los demás muebles pueden acabar donde sea.</span>';
+  if (n.imposible) frase = 'Intercambia ' + icono('piano') + MUEBLES.piano.art + ' y ' + icono('cajonera') + MUEBLES.cajonera.art + '.<span class="nota">Todo lo demás debe quedar en su habitación de ahora.</span>';
   $('objetivo').innerHTML = frase;
   grupos = dibujar($('tablero'), n, pos, false);
   location.hash = 'nivel-' + n.id;
@@ -594,7 +605,7 @@ function empezar(n) {
 
 function actualizar() {
   $('nMov').textContent = ptr; $('nPis').textContent = pistas;
-  $('nMin').textContent = guardado.verMin ? nv.minimo : '?';
+  $('nMin').textContent = guardado.verMin ? (nv.imposible ? 'no existe' : nv.minimo) : '?';
   $('bOjo').innerHTML = ICO_OJO[guardado.verMin ? 1 : 0];
   $('bDeshacer').disabled = ptr === 0; $('bRehacer').disabled = ptr === hist.length;
   $('bPista').disabled = ganado || !!demo;
@@ -691,6 +702,7 @@ function reiniciar() {
 // Solución: tras confirmar, reinicia el nivel y la juega paso a paso con el mínimo de movimientos
 function solucion() {
   if (animando || demo) return;
+  if (nv.imposible) { revelarTrampa(); return; }
   dialogo('<h2>¿Ver la solución?</h2><p style="text-align:center">Se reiniciará el nivel y verás, movimiento a movimiento, cómo se resuelve con el mínimo posible. Esta partida no contará como resuelta.</p><div class="pie"><button class="boton" data-cerrar>Mejor no</button><button class="boton principal" id="bVerSol">Ver la solución</button></div>');
   $('bVerSol').onclick = function () { cerrar(); empezar(nv); demo = { t: 0, fin: false }; actualizar(); demo.t = setTimeout(pasoDemo, 500); };
 }
@@ -700,10 +712,19 @@ function pasoDemo() {
   if (!j) { demo.fin = true; ganado = true; actualizar(); return; }
   demo.t = setTimeout(function () { if (demo && !demo.fin) mover(j[0], j[2]); }, 260);
 }
+// Nivel imposible: explica por qué no tiene solución y lo marca como descubierto
+function revelarTrampa() {
+  guardado.mejor[nv.id] = 'x'; guardar(); SON.trombon(); confeti();
+  dialogo('<div class="victoria"><h2>¡Trampa descubierta!</h2><p style="text-align:center"><b>Esta mudanza no tiene solución.</b></p>' +
+    '<p>Aquí solo hay un hueco, y cada movimiento cambia de sitio un mueble con el hueco. Para que el hueco vuelva a su habitación hace falta un número <b>par</b> de movimientos.</p>' +
+    '<p>Pero intercambiar solo el piano y la cajonera es un cambio <b>impar</b>, y esa colocación queda en la mitad de posiciones a las que nunca se llega. Es el mismo truco del famoso puzzle del 15 de Sam Loyd.</p>' +
+    '<div class="pie"><button class="boton" data-cerrar>Seguir probando</button><button class="boton principal" id="bFin">Volver a los niveles</button></div></div>');
+  $('bFin').onclick = function () { cerrar(); portada(); };
+}
 function pista() {
   if (ganado || animando) return;
   var j = siguienteOptima(nv, pos);
-  if (!j) return;
+  if (!j) { if (nv.imposible) revelarTrampa(); return; }
   pistas++; pistaJ = j; sel = -1;
   var m = MUEBLES[nv.claves[j[0]]];
   $('pistaCaja').hidden = false;
@@ -772,7 +793,7 @@ function estrella(llena) { return '<svg viewBox="0 0 40 40"><path d="M20 3l5 11 
 function victoria() {
   var n = nv, mv = ptr, est = mv === n.minimo ? 3 : !pistas ? 2 : 1, val = ['', 'Resuelto', '¡Bien, sin pistas!', '¡Óptimo!'][est];
   var antes = guardado.mejor[n.id]; if (!antes || mv < antes) { guardado.mejor[n.id] = mv; guardar(); }
-  var ultimo = n.id === NIVELES.length;
+  var ultimo = !!n.final;
   if (ultimo) { SON.fanfarriaGrande(); confeti(); setTimeout(confeti, 1200); setTimeout(confeti, 2600); } else { SON.fanfarria(); confeti(); }
   var sig = NIVELES[n.id] ? '<button class="boton principal" id="bSig">Siguiente nivel</button>' : '<button class="boton principal" id="bFin">Volver a los niveles</button>';
   dialogo('<div class="victoria"><h2>¡Mudanza completada!</h2><svg class="trofeo" viewBox="0 0 100 100">' + fig('M18 52V30L50 8l32 22v22', '#f6c4ac') + fig('M22 50h56v40H22z', '#fbf8f2') + caja(42, 64, 16, 26, 2, '#dcaa72', 2.6) + caja(28, 58, 10, 10, 1, '#d6f0fa', 2.2) + caja(62, 58, 10, 10, 1, '#d6f0fa', 2.2) + caja(64, 14, 9, 16, 1, '#eb9f7f', 2.4) + circ(55, 78, 1.8, '#2c2531', 1) + '</svg>' +
