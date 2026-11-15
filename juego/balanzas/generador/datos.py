@@ -244,7 +244,8 @@ PUZLES = [
         respuesta=10,
         trampas={},
         pistas=["Cuenta los tramos de cuerda que sostienen el bloque de abajo del polipasto. El puente gira en su bisagra y la cadena lo sostiene con el peso del yelmo.",
-                "Resuelve las vigas colgantes de abajo arriba: la más baja pesa todo lo que cuelga de ella, también la corona de su eje, y ese total cuelga de la viga del medio."],
+                "Resuelve las vigas colgantes de abajo arriba: la más baja pesa todo lo que cuelga de ella, también la corona de su eje, y ese total cuelga de la viga del medio.",
+                "Ojo: no todo lo que ves en el castillo interviene. Hay objetos que no pesan en ninguna ecuación: descártalos antes de empezar."],
         pasos=[
             ("El puente levadizo",
              "<p>Toma la corona como unidad: Cá cáliz, Es escudo, Ep espada, Ye yelmo. El puente gira en la bisagra y la cadena tira con el yelmo a 6 puntos.</p>"
