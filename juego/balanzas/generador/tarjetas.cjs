@@ -36,12 +36,14 @@ const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
       .c::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(-35deg,rgba(255,255,255,.05) 0 30px,transparent 30px 60px)}
       .z{position:absolute;left:0;right:0;top:300px;height:1180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px}
       .k{font-weight:700;letter-spacing:.14em;font-size:30px;color:#ffd166;text-transform:uppercase}
+      .m{font-size:38px;font-weight:700;color:#d9f1f7;margin:-10px 0 0;letter-spacing:.02em}.m .p{color:#ff8a75;letter-spacing:.2em;margin-right:6px}.m .s{opacity:.6;margin:0 8px}
       h1{font-weight:900;font-size:${largo ? 92 : 112}px;line-height:1;margin:-18px 40px 0}
       .img{width:1000px;border:7px solid #fff;border-radius:20px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.35)}
       .img svg{display:block;width:100%;height:auto}
       .q{font-size:54px;line-height:1.15;font-weight:800;margin:0 60px}
       .u{font-size:46px;color:#ffd166;font-weight:800;margin-top:6px;font-family:'Inter Display','Inter','Noto Color Emoji',sans-serif}
     </style></head><body><div class="c"><div class="z"><div class="k">${esc(t.kicker)}</div><h1>${esc(t.titulo)}</h1>
+    ${t.dificultad ? `<div class="m"><span class="p">${'●'.repeat(t.puntos)}</span> ${esc(t.dificultad)} <span class="s">·</span> ${esc(t.lamina)}</div>` : ''}
     <div class="img">${svg}</div><div class="q">${esc(t.pregunta)}</div><div class="u">${esc(t.aviso || "👇 Enlace para jugar 👇")}</div></div></div></body></html>`);
     await es.screenshot({ path: path.join(dir, t.estado) });
     console.log('ok', t.preview, t.estado);

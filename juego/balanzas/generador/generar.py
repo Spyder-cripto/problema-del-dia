@@ -102,6 +102,7 @@ def main():
     for P in PUZLES:
         tarjetas.append(dict(svg=P["svg"], titulo=P["titulo"], kicker="Acertijo de balanzas",
                              texto=P["pregunta"], pregunta=P["pregunta"], url=base + P["id"] + "/",
+                             dificultad="Muy difícil", puntos=4, lamina=f"Lámina {P['num']} de {len(PUZLES)}",
                              preview=f"../{P['id']}/preview.jpg", estado=f"../{P['id']}/estado.png"))
     with open(os.path.join("svg", "teoria.svg"), "w", encoding="utf-8") as fh:
         fh.write(teoria.fig_plano())
