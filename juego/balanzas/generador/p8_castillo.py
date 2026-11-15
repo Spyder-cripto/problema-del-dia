@@ -85,12 +85,16 @@ def antorcha(x0, y0):
             f'<path d="M{x0},{y0-14} Q{x0+5},{y0-6} {x0+2},{y0} L{x0-2},{y0} Q{x0-5},{y0-6} {x0},{y0-14} Z" fill="#ffe066"/>')
 
 def cuervo(cx, base):
-    return (f'<ellipse cx="{cx}" cy="{base-14}" rx="16" ry="12" fill="#2b2d42" stroke="{OUT}" stroke-width="2.5"/>'
-            f'<circle cx="{cx+13}" cy="{base-26}" r="8" fill="#2b2d42" stroke="{OUT}" stroke-width="2.5"/>'
-            f'<path d="M{cx+20},{base-28} L{cx+30},{base-25} L{cx+20},{base-22} Z" fill="#ffb703" stroke="{OUT}" stroke-width="2"/>'
-            f'<circle cx="{cx+15}" cy="{base-28}" r="2" fill="#fff"/>'
-            f'<path d="M{cx-14},{base-12} L{cx-28},{base-4} L{cx-14},{base-6}" fill="#2b2d42" stroke="{OUT}" stroke-width="2.5" stroke-linejoin="round"/>'
-            f'<path d="M{cx-2},{base-2} l-2,6 M{cx+4},{base-2} l2,6" stroke="#ffb703" stroke-width="2.5"/>')
+    """Cuervo posado sobre una almena: las patas llegan hasta la piedra (base = parte alta de la almena)."""
+    patas = (f'M{cx-4},{base-14} L{cx-4},{base-2} M{cx-9},{base-2} L{cx+1},{base-2} '
+             f'M{cx+6},{base-14} L{cx+6},{base-2} M{cx+1},{base-2} L{cx+11},{base-2}')
+    return (f'<path d="{patas}" fill="none" stroke="{OUT}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>'
+            f'<path d="{patas}" fill="none" stroke="#ffb703" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'
+            f'<ellipse cx="{cx}" cy="{base-26}" rx="16" ry="12" fill="#2b2d42" stroke="{OUT}" stroke-width="2.5"/>'
+            f'<circle cx="{cx+13}" cy="{base-38}" r="8" fill="#2b2d42" stroke="{OUT}" stroke-width="2.5"/>'
+            f'<path d="M{cx+20},{base-40} L{cx+30},{base-37} L{cx+20},{base-34} Z" fill="#ffb703" stroke="{OUT}" stroke-width="2"/>'
+            f'<circle cx="{cx+15}" cy="{base-40}" r="2" fill="#fff"/>'
+            f'<path d="M{cx-14},{base-24} L{cx-28},{base-16} L{cx-14},{base-18}" fill="#2b2d42" stroke="{OUT}" stroke-width="2.5" stroke-linejoin="round"/>')
 
 def build():
     sc = Scene(1400, 900)
@@ -118,7 +122,7 @@ def build():
     sc.add(bandera(1350, 122, "#2bb673"), 4)
     sc.add(antorcha(640, 380), 5)
     sc.add(antorcha(1240, 380), 5)
-    sc.add(cuervo(420, WY - 34), 6)
+    sc.add(cuervo(462, WY - 34), 6)
     # suelo empedrado y foso
     sc.add(f'<rect x="0" y="{FLOOR}" width="1400" height="100" fill="#c8b08a" stroke="{OUT}" stroke-width="3"/>'
            + "".join(f'<ellipse cx="{xx}" cy="{FLOOR+22+((xx//60)%2)*36}" rx="22" ry="11" fill="#b39a74" stroke="#9c8462" stroke-width="2"/>' for xx in range(30, 1400, 60)), 5)
