@@ -180,6 +180,34 @@ def tucan(cx, by):
              f'<circle cx="{cx+15}" cy="{by-72}" r="6.5" fill="#4db8ff" stroke="{OUT}" stroke-width="2"/><circle cx="{cx+16}" cy="{by-72}" r="2.8" fill="{OUT}"/>')
     return "".join(g)
 
+def guacamayo(cx, by):
+    """Guacamayo rojo posado, mirando a la izquierda. by = parte alta de la rama."""
+    R, Y, B = "#e63946", "#ffd43b", "#2f80ed"
+    g = []
+    # cola larga: plumas rojas con punta azul
+    g.append(f'<path d="M{cx+2},{by-24} L{cx-4},{by+84} L{cx+16},{by+72} L{cx+22},{by-20} Z" fill="{R}" stroke="{OUT}" stroke-width="3" stroke-linejoin="round"/>'
+             f'<path d="M{cx-4},{by+84} L{cx+16},{by+72} L{cx+14},{by+52} L{cx-2},{by+60} Z" fill="{B}"/>'
+             f'<path d="M{cx-4},{by+84} L{cx+16},{by+72} L{cx+22},{by-20} L{cx+2},{by-24} Z" fill="none" stroke="{OUT}" stroke-width="3" stroke-linejoin="round"/>')
+    # patas
+    for lx in (cx - 4, cx + 10):
+        g.append(f'<path d="M{lx},{by-10} L{lx},{by} M{lx-6},{by} L{lx+5},{by}" fill="none" stroke="{OUT}" stroke-width="6" stroke-linecap="round"/>'
+                 f'<path d="M{lx},{by-10} L{lx},{by} M{lx-6},{by} L{lx+5},{by}" fill="none" stroke="#9aa0ad" stroke-width="2.6" stroke-linecap="round"/>')
+    # cuerpo y ala (amarillo y azul)
+    g.append(f'<ellipse cx="{cx+4}" cy="{by-40}" rx="21" ry="34" fill="{R}" stroke="{OUT}" stroke-width="3"/>'
+             f'<clipPath id="alaG"><ellipse cx="{cx+10}" cy="{by-36}" rx="14" ry="28"/></clipPath>'
+             f'<ellipse cx="{cx+10}" cy="{by-36}" rx="14" ry="28" fill="{Y}"/>'
+             f'<g clip-path="url(#alaG)"><rect x="{cx-10}" y="{by-26}" width="40" height="20" fill="{B}"/>'
+             f'<rect x="{cx-10}" y="{by-6}" width="40" height="12" fill="#1f5fbf"/></g>'
+             f'<ellipse cx="{cx+10}" cy="{by-36}" rx="14" ry="28" fill="none" stroke="{OUT}" stroke-width="2.6"/>')
+    # cabeza, mejilla blanca y pico curvo
+    hx, hy = cx - 6, by - 84
+    g.append(f'<circle cx="{hx}" cy="{hy}" r="18" fill="{R}" stroke="{OUT}" stroke-width="3"/>'
+             f'<ellipse cx="{hx-8}" cy="{hy+2}" rx="11" ry="10" fill="#fff" stroke="{OUT}" stroke-width="2.4"/>'
+             f'<circle cx="{hx-8}" cy="{hy}" r="3.6" fill="{OUT}"/><circle cx="{hx-9}" cy="{hy-1}" r="1.2" fill="#fff"/>'
+             f'<path d="M{hx-14},{hy-12} C{hx-34},{hy-14} {hx-44},{hy-2} {hx-36},{hy+14} C{hx-34},{hy+8} {hx-28},{hy+2} {hx-18},{hy+4} Z" fill="#f5ecd0" stroke="{OUT}" stroke-width="3" stroke-linejoin="round"/>'
+             f'<path d="M{hx-18},{hy+4} C{hx-28},{hy+4} {hx-32},{hy+10} {hx-30},{hy+16} C{hx-24},{hy+14} {hx-18},{hy+12} {hx-14},{hy+8} Z" fill="#3a3a4a" stroke="{OUT}" stroke-width="2.6" stroke-linejoin="round"/>')
+    return f'<g transform="translate({cx},{by}) scale(.9) translate({-cx},{-by})">' + "".join(g) + '</g>'
+
 def build():
     sc = Scene(1400, 900)
     # ----- fondo -----
@@ -282,6 +310,14 @@ def build():
     for (hx, hy, L, rot) in [(330, 232, 56, -40), (338, 238, 50, 35), (120, 170, 46, 70)]:
         sc.add(hoja(hx, hy, L, rot), 15)
     sc.add(tucan(250, 199), 19)
+    # rama corta a la derecha, con el guacamayo
+    rama2 = 'M1140,58 Q1090,112 1010,132'
+    sc.add(f'<path d="{rama2}" fill="none" stroke="{OUT}" stroke-width="20" stroke-linecap="round"/>'
+           f'<path d="{rama2}" fill="none" stroke="#8b5a2b" stroke-width="14" stroke-linecap="round"/>'
+           f'<path d="{rama2}" fill="none" stroke="#b07a45" stroke-width="2.5" stroke-linecap="round" transform="translate(0,-3)"/>', 14)
+    for (hx, hy, L, rot) in [(1012, 132, 46, -150), (1020, 138, 40, 150)]:
+        sc.add(hoja(hx, hy, L, rot), 15)
+    sc.add(guacamayo(1078, 96), 19)
     return sc, dict(M=M, W=W, X=X, Y=Y, Z=Z)
 
 if __name__ == "__main__":
