@@ -132,16 +132,16 @@ def puercoespin(cx, base):
         x1 = cx + 8 + 30 * math.cos(a); y1 = cy + 21 * math.sin(a)
         x2 = cx + 8 + 56 * math.cos(a); y2 = cy + 44 * math.sin(a)
         g.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{OUT}" stroke-width="6" stroke-linecap="round"/>'
-                 f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{"#fff3d6" if i % 2 else "#a98f62"}" stroke-width="3" stroke-linecap="round"/>')
+                 f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{"#ffe9a0" if i % 2 else "#c8901a"}" stroke-width="3" stroke-linecap="round"/>')
     # patas
     for fx in (cx - 14, cx + 22):
-        g.append(f'<ellipse cx="{fx}" cy="{base-5}" rx="9" ry="6" fill="#c9ae82" stroke="{OUT}" stroke-width="3"/>')
+        g.append(f'<ellipse cx="{fx}" cy="{base-5}" rx="9" ry="6" fill="#d9a21f" stroke="{OUT}" stroke-width="3"/>')
     # cuerpo y cabeza
-    g.append(f'<ellipse cx="{cx+8}" cy="{cy}" rx="34" ry="22" fill="#e6cfa3" stroke="{OUT}" stroke-width="3"/>'
-             f'<path d="M{cx-22},{cy-8} C{cx-42},{cy-10} {cx-56},{cy+4} {cx-58},{cy+14} C{cx-46},{cy+22} {cx-28},{cy+20} {cx-20},{cy+14} Z" fill="#f5e6c4" stroke="{OUT}" stroke-width="3" stroke-linejoin="round"/>'
+    g.append(f'<ellipse cx="{cx+8}" cy="{cy}" rx="34" ry="22" fill="#f2b92e" stroke="{OUT}" stroke-width="3"/>'
+             f'<path d="M{cx-22},{cy-8} C{cx-42},{cy-10} {cx-56},{cy+4} {cx-58},{cy+14} C{cx-46},{cy+22} {cx-28},{cy+20} {cx-20},{cy+14} Z" fill="#fbd96a" stroke="{OUT}" stroke-width="3" stroke-linejoin="round"/>'
              f'<circle cx="{cx-58}" cy="{cy+13}" r="4.5" fill="{OUT}"/>'
              f'<circle cx="{cx-38}" cy="{cy-1}" r="3" fill="{OUT}"/><circle cx="{cx-37}" cy="{cy-2}" r="1" fill="#fff"/>'
-             f'<ellipse cx="{cx-26}" cy="{cy-9}" rx="5" ry="4" fill="#e6cfa3" stroke="{OUT}" stroke-width="2.5"/>')
+             f'<ellipse cx="{cx-26}" cy="{cy-9}" rx="5" ry="4" fill="#f2b92e" stroke="{OUT}" stroke-width="2.5"/>')
     return "".join(g)
 
 def build():
