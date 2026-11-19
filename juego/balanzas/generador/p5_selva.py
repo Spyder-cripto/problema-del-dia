@@ -311,7 +311,7 @@ def build():
         sc.add(hoja(hx, hy, L, rot), 15)
     sc.add(tucan(250, 199), 19)
     # guacamayo posado en la viga de la derecha, justo encima del pivote (no pesa)
-    sc.add(guacamayo(1008, 624), 75)
+    sc.add(guacamayo(996, 624), 75)
     return sc, dict(M=M, W=W, X=X, Y=Y, Z=Z)
 
 if __name__ == "__main__":
