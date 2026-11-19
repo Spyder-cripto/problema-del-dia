@@ -164,7 +164,7 @@ PUZLES = [
         ],
         final="En la cesta hay 11 cocos.",
         pesos=[("Coco", "1"), ("Plátanos", "2"), ("Mango", "4"), ("Piña", "5")],
-        distractores="la serpiente, la rana, las mariposas, los cocos caídos y los matorrales",
+        distractores="la serpiente, el monito, el puercoespín, la rana, las mariposas, los cocos caídos y los matorrales",
     ),
     dict(
         id="golosinas", num=6, titulo="La fábrica de golosinas", svg="svg/06-golosinas.svg",
