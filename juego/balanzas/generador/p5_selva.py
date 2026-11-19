@@ -122,30 +122,52 @@ def mono(cx, y0):
              f'<circle cx="{cx-1}" cy="{hy+5}" r="1.2" fill="{OUT}"/><circle cx="{cx+4}" cy="{hy+5}" r="1.2" fill="{OUT}"/>')
     return "".join(g)
 
-def puercoespin(cx, base):
-    """Puercoespín en el suelo, mirando a la izquierda (decoración)."""
+def armadillo(cx, base):
+    """Armadillo gris azulado en el suelo, mirando a la izquierda (decoración)."""
+    sh = f'M{cx-38},{base-10} C{cx-38},{base-52} {cx+36},{base-56} {cx+46},{base-10} Z'
     g = []
-    cy = base - 26
-    # púas: abanico sobre el lomo
-    for i in range(15):
-        a = math.radians(200 + i * (140 / 14))          # de 200° a 340° (arco superior)
-        x1 = cx + 8 + 30 * math.cos(a); y1 = cy + 21 * math.sin(a)
-        x2 = cx + 8 + 56 * math.cos(a); y2 = cy + 44 * math.sin(a)
-        g.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{OUT}" stroke-width="6" stroke-linecap="round"/>'
-                 f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{"#ffe9a0" if i % 2 else "#2b2d42"}" stroke-width="3" stroke-linecap="round"/>')
+    # cola
+    g.append(f'<path d="M{cx+44},{base-14} C{cx+60},{base-12} {cx+70},{base-4} {cx+78},{base-6}" fill="none" stroke="{OUT}" stroke-width="9" stroke-linecap="round"/>'
+             f'<path d="M{cx+44},{base-14} C{cx+60},{base-12} {cx+70},{base-4} {cx+78},{base-6}" fill="none" stroke="#a9bccf" stroke-width="4.5" stroke-linecap="round"/>')
     # patas
-    for fx in (cx - 14, cx + 22):
-        g.append(f'<ellipse cx="{fx}" cy="{base-5}" rx="9" ry="6" fill="#d9a21f" stroke="{OUT}" stroke-width="3"/>')
-    # cuerpo y cabeza
-    g.append(f'<ellipse cx="{cx+8}" cy="{cy}" rx="34" ry="22" fill="#f2b92e" stroke="{OUT}" stroke-width="3"/>'
-             f'<clipPath id="pcRayas"><ellipse cx="{cx+8}" cy="{cy}" rx="34" ry="22"/></clipPath>'
-             f'<g clip-path="url(#pcRayas)" fill="none" stroke="#2b2d42" stroke-width="6" stroke-linecap="round">'
-             + "".join(f'<path d="M{cx+dx},{cy-26} Q{cx+dx+7},{cy} {cx+dx},{cy+26}"/>' for dx in (-10, 3, 16, 29))
-             + '</g>'
-             f'<path d="M{cx-22},{cy-8} C{cx-42},{cy-10} {cx-56},{cy+4} {cx-58},{cy+14} C{cx-46},{cy+22} {cx-28},{cy+20} {cx-20},{cy+14} Z" fill="#fbd96a" stroke="{OUT}" stroke-width="3" stroke-linejoin="round"/>'
-             f'<circle cx="{cx-58}" cy="{cy+13}" r="4.5" fill="{OUT}"/>'
-             f'<circle cx="{cx-38}" cy="{cy-1}" r="3" fill="{OUT}"/><circle cx="{cx-37}" cy="{cy-2}" r="1" fill="#fff"/>'
-             f'<ellipse cx="{cx-26}" cy="{cy-9}" rx="5" ry="4" fill="#f2b92e" stroke="{OUT}" stroke-width="2.5"/>')
+    for fx in (cx - 16, cx + 26):
+        g.append(f'<ellipse cx="{fx}" cy="{base-4}" rx="10" ry="6" fill="#a9bccf" stroke="{OUT}" stroke-width="3"/>')
+    # caparazón con bandas
+    g.append(f'<clipPath id="arma"><path d="{sh}"/></clipPath>'
+             f'<path d="{sh}" fill="#8fa3b8" stroke="{OUT}" stroke-width="3" stroke-linejoin="round"/>'
+             f'<g clip-path="url(#arma)" fill="none" stroke="#5a7390" stroke-width="3.2" stroke-linecap="round">'
+             + "".join(f'<path d="M{cx+dx+10},{base-58} Q{cx+dx-2},{base-32} {cx+dx},{base-8}"/>' for dx in (-24, -10, 4, 18, 32))
+             + f'<path d="M{cx-38},{base-26} Q{cx+4},{base-34} {cx+46},{base-26}"/></g>'
+             f'<path d="{sh}" fill="none" stroke="{OUT}" stroke-width="3" stroke-linejoin="round"/>')
+    # cabeza
+    g.append(f'<path d="M{cx-30},{base-40} C{cx-48},{base-42} {cx-62},{base-26} {cx-68},{base-14} C{cx-56},{base-8} {cx-40},{base-12} {cx-30},{base-14} Z" fill="#c9d6e3" stroke="{OUT}" stroke-width="3" stroke-linejoin="round"/>'
+             f'<ellipse cx="{cx-33}" cy="{base-44}" rx="6" ry="9" transform="rotate(-18 {cx-33} {base-44})" fill="#a9bccf" stroke="{OUT}" stroke-width="2.6"/>'
+             f'<circle cx="{cx-68}" cy="{base-15}" r="4.2" fill="#e8949f" stroke="{OUT}" stroke-width="2"/>'
+             f'<circle cx="{cx-47}" cy="{base-27}" r="3" fill="{OUT}"/><circle cx="{cx-46}" cy="{base-28}" r="1" fill="#fff"/>')
+    return "".join(g)
+
+def tucan(cx, by):
+    """Tucán posado sobre una rama, mirando a la derecha. by = parte alta de la rama donde apoya."""
+    N = "#23233a"
+    g = []
+    # cola
+    g.append(f'<path d="M{cx-10},{by-24} L{cx-24},{by+22} L{cx+2},{by-4} Z" fill="{N}" stroke="{OUT}" stroke-width="3" stroke-linejoin="round"/>'
+             f'<path d="M{cx-18},{by+6} L{cx-24},{by+22} L{cx-9},{by+10} Z" fill="#e63946"/>')
+    # patas
+    for lx in (cx - 6, cx + 8):
+        g.append(f'<path d="M{lx},{by-12} L{lx},{by} M{lx-6},{by} L{lx+6},{by}" fill="none" stroke="{OUT}" stroke-width="6" stroke-linecap="round"/>'
+                 f'<path d="M{lx},{by-12} L{lx},{by} M{lx-6},{by} L{lx+6},{by}" fill="none" stroke="#ff9f1c" stroke-width="2.6" stroke-linecap="round"/>')
+    # cuerpo, pecho y ala
+    g.append(f'<ellipse cx="{cx}" cy="{by-38}" rx="18" ry="28" fill="{N}" stroke="{OUT}" stroke-width="3"/>'
+             f'<ellipse cx="{cx+7}" cy="{by-42}" rx="10" ry="18" fill="#fff6d8"/>'
+             f'<path d="M{cx-6},{by-58} Q{cx-16},{by-34} {cx-6},{by-14}" fill="none" stroke="#4a4a6a" stroke-width="3" stroke-linecap="round"/>')
+    # cabeza y pico
+    g.append(f'<circle cx="{cx+8}" cy="{by-70}" r="15" fill="{N}" stroke="{OUT}" stroke-width="3"/>'
+             f'<path d="M{cx+16},{by-82} C{cx+44},{by-90} {cx+70},{by-74} {cx+68},{by-56} C{cx+50},{by-56} {cx+32},{by-60} {cx+18},{by-64} Z" fill="#ffd43b" stroke="{OUT}" stroke-width="3" stroke-linejoin="round"/>'
+             f'<path d="M{cx+18},{by-70} C{cx+42},{by-72} {cx+60},{by-66} {cx+68},{by-56} C{cx+50},{by-56} {cx+32},{by-60} {cx+18},{by-64} Z" fill="#ff8c1a"/>'
+             f'<path d="M{cx+62},{by-74} C{cx+68},{by-70} {cx+70},{by-62} {cx+68},{by-56} L{cx+58},{by-58} Z" fill="#e63946"/>'
+             f'<path d="M{cx+16},{by-82} C{cx+44},{by-90} {cx+70},{by-74} {cx+68},{by-56} C{cx+50},{by-56} {cx+32},{by-60} {cx+18},{by-64} Z" fill="none" stroke="{OUT}" stroke-width="3" stroke-linejoin="round"/>'
+             f'<circle cx="{cx+15}" cy="{by-72}" r="6.5" fill="#4db8ff" stroke="{OUT}" stroke-width="2"/><circle cx="{cx+16}" cy="{by-72}" r="2.8" fill="{OUT}"/>')
     return "".join(g)
 
 def build():
@@ -241,7 +263,15 @@ def build():
 
     sc.add(rana(486, GROUND + 2), 70)
     sc.add(mono(1205, 74), 18)
-    sc.add(puercoespin(690, GROUND - 2), 70)
+    sc.add(armadillo(690, GROUND - 2), 70)
+    # rama nueva a la izquierda, con el tucán
+    rama = 'M-10,125 Q150,185 340,232'
+    sc.add(f'<path d="{rama}" fill="none" stroke="{OUT}" stroke-width="26" stroke-linecap="round"/>'
+           f'<path d="{rama}" fill="none" stroke="#8b5a2b" stroke-width="20" stroke-linecap="round"/>'
+           f'<path d="{rama}" fill="none" stroke="#b07a45" stroke-width="3" stroke-linecap="round" transform="translate(0,-4)"/>', 14)
+    for (hx, hy, L, rot) in [(330, 232, 56, -40), (338, 238, 50, 35), (120, 170, 46, 70)]:
+        sc.add(hoja(hx, hy, L, rot), 15)
+    sc.add(tucan(250, 199), 19)
     return sc, dict(M=M, W=W, X=X, Y=Y, Z=Z)
 
 if __name__ == "__main__":
