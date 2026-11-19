@@ -138,6 +138,10 @@ def puercoespin(cx, base):
         g.append(f'<ellipse cx="{fx}" cy="{base-5}" rx="9" ry="6" fill="#d9a21f" stroke="{OUT}" stroke-width="3"/>')
     # cuerpo y cabeza
     g.append(f'<ellipse cx="{cx+8}" cy="{cy}" rx="34" ry="22" fill="#f2b92e" stroke="{OUT}" stroke-width="3"/>'
+             f'<clipPath id="pcRayas"><ellipse cx="{cx+8}" cy="{cy}" rx="34" ry="22"/></clipPath>'
+             f'<g clip-path="url(#pcRayas)" fill="none" stroke="#b8741a" stroke-width="6" stroke-linecap="round">'
+             + "".join(f'<path d="M{cx+dx},{cy-26} Q{cx+dx+7},{cy} {cx+dx},{cy+26}"/>' for dx in (-10, 3, 16, 29))
+             + '</g>'
              f'<path d="M{cx-22},{cy-8} C{cx-42},{cy-10} {cx-56},{cy+4} {cx-58},{cy+14} C{cx-46},{cy+22} {cx-28},{cy+20} {cx-20},{cy+14} Z" fill="#fbd96a" stroke="{OUT}" stroke-width="3" stroke-linejoin="round"/>'
              f'<circle cx="{cx-58}" cy="{cy+13}" r="4.5" fill="{OUT}"/>'
              f'<circle cx="{cx-38}" cy="{cy-1}" r="3" fill="{OUT}"/><circle cx="{cx-37}" cy="{cy-2}" r="1" fill="#fff"/>'
