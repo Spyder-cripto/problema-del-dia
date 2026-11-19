@@ -92,7 +92,7 @@ def mariposa(cx, cy, col):
 
 def mono(cx, y0):
     """Monito colgado de la rama por un brazo (decoración: no pesa en ninguna ecuación)."""
-    pel = "#a0652d"
+    pel = "#8a63d2"
     g = []
     # cola enroscada
     g.append(f'<path d="M{cx+14},{y0+104} C{cx+52},{y0+112} {cx+62},{y0+78} {cx+42},{y0+70}" fill="none" stroke="{OUT}" stroke-width="11" stroke-linecap="round"/>'
@@ -106,7 +106,7 @@ def mono(cx, y0):
              f'<path d="M{cx-12},{y0+70} Q{cx-28},{y0+84} {cx-30},{y0+104}" fill="none" stroke="{pel}" stroke-width="5" stroke-linecap="round"/>')
     # cuerpo
     g.append(f'<ellipse cx="{cx+1}" cy="{y0+86}" rx="19" ry="27" fill="{pel}" stroke="{OUT}" stroke-width="3"/>'
-             f'<ellipse cx="{cx+3}" cy="{y0+92}" rx="11" ry="18" fill="#e9c58e" stroke="none"/>')
+             f'<ellipse cx="{cx+3}" cy="{y0+92}" rx="11" ry="18" fill="#f1e3ff" stroke="none"/>')
     # brazo agarrado a la rama
     g.append(f'<path d="M{cx},{y0+66} L{cx},{y0+4}" fill="none" stroke="{OUT}" stroke-width="12" stroke-linecap="round"/>'
              f'<path d="M{cx},{y0+66} L{cx},{y0+4}" fill="none" stroke="{pel}" stroke-width="6.5" stroke-linecap="round"/>'
@@ -114,9 +114,9 @@ def mono(cx, y0):
     # cabeza
     hy = y0 + 52
     g.append(f'<circle cx="{cx-17}" cy="{hy-2}" r="8" fill="{pel}" stroke="{OUT}" stroke-width="3"/><circle cx="{cx+19}" cy="{hy-2}" r="8" fill="{pel}" stroke="{OUT}" stroke-width="3"/>'
-             f'<circle cx="{cx-17}" cy="{hy-2}" r="4" fill="#e9c58e"/><circle cx="{cx+19}" cy="{hy-2}" r="4" fill="#e9c58e"/>'
+             f'<circle cx="{cx-17}" cy="{hy-2}" r="4" fill="#f1e3ff"/><circle cx="{cx+19}" cy="{hy-2}" r="4" fill="#f1e3ff"/>'
              f'<circle cx="{cx+1}" cy="{hy}" r="18" fill="{pel}" stroke="{OUT}" stroke-width="3"/>'
-             f'<ellipse cx="{cx+1}" cy="{hy+4}" rx="13" ry="11" fill="#f3d9ad" stroke="{OUT}" stroke-width="2"/>'
+             f'<ellipse cx="{cx+1}" cy="{hy+4}" rx="13" ry="11" fill="#f1e3ff" stroke="{OUT}" stroke-width="2"/>'
              f'<circle cx="{cx-4}" cy="{hy+1}" r="2.6" fill="{OUT}"/><circle cx="{cx+7}" cy="{hy+1}" r="2.6" fill="{OUT}"/>'
              f'<path d="M{cx-5},{hy+9} Q{cx+1},{hy+14} {cx+8},{hy+9}" fill="none" stroke="{OUT}" stroke-width="2.4" stroke-linecap="round"/>'
              f'<circle cx="{cx-1}" cy="{hy+5}" r="1.2" fill="{OUT}"/><circle cx="{cx+4}" cy="{hy+5}" r="1.2" fill="{OUT}"/>')
@@ -132,16 +132,16 @@ def puercoespin(cx, base):
         x1 = cx + 8 + 30 * math.cos(a); y1 = cy + 21 * math.sin(a)
         x2 = cx + 8 + 56 * math.cos(a); y2 = cy + 44 * math.sin(a)
         g.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{OUT}" stroke-width="6" stroke-linecap="round"/>'
-                 f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{"#f3ead2" if i % 2 else "#5b4630"}" stroke-width="3" stroke-linecap="round"/>')
+                 f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{"#ffe08a" if i % 2 else "#2f5f8f"}" stroke-width="3" stroke-linecap="round"/>')
     # patas
     for fx in (cx - 14, cx + 22):
-        g.append(f'<ellipse cx="{fx}" cy="{base-5}" rx="9" ry="6" fill="#6b4f33" stroke="{OUT}" stroke-width="3"/>')
+        g.append(f'<ellipse cx="{fx}" cy="{base-5}" rx="9" ry="6" fill="#3f6fae" stroke="{OUT}" stroke-width="3"/>')
     # cuerpo y cabeza
-    g.append(f'<ellipse cx="{cx+8}" cy="{cy}" rx="34" ry="22" fill="#7a5a3a" stroke="{OUT}" stroke-width="3"/>'
-             f'<path d="M{cx-22},{cy-8} C{cx-42},{cy-10} {cx-56},{cy+4} {cx-58},{cy+14} C{cx-46},{cy+22} {cx-28},{cy+20} {cx-20},{cy+14} Z" fill="#a47c52" stroke="{OUT}" stroke-width="3" stroke-linejoin="round"/>'
+    g.append(f'<ellipse cx="{cx+8}" cy="{cy}" rx="34" ry="22" fill="#4f86c6" stroke="{OUT}" stroke-width="3"/>'
+             f'<path d="M{cx-22},{cy-8} C{cx-42},{cy-10} {cx-56},{cy+4} {cx-58},{cy+14} C{cx-46},{cy+22} {cx-28},{cy+20} {cx-20},{cy+14} Z" fill="#8fb8e8" stroke="{OUT}" stroke-width="3" stroke-linejoin="round"/>'
              f'<circle cx="{cx-58}" cy="{cy+13}" r="4.5" fill="{OUT}"/>'
              f'<circle cx="{cx-38}" cy="{cy-1}" r="3" fill="{OUT}"/><circle cx="{cx-37}" cy="{cy-2}" r="1" fill="#fff"/>'
-             f'<ellipse cx="{cx-26}" cy="{cy-9}" rx="5" ry="4" fill="#7a5a3a" stroke="{OUT}" stroke-width="2.5"/>')
+             f'<ellipse cx="{cx-26}" cy="{cy-9}" rx="5" ry="4" fill="#4f86c6" stroke="{OUT}" stroke-width="2.5"/>')
     return "".join(g)
 
 def build():
