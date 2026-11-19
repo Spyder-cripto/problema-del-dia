@@ -92,7 +92,7 @@ def mariposa(cx, cy, col):
 
 def mono(cx, y0):
     """Monito colgado de la rama por un brazo (decoración: no pesa en ninguna ecuación)."""
-    pel = "#8a63d2"
+    pel = "#3b3d55"
     g = []
     # cola enroscada
     g.append(f'<path d="M{cx+14},{y0+104} C{cx+52},{y0+112} {cx+62},{y0+78} {cx+42},{y0+70}" fill="none" stroke="{OUT}" stroke-width="11" stroke-linecap="round"/>'
@@ -106,7 +106,7 @@ def mono(cx, y0):
              f'<path d="M{cx-12},{y0+70} Q{cx-28},{y0+84} {cx-30},{y0+104}" fill="none" stroke="{pel}" stroke-width="5" stroke-linecap="round"/>')
     # cuerpo
     g.append(f'<ellipse cx="{cx+1}" cy="{y0+86}" rx="19" ry="27" fill="{pel}" stroke="{OUT}" stroke-width="3"/>'
-             f'<ellipse cx="{cx+3}" cy="{y0+92}" rx="11" ry="18" fill="#f1e3ff" stroke="none"/>')
+             f'<ellipse cx="{cx+3}" cy="{y0+92}" rx="11" ry="18" fill="#d9dce8" stroke="none"/>')
     # brazo agarrado a la rama
     g.append(f'<path d="M{cx},{y0+66} L{cx},{y0+4}" fill="none" stroke="{OUT}" stroke-width="12" stroke-linecap="round"/>'
              f'<path d="M{cx},{y0+66} L{cx},{y0+4}" fill="none" stroke="{pel}" stroke-width="6.5" stroke-linecap="round"/>'
@@ -114,9 +114,9 @@ def mono(cx, y0):
     # cabeza
     hy = y0 + 52
     g.append(f'<circle cx="{cx-17}" cy="{hy-2}" r="8" fill="{pel}" stroke="{OUT}" stroke-width="3"/><circle cx="{cx+19}" cy="{hy-2}" r="8" fill="{pel}" stroke="{OUT}" stroke-width="3"/>'
-             f'<circle cx="{cx-17}" cy="{hy-2}" r="4" fill="#f1e3ff"/><circle cx="{cx+19}" cy="{hy-2}" r="4" fill="#f1e3ff"/>'
+             f'<circle cx="{cx-17}" cy="{hy-2}" r="4" fill="#d9dce8"/><circle cx="{cx+19}" cy="{hy-2}" r="4" fill="#d9dce8"/>'
              f'<circle cx="{cx+1}" cy="{hy}" r="18" fill="{pel}" stroke="{OUT}" stroke-width="3"/>'
-             f'<ellipse cx="{cx+1}" cy="{hy+4}" rx="13" ry="11" fill="#f1e3ff" stroke="{OUT}" stroke-width="2"/>'
+             f'<ellipse cx="{cx+1}" cy="{hy+4}" rx="13" ry="11" fill="#d9dce8" stroke="{OUT}" stroke-width="2"/>'
              f'<circle cx="{cx-4}" cy="{hy+1}" r="2.6" fill="{OUT}"/><circle cx="{cx+7}" cy="{hy+1}" r="2.6" fill="{OUT}"/>'
              f'<path d="M{cx-5},{hy+9} Q{cx+1},{hy+14} {cx+8},{hy+9}" fill="none" stroke="{OUT}" stroke-width="2.4" stroke-linecap="round"/>'
              f'<circle cx="{cx-1}" cy="{hy+5}" r="1.2" fill="{OUT}"/><circle cx="{cx+4}" cy="{hy+5}" r="1.2" fill="{OUT}"/>')
