@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Los tres sietes</title>
+<meta name="description" content="Un acertijo de la tienda: ¿cuánto cuesta cada artículo? Variante del clásico, con pistas.">
+<meta property="og:title" content="Los tres sietes">
+<meta property="og:description" content="Un acertijo de la tienda: ¿cuánto cuesta cada artículo?">
+<meta property="og:url" content="https://spyder-cripto.github.io/problema-del-dia/juego/los-tres-sietes/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef5ff;--card:#fff;--ink:#1f2a44;--muted:#56627e;--azul:#2f64c8;--azul2:#dce8ff;--ok:#1f8a4c;--okbg:#e2f6ea;--mal:#b3392f;--malbg:#fde9e6;--linea:#c7d6f2}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:linear-gradient(160deg,#ffd1e3,#ffe0b8 18%,#fff3a6 34%,#c9f5b0 50%,#b5ecff 68%,#d9c8ff 84%,#ffd1f0) fixed;color:var(--ink);font-family:Nunito,system-ui,sans-serif;font-size:17px;line-height:1.5;font-variant-ligatures:none}
+button,input{font-variant-ligatures:none}
+main{max-width:640px;margin:0 auto;padding:28px 16px 56px}
+h1{font-family:Fraunces,Georgia,serif;font-weight:800;font-size:clamp(2.6rem,11vw,3.8rem);line-height:1;margin:0 0 8px;
+  background:linear-gradient(90deg,#ff3d7f,#ff8a00,#f2b700,#18b56a,#1f8fff,#8e44ff);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 0 #ffffffcc)}
+.sub{color:#5a3d8a;font-weight:700;margin:0 0 22px}
+.card{background:#ffffffd9;border:3px solid var(--linea);border-radius:22px;padding:18px 18px 20px;margin-bottom:18px;box-shadow:0 8px 0 #0000000f}
+main>.card:nth-of-type(1){border-color:#ff5c93;background:#fff4f8e6}
+main>.card:nth-of-type(2){border-color:#1f8fff;background:#f2f8ffe6}
+main>.card:nth-of-type(3){border-color:#ff9a1f;background:#fff8eee6}
+main>.card:nth-of-type(4){border-color:#8e44ff;background:#f8f2ffe6}
+main>.card:nth-of-type(1) h2,main>.card:nth-of-type(1) b{color:#d81b60}
+main>.card:nth-of-type(3) h2{color:#e07000}
+main>.card:nth-of-type(4) summary{color:#7a2fe0}
+.ticket{background:linear-gradient(90deg,#ffe066,#ffb3cf)!important;font-weight:600}
+.ilustra{display:block;width:100%;max-width:440px;height:auto;margin:0 auto 14px;font-family:Nunito,system-ui,sans-serif}
+.historia p{margin:0 0 10px}
+.historia p:last-child{margin:0}
+.ticket{font-family:Fraunces,Georgia,serif;font-size:1.05rem;background:var(--azul2);border-radius:12px;padding:10px 14px;margin:12px 0 0}
+h2{font-family:Fraunces,Georgia,serif;font-size:1.3rem;margin:0 0 12px;color:var(--azul)}
+.precios{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.precios label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted);font-weight:600}
+.precios .campo{display:flex;align-items:center;border:2px solid var(--linea);border-radius:12px;background:#fbfdff;padding:0 8px}
+.precios input{width:100%;min-width:0;border:0;background:transparent;font:inherit;font-size:1.2rem;font-weight:800;color:var(--ink);padding:9px 2px;outline:none}
+.precios .campo:focus-within{border-color:var(--azul)}
+.precios .eur{color:var(--muted);font-weight:700}
+.precios label:nth-child(1) .campo{border-color:#ff5c93;background:#fff0f5}.precios label:nth-child(1) input{color:#d81b60}
+.precios label:nth-child(2) .campo{border-color:#18b56a;background:#eefcf3}.precios label:nth-child(2) input{color:#0e8a4e}
+.precios label:nth-child(3) .campo{border-color:#ff9a1f;background:#fff6ea}.precios label:nth-child(3) input{color:#d06a00}
+.precios label:nth-child(4) .campo{border-color:#8e44ff;background:#f6f0ff}.precios label:nth-child(4) input{color:#6d28d9}
+.precios .campo:focus-within{box-shadow:0 0 0 4px #ffe06699}
+.cuentas{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.cuenta{background:var(--azul2);border-radius:12px;padding:8px 12px}
+.cuenta small{display:block;color:var(--muted);font-weight:700}
+.cuenta b{font-size:1.25rem}
+.cuenta.bien{background:var(--okbg);color:var(--ok)}
+.botones{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+button{font:inherit;font-weight:800;border:0;border-radius:12px;padding:11px 18px;cursor:pointer}
+.prim{background:linear-gradient(90deg,#ff3d7f,#ff8a00);color:#fff;box-shadow:0 4px 0 #c2185b}
+.sec{background:linear-gradient(90deg,#b5ecff,#d9c8ff);color:#3b2a7a;box-shadow:0 4px 0 #9b8be0}
+#otraPista{background:linear-gradient(90deg,#ffe066,#ffb347);color:#7a3d00;box-shadow:0 4px 0 #e08a1f}
+button:active{transform:translateY(2px)}
+.cuenta{background:linear-gradient(90deg,#d6ecff,#e8dcff)!important}
+.cuenta.bien{background:linear-gradient(90deg,#c9f5b0,#a8ecc9)!important}
+.pistas li:nth-child(6n+1){background:#ffe3ee}.pistas li:nth-child(6n+2){background:#ffecd6}.pistas li:nth-child(6n+3){background:#fff6c2}
+.pistas li:nth-child(6n+4){background:#dcf7cf}.pistas li:nth-child(6n+5){background:#d6f0ff}.pistas li:nth-child(6n+6){background:#ebe0ff}
+.pie{color:#5a3d8a!important}
+button:focus-visible{outline:3px solid #f0a04b;outline-offset:2px}
+#msg{min-height:1.5em;margin:12px 0 0;font-weight:700;border-radius:10px}
+#msg.ok{background:var(--okbg);color:var(--ok);padding:10px 12px}
+#msg.mal{background:var(--malbg);color:var(--mal);padding:10px 12px}
+details{margin-top:4px}
+summary{cursor:pointer;font-weight:800;color:var(--azul)}
+details p{margin:10px 0 0}
+.sol{font-family:Fraunces,Georgia,serif;font-size:1.15rem}
+.volver{margin:0 0 10px}
+.volver a{display:inline-block;font-weight:800;color:#5a3d8a;text-decoration:none;background:#ffffffb3;border:2px solid #d9c8ff;border-radius:999px;padding:5px 14px}
+.volver a:hover{background:#fff}
+.pistas{margin:0 0 12px;padding-left:1.4em}
+.pistas:empty{display:none}
+.pistas li{margin:0 0 8px;padding:8px 10px;background:var(--azul2);border-radius:10px}
+.pistas li.nueva{animation:entra .4s ease-out}
+@keyframes entra{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.pie{color:var(--muted);font-size:.88rem;text-align:center;margin-top:22px}
+@media (max-width:480px){.precios{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<main>
+  <p class="volver"><a href="../">← Juegos y puzzles</a></p>
+  <h1>Los tres sietes</h1>
+  <p class="sub">Una variante del clásico acertijo de la tienda, con otros cuatro precios.</p>
+
+  <section class="card historia">
+    <svg class="ilustra" viewBox="-480 -330 960 660" role="img" aria-label="Cuatro etiquetas de precio con interrogantes alrededor de un carrito de la compra">
+      <g transform="translate(-235 -165) rotate(-8)"><path d="M-150 -95 H110 L170 0 L110 95 H-150 Q-170 95 -170 75 V-75 Q-170 -95 -150 -95 Z" fill="#fff0f5" stroke="#ff3d7f" stroke-width="14"/><circle cx="112" r="16" fill="#fff" stroke="#ff3d7f" stroke-width="8"/><text x="-30" y="6" font-size="130" font-weight="900" fill="#ff3d7f" text-anchor="middle" dominant-baseline="central">?</text></g>
+      <g transform="translate(235 -165) rotate(7)"><path d="M-150 -95 H110 L170 0 L110 95 H-150 Q-170 95 -170 75 V-75 Q-170 -95 -150 -95 Z" fill="#eefcf3" stroke="#18b56a" stroke-width="14"/><circle cx="112" r="16" fill="#fff" stroke="#18b56a" stroke-width="8"/><text x="-30" y="6" font-size="130" font-weight="900" fill="#18b56a" text-anchor="middle" dominant-baseline="central">?</text></g>
+      <g transform="translate(-235 175) rotate(6)"><path d="M-150 -95 H110 L170 0 L110 95 H-150 Q-170 95 -170 75 V-75 Q-170 -95 -150 -95 Z" fill="#fff6ea" stroke="#ff8a00" stroke-width="14"/><circle cx="112" r="16" fill="#fff" stroke="#ff8a00" stroke-width="8"/><text x="-30" y="6" font-size="130" font-weight="900" fill="#ff8a00" text-anchor="middle" dominant-baseline="central">?</text></g>
+      <g transform="translate(235 175) rotate(-6)"><path d="M-150 -95 H110 L170 0 L110 95 H-150 Q-170 95 -170 75 V-75 Q-170 -95 -150 -95 Z" fill="#f6f0ff" stroke="#8e44ff" stroke-width="14"/><circle cx="112" r="16" fill="#fff" stroke="#8e44ff" stroke-width="8"/><text x="-30" y="6" font-size="130" font-weight="900" fill="#8e44ff" text-anchor="middle" dominant-baseline="central">?</text></g>
+      <circle r="95" fill="#fff3a6" stroke="#1f8fff" stroke-width="12"/>
+      <text y="4" font-size="100" text-anchor="middle" dominant-baseline="central">🛒</text>
+    </svg>
+    <p>Una clienta deja cuatro artículos en el mostrador. El dependiente, con prisa, <b>multiplica</b> los cuatro precios en vez de sumarlos y le dice: «Son 7,77 €».</p>
+    <p>La clienta le avisa del error. El dependiente vuelve a hacer la cuenta, esta vez <b>sumando</b>, y le sale exactamente lo mismo: 7,77 €.</p>
+    <p>Todos los precios son cantidades exactas de euros y céntimos.</p>
+    <div class="ticket">¿Cuánto cuesta cada artículo?</div>
+  </section>
+
+  <section class="card">
+    <h2>Tu respuesta</h2>
+    <div class="precios" id="precios"></div>
+    <div class="cuentas">
+      <div class="cuenta" id="cSuma"><small>Suma</small><b id="suma">0,00 €</b></div>
+      <div class="cuenta" id="cProd"><small>Producto</small><b id="prod">0,00 €</b></div>
+    </div>
+    <div class="botones">
+      <button class="prim" id="comprobar" type="button">Comprobar</button>
+      <button class="sec" id="borrar" type="button">Borrar</button>
+    </div>
+    <div id="msg" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="card">
+    <h2>Pistas</h2>
+    <ol class="pistas" id="pistas"></ol>
+    <button class="sec" id="otraPista" type="button">Dame una pista</button>
+  </section>
+
+  <section class="card">
+    <details id="solucion">
+      <summary>Ver la solución</summary>
+      <p class="sol">0,80 € · 1,25 € · 2,22 € · 3,50 €</p>
+      <p>Suma: 0,80 + 1,25 + 2,22 + 3,50 = 7,77. Producto: 0,80 × 1,25 = 1; 1 × 2,22 = 2,22; 2,22 × 3,50 = 7,77.</p>
+      <p>Es la única solución: lo he comprobado con un ordenador probando todas las combinaciones posibles de cuatro precios.</p>
+    </details>
+  </section>
+
+  <p class="pie">El original, con 7,11 €, es un acertijo clásico de matemáticas recreativas.</p>
+</main>
+<script>
+(function(){
+  const T=777, P=777000000n;
+  const cont=document.getElementById('precios');
+  const ins=[];
+  for(let i=0;i<4;i++){
+    const l=document.createElement('label');
+    l.innerHTML='Artículo '+(i+1)+'<span class="campo"><input inputmode="decimal" autocomplete="off" placeholder="0,00" aria-label="Precio del artículo '+(i+1)+' en euros"><span class="eur">€</span></span>';
+    cont.append(l);ins.push(l.querySelector('input'));
+  }
+  // Convierte el texto a céntimos (null si no es un precio válido)
+  function cent(s){
+    s=s.trim().replace('€','').trim().replace(',','.');
+    if(!/^\d+(\.\d{1,2})?$/.test(s))return null;
+    const [e,c='']=s.split('.');
+    return Number(e)*100+Number((c+'00').slice(0,2));
+  }
+  const fmt=n=>(n/100).toFixed(2).replace('.',',')+' €';
+  // Producto en euros con céntimos (truncado si no es exacto)
+  function fmtProd(cs){
+    let p=1n;for(const c of cs)p*=BigInt(c);
+    const exacto=p%1000000n===0n;
+    const enCent=p/1000000n;
+    const e=enCent/100n,c=enCent%100n;
+    return {txt:(exacto?'':'≈ ')+e.toString()+','+c.toString().padStart(2,'0')+' €',p};
+  }
+  const suma=document.getElementById('suma'),prod=document.getElementById('prod');
+  const cS=document.getElementById('cSuma'),cP=document.getElementById('cProd');
+  const msg=document.getElementById('msg');
+  function leer(){return ins.map(i=>cent(i.value));}
+  function actualizar(){
+    const cs=leer();
+    const val=cs.map(c=>c===null?0:c);
+    const s=val.reduce((a,b)=>a+b,0);
+    suma.textContent=fmt(s);cS.classList.toggle('bien',s===T&&cs.every(c=>c!==null));
+    if(cs.every(c=>c!==null&&c>0)){const r=fmtProd(cs);prod.textContent=r.txt;cP.classList.toggle('bien',r.p===P);}
+    else{prod.textContent='—';cP.classList.remove('bien');}
+    msg.textContent='';msg.className='';
+  }
+  ins.forEach(i=>i.addEventListener('input',actualizar));
+  document.getElementById('comprobar').addEventListener('click',()=>{
+    const cs=leer();
+    if(cs.some(c=>c===null||c===0)){msg.textContent='Escribe los cuatro precios, con céntimos (por ejemplo 1,25).';msg.className='mal';return;}
+    const s=cs.reduce((a,b)=>a+b,0);
+    let p=1n;for(const c of cs)p*=BigInt(c);
+    const sOk=s===T,pOk=p===P;
+    if(sOk&&pOk){msg.textContent='¡Correcto! Suman 7,77 € y multiplicados también dan 7,77 €.';msg.className='ok';}
+    else if(sOk){msg.textContent='La suma da 7,77 €, pero el producto no.';msg.className='mal';}
+    else if(pOk){msg.textContent='El producto da 7,77 €, pero la suma no.';msg.className='mal';}
+    else{msg.textContent='Ni la suma ni el producto dan 7,77 €.';msg.className='mal';}
+  });
+  document.getElementById('borrar').addEventListener('click',()=>{ins.forEach(i=>i.value='');actualizar();ins[0].focus();});
+  actualizar();
+
+  // Pistas sucesivas: cada pulsación añade una nueva
+  const PISTAS=[
+    'Pasa todo a céntimos. Si los precios son a, b, c y d céntimos, la suma pide a + b + c + d = 777 y el producto pide a · b · c · d = 777 000 000.',
+    'Descompón ese número en factores primos: 777 000 000 = 2⁶ · 3 · 5⁶ · 7 · 37. Cada precio es un trozo de ese producto.',
+    'El 37 es un primo grande y solo aparece una vez: uno de los precios es múltiplo de 0,37 €.',
+    'Hay seis cincos que repartir. Uno de los precios es 1,25 €.',
+    'Otro de los precios es 3,50 €.',
+    'Los dos precios que faltan suman 3,02 € y, en céntimos, su producto es 17 760. Ya solo queda resolver una ecuación de segundo grado.'
+  ];
+  const lista=document.getElementById('pistas'),bP=document.getElementById('otraPista');
+  let dadas=0;
+  bP.addEventListener('click',()=>{
+    if(dadas>=PISTAS.length)return;
+    lista.querySelectorAll('.nueva').forEach(li=>li.classList.remove('nueva'));
+    const li=document.createElement('li');li.className='nueva';li.textContent=PISTAS[dadas++];lista.append(li);
+    if(dadas<PISTAS.length)bP.textContent='Otra pista (llevas '+dadas+' de '+PISTAS.length+')';
+    else{bP.textContent='No hay más pistas: mira la solución';bP.disabled=true;bP.style.opacity='.6';bP.style.cursor='default';}
+  });
+})();
+</script>
+</body>
+</html>
