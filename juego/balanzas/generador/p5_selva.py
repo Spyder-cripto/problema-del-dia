@@ -152,7 +152,8 @@ def jaguar(cx, base):
              f'<path d="M{hx-20},{hy+2} L{hx-10},{hy+2} L{hx-15},{hy+8} Z" fill="#e8949f" stroke="{OUT}" stroke-width="2" stroke-linejoin="round"/>'
              f'<path d="M{hx-15},{hy+8} L{hx-15},{hy+13} M{hx-15},{hy+13} Q{hx-21},{hy+17} {hx-25},{hy+13} M{hx-15},{hy+13} Q{hx-9},{hy+17} {hx-5},{hy+13}" fill="none" stroke="{OUT}" stroke-width="2.2" stroke-linecap="round"/>'
              f'<circle cx="{hx-1}" cy="{hy-6}" r="4.5" fill="#fff" stroke="{OUT}" stroke-width="2"/><circle cx="{hx-2.5}" cy="{hy-6}" r="2.2" fill="{OUT}"/>'
-             f'<circle cx="{hx+14}" cy="{hy-8}" r="2.2" fill="{Sp}"/><circle cx="{hx+16}" cy="{hy+6}" r="2.2" fill="{Sp}"/>')
+             f'<circle cx="{hx+13}" cy="{hy-6}" r="4.2" fill="#fff" stroke="{OUT}" stroke-width="2"/><circle cx="{hx+11.5}" cy="{hy-6}" r="2" fill="{OUT}"/>'
+             f'<circle cx="{hx+4}" cy="{hy+14}" r="2.2" fill="{Sp}"/><circle cx="{hx+16}" cy="{hy+6}" r="2.2" fill="{Sp}"/>')
     return "".join(g)
 
 def tucan(cx, by):
