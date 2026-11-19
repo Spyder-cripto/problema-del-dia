@@ -310,14 +310,8 @@ def build():
     for (hx, hy, L, rot) in [(330, 232, 56, -40), (338, 238, 50, 35), (120, 170, 46, 70)]:
         sc.add(hoja(hx, hy, L, rot), 15)
     sc.add(tucan(250, 199), 19)
-    # rama corta a la derecha, con el guacamayo
-    rama2 = 'M1140,58 Q1090,112 1010,132'
-    sc.add(f'<path d="{rama2}" fill="none" stroke="{OUT}" stroke-width="20" stroke-linecap="round"/>'
-           f'<path d="{rama2}" fill="none" stroke="#8b5a2b" stroke-width="14" stroke-linecap="round"/>'
-           f'<path d="{rama2}" fill="none" stroke="#b07a45" stroke-width="2.5" stroke-linecap="round" transform="translate(0,-3)"/>', 14)
-    for (hx, hy, L, rot) in [(1012, 132, 46, -150), (1020, 138, 40, 150)]:
-        sc.add(hoja(hx, hy, L, rot), 15)
-    sc.add(guacamayo(1078, 96), 19)
+    # guacamayo posado en la viga de la derecha, justo encima del pivote (no pesa)
+    sc.add(guacamayo(1008, 624), 75)
     return sc, dict(M=M, W=W, X=X, Y=Y, Z=Z)
 
 if __name__ == "__main__":
