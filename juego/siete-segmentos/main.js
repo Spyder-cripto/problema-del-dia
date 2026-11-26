@@ -28,7 +28,7 @@ const svg = (inner, hidden = true) =>
 const digitSVG = d => svg([...'abcdefg'].map(l => poly(l, SEGS[d].includes(l))).join(''));
 const glyphs = n => `<span class="num">${[...String(n)].map(c => digitSVG(+c)).join('')}</span>`;
 const opSVG = plus => svg(poly('h', true) + poly('v', plus));
-const eqSVG = () => svg(`<polygon points="${H(38)}" class="seg on" style="--c:#f6f1ff"/><polygon points="${H(62)}" class="seg on" style="--c:#f6f1ff"/>`);
+const eqSVG = () => svg(`<polygon points="${H(38)}" class="seg on" style="--c:${SEG_COLOR}"/><polygon points="${H(62)}" class="seg on" style="--c:${SEG_COLOR}"/>`);
 
 function interactive(pos, keys, on, orig, lk) {
   let out = '', over = '';
