@@ -6,7 +6,7 @@ import {
   eqState, decode, diff, showEq, eqObj, comprobarRespuesta, comprobarPalillos
 } from './game.js';
 
-const SEG_COLOR = '#2de2e6';
+const SEG_COLOR = '#ff4d8d';
 const COL = { a: SEG_COLOR, b: SEG_COLOR, c: SEG_COLOR, d: SEG_COLOR, e: SEG_COLOR, f: SEG_COLOR, g: SEG_COLOR, h: SEG_COLOR, v: SEG_COLOR };
 const SEG_NAME = { a: 'Segmento superior', b: 'Segmento superior derecho', c: 'Segmento inferior derecho', d: 'Segmento inferior',
   e: 'Segmento inferior izquierdo', f: 'Segmento superior izquierdo', g: 'Segmento central', h: 'Barra horizontal', v: 'Barra vertical' };
